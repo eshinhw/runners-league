@@ -4,6 +4,7 @@ const NAV_ITEMS = [
   { href: "/feed", label: "Feed" },
   { href: "/gear", label: "Gear" },
   { href: "/races", label: "Races" },
+  { href: "/rankings", label: "Rankings" },
   { href: "/training", label: "Training" },
 ];
 

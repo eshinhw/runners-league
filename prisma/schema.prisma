@@ -20,6 +20,9 @@ model User {
   avatarUrl   String?
   bio         String?
   location    String?
+  gender      Gender   @default(UNSPECIFIED)
+  birthYear   Int?
+  region      Region?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -31,11 +34,41 @@ model User {
   comments         Comment[]
   likes            Like[]
   externalAccounts ExternalAccount[]
+  leaderboardWins  LeaderboardWinner[]
 
   following Follow[] @relation("Follower")
   followers Follow[] @relation("Followee")
 
   @@index([username])
+  @@index([gender])
+  @@index([region])
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  UNSPECIFIED
+}
+
+enum Region {
+  SEOUL
+  BUSAN
+  INCHEON
+  DAEGU
+  DAEJEON
+  GWANGJU
+  ULSAN
+  SEJONG
+  GYEONGGI
+  GANGWON
+  CHUNGBUK
+  CHUNGNAM
+  JEONBUK
+  JEONNAM
+  GYEONGBUK
+  GYEONGNAM
+  JEJU
+  OTHER
 }
 
 model Follow {
@@ -129,6 +162,7 @@ model Activity {
   durationSec   Int
   avgPaceSecPerKm Int?
   elevationGainM Int?
+  runType       RunType?
   startedAt     DateTime
   routeGeoJson  Json?
   createdAt     DateTime     @default(now())
@@ -139,12 +173,22 @@ model Activity {
 
   @@unique([source, externalId])
   @@index([userId, startedAt])
+  @@index([runType, startedAt])
 }
 
 enum ActivitySource {
   MANUAL
   STRAVA
   GARMIN
+}
+
+// SPEED/TEMPO = interval & threshold work, LSD = long slow distance, EASY = easy pace, RACE = official race effort
+enum RunType {
+  SPEED
+  TEMPO
+  LSD
+  EASY
+  RACE
 }
 
 // join table: which gear was used on which activity
@@ -186,6 +230,39 @@ model RaceEntry {
 
   @@unique([raceId, userId])
   @@index([userId])
+}
+
+// ---------- Rankings ----------
+
+// Archived top finishers for a closed leaderboard period + segment, so past
+// champions stay visible ("Hall of Fame") even after the live period rolls over.
+model LeaderboardWinner {
+  id            String     @id @default(cuid())
+  periodType    PeriodType
+  periodKey     String // e.g. "2026-06" for monthly, "2026-W23" for weekly
+  periodLabel   String // human-readable, e.g. "2026년 6월"
+
+  // Segment this ranking was computed within. All null = overall/unsegmented board.
+  gender  Gender?
+  region  Region?
+  runType RunType?
+  ageBand String? // e.g. "20s", "30s" — snapshotted since birthYear-derived bands drift with time
+
+  rank           Int
+  user           User   @relation(fields: [userId], references: [id])
+  userId         String
+  totalDistanceM Int
+  runCount       Int
+
+  createdAt DateTime @default(now())
+
+  @@index([periodType, periodKey])
+  @@index([userId])
+}
+
+enum PeriodType {
+  WEEKLY
+  MONTHLY
 }
 
 // ---------- Content: training posts / articles / forum ----------

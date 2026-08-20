@@ -11,6 +11,7 @@ export default function Home() {
         <Link href="/feed">Feed</Link>
         <Link href="/gear">Gear Locker</Link>
         <Link href="/races">Race Hub</Link>
+        <Link href="/rankings">Rankings</Link>
         <Link href="/training">Training</Link>
       </nav>
     </main>
