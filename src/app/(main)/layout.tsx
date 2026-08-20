@@ -1,14 +1,16 @@
 import Link from "next/link";
+import { UserMenu } from "@/components/UserMenu";
+import { auth } from "@/lib/auth";
 
 const NAV_ITEMS = [
-  { href: "/feed", label: "Feed" },
   { href: "/gear", label: "Gear" },
   { href: "/races", label: "Races" },
   { href: "/rankings", label: "Rankings" },
-  { href: "/training", label: "Training" },
 ];
 
-export default function MainLayout({ children }: { children: React.ReactNode }) {
+export default async function MainLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       <header className="border-b border-zinc-200 dark:border-zinc-800">
@@ -24,7 +26,13 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               </Link>
             ))}
           </nav>
-          <div className="ml-auto h-7 w-7 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+          <UserMenu
+            user={
+              session?.user
+                ? { displayName: session.user.name ?? "Runner", image: session.user.image ?? null }
+                : null
+            }
+          />
         </div>
       </header>
       <div className="mx-auto max-w-2xl px-4 py-6">{children}</div>
