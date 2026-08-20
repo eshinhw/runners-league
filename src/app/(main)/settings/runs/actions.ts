@@ -4,12 +4,14 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { revalidatePath } from "next/cache";
-import type { RunType } from "@/generated/prisma/client";
+import type { MarathonMajor } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
+import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
 import { prisma } from "@/lib/prisma";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "runs");
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]);
+const MARATHON_DISTANCE_M = 42195;
 
 async function requireUserId(): Promise<string> {
   const session = await auth();
@@ -46,19 +48,13 @@ function parsePaceToSecPerKm(raw: string): number | null {
 export async function addRun(formData: FormData) {
   const userId = await requireUserId();
 
-  const title = String(formData.get("title") ?? "").trim();
-  if (!title) throw new Error("Please enter a race/run name.");
+  const major = String(formData.get("major") ?? "") as MarathonMajor;
+  if (!MAJORS_ORDER.includes(major)) throw new Error("Please select a major marathon.");
 
-  const runType = String(formData.get("runType") ?? "RACE") as RunType;
-  const location = String(formData.get("location") ?? "").trim();
   const startedAtRaw = String(formData.get("startedAt") ?? "");
   if (!startedAtRaw) throw new Error("Please enter a date.");
-
-  const distancePreset = String(formData.get("distancePreset") ?? "");
-  const distanceKmRaw = String(formData.get("distanceKm") ?? "");
-  const distanceM =
-    distancePreset === "custom" ? Math.round(Number(distanceKmRaw || 0) * 1000) : Number(distancePreset || 0);
-  if (!distanceM || distanceM <= 0) throw new Error("Please enter a distance.");
+  const startedAt = new Date(startedAtRaw);
+  const title = `${startedAt.getUTCFullYear()} ${MAJOR_INFO[major].name}`;
 
   const hours = Number(formData.get("hours") ?? 0);
   const minutes = Number(formData.get("minutes") ?? 0);
@@ -67,7 +63,7 @@ export async function addRun(formData: FormData) {
   if (durationSec <= 0) throw new Error("Please enter a finish time.");
 
   const paceRaw = String(formData.get("avgPace") ?? "");
-  const avgPaceSecPerKm = parsePaceToSecPerKm(paceRaw) ?? Math.round(durationSec / (distanceM / 1000));
+  const avgPaceSecPerKm = parsePaceToSecPerKm(paceRaw) ?? Math.round(durationSec / (MARATHON_DISTANCE_M / 1000));
 
   const heartRateRaw = String(formData.get("avgHeartRate") ?? "");
   const cadenceRaw = String(formData.get("avgCadence") ?? "");
@@ -80,14 +76,15 @@ export async function addRun(formData: FormData) {
       userId,
       source: "MANUAL",
       title,
-      runType,
-      distanceM,
+      runType: "RACE",
+      major,
+      distanceM: MARATHON_DISTANCE_M,
       durationSec,
       avgPaceSecPerKm,
       avgHeartRateBpm: heartRateRaw ? Number(heartRateRaw) : null,
       avgCadenceSpm: cadenceRaw ? Number(cadenceRaw) : null,
-      startedAt: new Date(startedAtRaw),
-      location: location || null,
+      startedAt,
+      location: `${MAJOR_INFO[major].city}, ${MAJOR_INFO[major].country}`,
       photoUrls,
     },
   });

@@ -1,23 +1,11 @@
 import { RunDeleteButton } from "@/components/RunDeleteButton";
 import { auth } from "@/lib/auth";
 import { formatDistance, formatDuration, formatPace } from "@/lib/format";
+import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
 import { prisma } from "@/lib/prisma";
 import { addRun } from "./actions";
 
 export const dynamic = "force-dynamic";
-
-const RUN_TYPE_LABEL: Record<string, string> = {
-  RACE: "🏅 Official Race",
-  EASY: "🙂 Training Run",
-};
-
-const DISTANCE_PRESETS = [
-  { value: "5000", label: "5K" },
-  { value: "10000", label: "10K" },
-  { value: "21097", label: "Half Marathon" },
-  { value: "42195", label: "Full Marathon" },
-  { value: "custom", label: "Custom" },
-];
 
 const inputCls =
   "w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
@@ -33,7 +21,7 @@ export default async function MyRunsPage() {
   }
 
   const runs = await prisma.activity.findMany({
-    where: { userId: session.user.id, source: "MANUAL" },
+    where: { userId: session.user.id, source: "MANUAL", major: { not: null } },
     orderBy: { startedAt: "desc" },
   });
 
@@ -42,34 +30,23 @@ export default async function MyRunsPage() {
       <div>
         <h1 className="text-xl font-semibold">My Runs</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Log official race results or memorable training runs, with photos. These records aren&apos;t
-          included in Rankings.
+          Log your World Marathon Majors finishes, with photos. These power your Rankings progress.
         </p>
       </div>
 
       <form action={addRun} className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-        <input name="title" placeholder="Race/run name (e.g. 2026 Boston Marathon)" required className={inputCls} />
-
         <div className="grid grid-cols-2 gap-2">
-          <select name="runType" defaultValue="RACE" className={inputCls}>
-            {Object.entries(RUN_TYPE_LABEL).map(([k, v]) => (
-              <option key={k} value={k}>
-                {v}
+          <select name="major" required defaultValue="" className={inputCls}>
+            <option value="" disabled>
+              Select a major
+            </option>
+            {MAJORS_ORDER.map((m) => (
+              <option key={m} value={m}>
+                {MAJOR_INFO[m].name}
               </option>
             ))}
           </select>
           <input name="startedAt" type="date" required max={new Date().toISOString().slice(0, 10)} className={inputCls} />
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <select name="distancePreset" defaultValue="42195" className={inputCls}>
-            {DISTANCE_PRESETS.map((d) => (
-              <option key={d.value} value={d.value}>
-                {d.label}
-              </option>
-            ))}
-          </select>
-          <input name="distanceKm" type="number" step="0.01" min={0} placeholder="km if custom" className={inputCls} />
         </div>
 
         <div>
@@ -92,8 +69,6 @@ export default async function MyRunsPage() {
           </div>
         </div>
 
-        <input name="location" placeholder="Location (e.g. Boston, MA)" className={inputCls} />
-
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-zinc-500">Photos (medal, bib, finish line, etc.)</span>
           <input name="photos" type="file" accept="image/*" multiple className="text-xs" />
@@ -105,7 +80,7 @@ export default async function MyRunsPage() {
       </form>
 
       <ul className="flex flex-col gap-3">
-        {runs.length === 0 && <p className="text-sm text-zinc-500">No runs logged yet.</p>}
+        {runs.length === 0 && <p className="text-sm text-zinc-500">No majors logged yet.</p>}
         {runs.map((run) => (
           <li key={run.id} className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
             {run.photoUrls.length > 0 && (
@@ -120,7 +95,7 @@ export default async function MyRunsPage() {
               <div>
                 <div className="font-medium">{run.title}</div>
                 <div className="text-xs text-zinc-500">
-                  {run.runType ? (RUN_TYPE_LABEL[run.runType] ?? run.runType) : ""} · {run.startedAt.toISOString().slice(0, 10)}
+                  {run.startedAt.toISOString().slice(0, 10)}
                   {run.location ? ` · ${run.location}` : ""}
                 </div>
               </div>

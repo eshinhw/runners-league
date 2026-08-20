@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { userSignOut } from "@/lib/auth-actions";
 import { initials } from "@/lib/format";
 
@@ -12,6 +12,20 @@ type SessionUser = {
 
 export function UserMenu({ user }: { user: SessionUser | null }) {
   const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function handlePointerDown(e: PointerEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [open]);
 
   if (!user) {
     return (
@@ -25,12 +39,7 @@ export function UserMenu({ user }: { user: SessionUser | null }) {
   }
 
   return (
-    <div
-      className="relative ml-auto"
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false);
-      }}
-    >
+    <div ref={containerRef} className="relative ml-auto">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

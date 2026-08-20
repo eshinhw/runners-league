@@ -1,135 +1,64 @@
-import Link from "next/link";
-import { ChallengeLeaveButton } from "@/components/ChallengeLeaveButton";
-import { ensureCurrentChallenges, getChallengeLeaderboard } from "@/lib/challenges";
-import { formatDistance } from "@/lib/format";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { getCurrentPeriodKey } from "@/lib/rankings";
-import { joinChallenge } from "./actions";
+import { MAJOR_INFO, getMajorsForYear, type MajorEdition } from "@/lib/majors";
 
 export const dynamic = "force-dynamic";
 
-type Tab = "week" | "month";
+const YEARS = [2027, 2026];
 
-const TABS: { key: Tab; label: string; periodType: "WEEKLY" | "MONTHLY" }[] = [
-  { key: "week", label: "This Week", periodType: "WEEKLY" },
-  { key: "month", label: "This Month", periodType: "MONTHLY" },
-];
-
-const MEDALS = ["🥇", "🥈", "🥉"];
-
-export default async function RacesPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tab?: string }>;
-}) {
-  const sp = await searchParams;
-  const tab: Tab = sp.tab === "month" ? "month" : "week";
-  const activeTab = TABS.find((t) => t.key === tab)!;
-
-  const session = await auth();
-
-  await ensureCurrentChallenges(prisma);
-
-  const periodKey = getCurrentPeriodKey(tab);
-  const challenges = await prisma.challenge.findMany({
-    where: { periodType: activeTab.periodType, periodKey },
-    orderBy: { createdAt: "asc" },
+function formatEventDate(iso: string): string {
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", {
+    timeZone: "UTC",
+    weekday: "short",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
   });
+}
 
-  const myParticipations = session?.user?.id
-    ? await prisma.challengeParticipant.findMany({
-        where: { userId: session.user.id, challengeId: { in: challenges.map((c) => c.id) } },
-        select: { challengeId: true },
-      })
-    : [];
-  const myChallengeIds = new Set(myParticipations.map((p) => p.challengeId));
-
-  const boards = await Promise.all(challenges.map((c) => getChallengeLeaderboard(prisma, c, 3)));
-
+function EditionCard({ edition }: { edition: MajorEdition }) {
+  const info = MAJOR_INFO[edition.major];
   return (
-    <main className="flex flex-col gap-5">
+    <article className="flex items-center justify-between gap-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+      <div>
+        <h3 className="font-medium">{info.name}</h3>
+        <p className="mt-0.5 text-xs text-zinc-500">
+          {info.city}, {info.country}
+        </p>
+      </div>
+      <div className="text-right">
+        <div className="font-mono text-sm tabular-nums">{formatEventDate(edition.date)}</div>
+        {!edition.confirmed && (
+          <span className="mt-1 inline-block rounded-full border border-amber-300 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:border-amber-800 dark:text-amber-400">
+            Estimated date
+          </span>
+        )}
+      </div>
+    </article>
+  );
+}
+
+export default function RacesPage() {
+  return (
+    <main className="flex flex-col gap-8">
       <div>
         <h1 className="text-xl font-semibold">Races</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Join a recurring virtual race and compete on your synced mileage.
+          The World Marathon Majors — the 7 races every finisher chases for the Seven Star medal.
         </p>
       </div>
 
-      <nav className="flex gap-2 border-b border-zinc-200 pb-px dark:border-zinc-800">
-        {TABS.map((t) => (
-          <Link
-            key={t.key}
-            href={`/races?tab=${t.key}`}
-            className={`px-3 py-2 text-sm font-medium ${
-              tab === t.key
-                ? "border-b-2 border-orange-500 text-zinc-900 dark:text-zinc-50"
-                : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50"
-            }`}
-          >
-            {t.label}
-          </Link>
-        ))}
-      </nav>
-
-      <div className="flex flex-col gap-4">
-        {challenges.map((challenge, i) => {
-          const { rows, participantCount } = boards[i];
-          const joined = myChallengeIds.has(challenge.id);
-
-          return (
-            <article key={challenge.id} className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="font-medium">{challenge.title}</h2>
-                  <p className="mt-0.5 text-xs text-zinc-500">{challenge.description}</p>
-                </div>
-                {challenge.targetDistanceM && (
-                  <span className="shrink-0 rounded-full border border-orange-300 px-2.5 py-0.5 text-xs font-medium text-orange-600 dark:border-orange-800 dark:text-orange-400">
-                    🎯 {formatDistance(challenge.targetDistanceM)}
-                  </span>
-                )}
-              </div>
-
-              <div className="mt-3 flex items-center justify-between">
-                <span className="text-xs text-zinc-500">{participantCount} participants</span>
-                {session?.user?.id ? (
-                  joined ? (
-                    <ChallengeLeaveButton challengeId={challenge.id} />
-                  ) : (
-                    <form action={joinChallenge.bind(null, challenge.id)}>
-                      <button
-                        type="submit"
-                        className="rounded bg-orange-500 px-3 py-1.5 text-sm font-medium text-white"
-                      >
-                        Join
-                      </button>
-                    </form>
-                  )
-                ) : (
-                  <Link href="/login" className="text-sm font-medium text-orange-500 underline">
-                    Sign in to join
-                  </Link>
-                )}
-              </div>
-
-              {rows.length > 0 && (
-                <ol className="mt-3 flex flex-col gap-1.5 border-t border-zinc-100 pt-3 dark:border-zinc-900">
-                  {rows.map((row) => (
-                    <li key={row.userId} className="flex items-center gap-3 text-sm">
-                      <span className="w-6">{MEDALS[row.rank - 1] ?? row.rank}</span>
-                      <Link href={`/profile/${row.username}`} className="flex-1 font-medium hover:underline">
-                        {row.displayName}
-                      </Link>
-                      <span className="font-mono tabular-nums text-zinc-500">{formatDistance(row.totalDistanceM)}</span>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </article>
-          );
-        })}
-      </div>
+      {YEARS.map((year) => {
+        const editions = getMajorsForYear(year);
+        return (
+          <section key={year} className="flex flex-col gap-3">
+            <h2 className="text-lg font-semibold">{year} World&apos;s 7 Major Marathons</h2>
+            <div className="flex flex-col gap-3">
+              {editions.map((edition) => (
+                <EditionCard key={`${edition.major}-${edition.year}`} edition={edition} />
+              ))}
+            </div>
+          </section>
+        );
+      })}
     </main>
   );
 }

@@ -46,9 +46,7 @@ model User {
   comments         Comment[]
   likes            Like[]
   externalAccounts ExternalAccount[]
-  leaderboardWins  LeaderboardWinner[]
   deviceTokens     DeviceToken[]
-  challengeEntries ChallengeParticipant[]
 
   following Follow[] @relation("Follower")
   followers Follow[] @relation("Followee")
@@ -221,6 +219,7 @@ model Activity {
   avgPaceSecPerKm Int?
   elevationGainM Int?
   runType       RunType?
+  major         MarathonMajor? // set when this activity is a World Marathon Majors result
   startedAt     DateTime
   routeGeoJson  Json?
   location      String? // free-text race/run location, e.g. "Boston, MA" — distinct from the user's home city
@@ -236,6 +235,19 @@ model Activity {
   @@unique([source, externalId])
   @@index([userId, startedAt])
   @@index([runType, startedAt])
+  @@index([major])
+}
+
+// The World Marathon Majors — the 7 races that make up the modern Six/Seven
+// Star Finisher series.
+enum MarathonMajor {
+  TOKYO
+  BOSTON
+  LONDON
+  BERLIN
+  CHICAGO
+  NEW_YORK
+  SYDNEY
 }
 
 enum ActivitySource {
@@ -310,69 +322,10 @@ model RaceEntry {
 }
 
 // ---------- Rankings ----------
-
-// Archived top finishers for a closed leaderboard period + segment, so past
-// champions stay visible ("Hall of Fame") even after the live period rolls over.
-model LeaderboardWinner {
-  id            String     @id @default(cuid())
-  periodType    PeriodType
-  periodKey     String // e.g. "2026-06" for monthly, "2026-W23" for weekly
-  periodLabel   String // human-readable, e.g. "2026년 6월"
-
-  // Segment this ranking was computed within. All null = overall/unsegmented board.
-  gender  Gender?
-  region  Region?
-  runType RunType?
-  ageBand String? // e.g. "20s", "30s" — snapshotted since birthYear-derived bands drift with time
-
-  rank           Int
-  user           User   @relation(fields: [userId], references: [id])
-  userId         String
-  totalDistanceM Int
-  runCount       Int
-
-  createdAt DateTime @default(now())
-
-  @@index([periodType, periodKey])
-  @@index([userId])
-}
-
-enum PeriodType {
-  WEEKLY
-  MONTHLY
-}
-
-// App-native virtual race for a single period (week/month), auto-generated
-// from a fixed template set. Its leaderboard is never snapshotted — like the
-// main Rankings board, it's recomputed live from Activity + the participant
-// list, so a past challenge's standings stay accurate forever with no cron.
-model Challenge {
-  id          String     @id @default(cuid())
-  templateKey String // stable key from the template config, e.g. "weekly-5k"
-  periodType  PeriodType
-  periodKey   String // e.g. "2026-W34" or "2026-08"
-  title       String
-  description String?
-  targetDistanceM Int? // null = open mileage race, no fixed goal
-  createdAt   DateTime @default(now())
-
-  participants ChallengeParticipant[]
-
-  @@unique([periodType, periodKey, templateKey])
-  @@index([periodType, periodKey])
-}
-
-model ChallengeParticipant {
-  id          String    @id @default(cuid())
-  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-  challengeId String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
-  joinedAt    DateTime  @default(now())
-
-  @@unique([challengeId, userId])
-  @@index([userId])
-}
+//
+// Rankings are computed live, directly from Activity rows carrying a `major`
+// value — there is no separate leaderboard-archive model. A world major's
+// results don't change after the fact, so nothing needs periodic snapshotting.
 
 // ---------- Content: training posts / articles / forum ----------
 

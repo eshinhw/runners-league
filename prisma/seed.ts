@@ -1,22 +1,15 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient, type RunType } from "../src/generated/prisma/client";
-import { getCurrentPeriodKey, snapshotPeriodWinners } from "../src/lib/rankings";
+import { PrismaClient, type MarathonMajor } from "../src/generated/prisma/client";
+import { MAJOR_INFO } from "../src/lib/majors";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
-
-const RUN_TYPES: RunType[] = ["EASY", "TEMPO", "SPEED", "LSD", "RACE"];
 
 function hoursAgo(h: number): Date {
   return new Date(Date.now() - h * 60 * 60 * 1000);
 }
 
-function dateInMonth(year: number, month: number, day: number, hour: number): Date {
-  return new Date(Date.UTC(year, month - 1, day, hour));
-}
-
 async function main() {
-  await prisma.leaderboardWinner.deleteMany();
   await prisma.like.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.activityGear.deleteMany();
@@ -64,45 +57,58 @@ async function main() {
     prisma.gear.create({ data: { ownerId: mark.id, category: "SHOE", brand: "Asics", model: "Magic Speed 4", purchaseDate: new Date("2026-05-20"), totalDistanceM: 91_000 } }),
   ]);
 
-  // ---- Historical activities (May/Jun/Jul 2026) to power monthly rankings + Hall of Fame ----
-  // Each profile's [may, jun, jul] multiplier varies so different runners top different months.
-  const profiles = [
-    { user: eddie, runsPerMonth: 16, baseDistanceM: 8500, monthFactor: [1.0, 0.75, 1.15] },
-    { user: jiho, runsPerMonth: 14, baseDistanceM: 9200, monthFactor: [0.8, 1.3, 0.9] },
-    { user: jenny, runsPerMonth: 13, baseDistanceM: 7200, monthFactor: [0.7, 1.0, 1.2] },
-    { user: yuna, runsPerMonth: 12, baseDistanceM: 6800, monthFactor: [1.1, 0.9, 0.85] },
-    { user: mark, runsPerMonth: 10, baseDistanceM: 6000, monthFactor: [0.9, 0.95, 1.0] },
-    { user: sora, runsPerMonth: 8, baseDistanceM: 5200, monthFactor: [0.6, 0.8, 1.05] },
+  // ---- World Marathon Majors results, powering Rankings ----
+  const MAJOR_DATE: Record<MarathonMajor, Record<number, string>> = {
+    TOKYO: { 2024: "2024-03-03", 2025: "2025-03-02", 2026: "2026-03-01" },
+    BOSTON: { 2025: "2025-04-21", 2026: "2026-04-20" },
+    LONDON: { 2026: "2026-04-26" },
+    BERLIN: { 2025: "2025-09-28", 2026: "2026-09-27" },
+    CHICAGO: { 2025: "2025-10-12", 2026: "2026-10-11" },
+    NEW_YORK: { 2024: "2024-11-03", 2025: "2025-11-02", 2026: "2026-11-01" },
+    SYDNEY: {},
+  };
+
+  const majorResults: { user: typeof eddie; major: MarathonMajor; year: number; durationSec: number }[] = [
+    { user: eddie, major: "BOSTON", year: 2026, durationSec: 3 * 3600 + 12 * 60 + 40 },
+    { user: eddie, major: "CHICAGO", year: 2025, durationSec: 3 * 3600 + 18 * 60 + 5 },
+    { user: eddie, major: "TOKYO", year: 2026, durationSec: 3 * 3600 + 15 * 60 + 22 },
+    { user: eddie, major: "NEW_YORK", year: 2024, durationSec: 3 * 3600 + 22 * 60 + 51 },
+
+    { user: jiho, major: "TOKYO", year: 2026, durationSec: 3 * 3600 + 5 * 60 + 12 },
+    { user: jiho, major: "BERLIN", year: 2025, durationSec: 2 * 3600 + 58 * 60 + 40 },
+    { user: jiho, major: "CHICAGO", year: 2026, durationSec: 3 * 3600 + 1 * 60 + 33 },
+
+    { user: jenny, major: "LONDON", year: 2026, durationSec: 3 * 3600 + 45 * 60 + 10 },
+    { user: jenny, major: "NEW_YORK", year: 2025, durationSec: 3 * 3600 + 40 * 60 + 22 },
+
+    { user: mark, major: "CHICAGO", year: 2026, durationSec: 3 * 3600 + 30 * 60 + 8 },
+
+    { user: sora, major: "NEW_YORK", year: 2026, durationSec: 4 * 3600 + 12 * 60 + 51 },
+
+    { user: yuna, major: "BERLIN", year: 2026, durationSec: 3 * 3600 + 55 * 60 + 2 },
+    { user: yuna, major: "BOSTON", year: 2025, durationSec: 4 * 3600 + 2 * 60 + 15 },
   ];
 
-  const months = [5, 6, 7];
-  let historicalCount = 0;
-  for (const profile of profiles) {
-    for (const [mi, month] of months.entries()) {
-      const factor = profile.monthFactor[mi];
-      for (let i = 0; i < profile.runsPerMonth; i++) {
-        const day = 1 + ((i * 3) % 27);
-        const hour = 6 + (i % 4) * 3;
-        const distanceM = Math.round(profile.baseDistanceM * factor * (0.7 + (i % 5) * 0.15));
-        const durationSec = Math.round(distanceM / 1000 * (270 + (i % 4) * 20)); // ~4'30"-5'50" per km
-        await prisma.activity.create({
-          data: {
-            userId: profile.user.id,
-            // Device-verified source so these count toward Rankings/Hall of
-            // Fame — "MANUAL" is reserved for self-reported My Runs entries,
-            // which are intentionally excluded from ranked mileage.
-            source: "APPLE_HEALTH",
-            externalId: `seed-${profile.user.id}-${month}-${i}`,
-            distanceM,
-            durationSec,
-            avgPaceSecPerKm: Math.round(durationSec / (distanceM / 1000)),
-            runType: RUN_TYPES[i % RUN_TYPES.length],
-            startedAt: dateInMonth(2026, month, day, hour),
-          },
-        });
-        historicalCount++;
-      }
-    }
+  let majorsCount = 0;
+  for (const r of majorResults) {
+    const dateStr = MAJOR_DATE[r.major][r.year];
+    if (!dateStr) continue;
+    const info = MAJOR_INFO[r.major];
+    await prisma.activity.create({
+      data: {
+        userId: r.user.id,
+        source: "MANUAL",
+        title: `${r.year} ${info.name}`,
+        runType: "RACE",
+        major: r.major,
+        distanceM: 42195,
+        durationSec: r.durationSec,
+        avgPaceSecPerKm: Math.round(r.durationSec / 42.195),
+        startedAt: new Date(`${dateStr}T09:00:00Z`),
+        location: `${info.city}, ${info.country}`,
+      },
+    });
+    majorsCount++;
   }
 
   // ---- Recent activities for the Feed ----
@@ -149,16 +155,9 @@ async function main() {
     ],
   });
 
-  // ---- Hall of Fame: snapshot the (now-closed) months we backfilled ----
-  for (const month of months) {
-    const periodKey = `2026-${String(month).padStart(2, "0")}`;
-    await snapshotPeriodWinners(prisma, "month", periodKey, {}, 3);
-  }
-
   console.log(
-    `Seeded ${userSeeds.length} users, ${historicalCount} historical activities, ${activities.length} recent activities, and Hall of Fame winners for ${months.length} months.`,
+    `Seeded ${userSeeds.length} users, ${majorsCount} World Marathon Majors results, and ${activities.length} recent feed activities.`,
   );
-  console.log(`Current live ranking periods: month=${getCurrentPeriodKey("month")}, week=${getCurrentPeriodKey("week")}`);
 }
 
 main()
