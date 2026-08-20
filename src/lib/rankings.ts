@@ -158,6 +158,10 @@ export async function getLeaderboard(
   periodKey: string,
   filters: RankingFilters = {},
   limit = 50,
+  // Restricts the board to a specific set of users (e.g. a challenge's
+  // participants) — intersected with any demographic filters above, not a
+  // replacement for them.
+  participantUserIds?: string[],
 ): Promise<{ start: Date; end: Date; rows: RankingRow[] }> {
   const { start, end } = getPeriodRange(kind, periodKey);
 
@@ -173,6 +177,11 @@ export async function getLeaderboard(
     eligibleUserIds = candidates
       .filter((u) => !filters.ageBand || computeAgeBand(u.birthYear) === filters.ageBand)
       .map((u) => u.id);
+  }
+  if (participantUserIds) {
+    eligibleUserIds = eligibleUserIds
+      ? eligibleUserIds.filter((id) => participantUserIds.includes(id))
+      : participantUserIds;
   }
 
   const grouped = await db.activity.groupBy({

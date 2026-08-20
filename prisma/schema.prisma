@@ -43,6 +43,7 @@ model User {
   externalAccounts ExternalAccount[]
   leaderboardWins  LeaderboardWinner[]
   deviceTokens     DeviceToken[]
+  challengeEntries ChallengeParticipant[]
 
   following Follow[] @relation("Follower")
   followers Follow[] @relation("Followee")
@@ -324,6 +325,38 @@ model LeaderboardWinner {
 enum PeriodType {
   WEEKLY
   MONTHLY
+}
+
+// App-native virtual race for a single period (week/month), auto-generated
+// from a fixed template set. Its leaderboard is never snapshotted — like the
+// main Rankings board, it's recomputed live from Activity + the participant
+// list, so a past challenge's standings stay accurate forever with no cron.
+model Challenge {
+  id          String     @id @default(cuid())
+  templateKey String // stable key from the template config, e.g. "weekly-5k"
+  periodType  PeriodType
+  periodKey   String // e.g. "2026-W34" or "2026-08"
+  title       String
+  description String?
+  targetDistanceM Int? // null = open mileage race, no fixed goal
+  createdAt   DateTime @default(now())
+
+  participants ChallengeParticipant[]
+
+  @@unique([periodType, periodKey, templateKey])
+  @@index([periodType, periodKey])
+}
+
+model ChallengeParticipant {
+  id          String    @id @default(cuid())
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  challengeId String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  joinedAt    DateTime  @default(now())
+
+  @@unique([challengeId, userId])
+  @@index([userId])
 }
 
 // ---------- Content: training posts / articles / forum ----------
