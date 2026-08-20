@@ -60,8 +60,11 @@ export function computeAgeBand(birthYear: number | null, atYear = new Date().get
 
 // ---- ISO week helpers ----
 
-function isoWeekOf(date: Date): { year: number; week: number } {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+function isoWeekOf(date: Date, useUTC = false): { year: number; week: number } {
+  const y = useUTC ? date.getUTCFullYear() : date.getFullYear();
+  const m = useUTC ? date.getUTCMonth() : date.getMonth();
+  const day = useUTC ? date.getUTCDate() : date.getDate();
+  const d = new Date(Date.UTC(y, m, day));
   const dayNum = (d.getUTCDay() + 6) % 7; // Mon=0..Sun=6
   d.setUTCDate(d.getUTCDate() - dayNum + 3); // nearest Thursday
   const firstThursday = new Date(Date.UTC(d.getUTCFullYear(), 0, 4));
@@ -100,6 +103,21 @@ export function getPeriodRange(kind: PeriodKind, key: string): { start: Date; en
   }
   const [y, wStr] = key.split("-W");
   return isoWeekRange(Number(y), Number(wStr));
+}
+
+// Shift a period key by `delta` periods (negative = earlier), e.g. for
+// week-over-week / month-over-month rank comparisons.
+export function shiftPeriodKey(kind: PeriodKind, key: string, delta: number): string {
+  if (kind === "month") {
+    const [y, m] = key.split("-").map(Number);
+    const d = new Date(Date.UTC(y, m - 1 + delta, 1));
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+  }
+  const { start } = getPeriodRange(kind, key);
+  const shifted = new Date(start);
+  shifted.setUTCDate(shifted.getUTCDate() + delta * 7);
+  const { year, week } = isoWeekOf(shifted, true);
+  return `${year}-W${String(week).padStart(2, "0")}`;
 }
 
 const WEEK_ORDINAL = ["첫째", "둘째", "셋째", "넷째", "다섯째"];
@@ -221,6 +239,24 @@ export async function snapshotPeriodWinners(
       runCount: r.runCount,
     })),
   });
+}
+
+// Overall (unsegmented) #1 finishes, keyed by userId — powers the 🏆 champion badge.
+export async function getChampionCounts(db: PrismaClient, userIds: string[]): Promise<Map<string, number>> {
+  if (userIds.length === 0) return new Map();
+  const wins = await db.leaderboardWinner.groupBy({
+    by: ["userId"],
+    where: {
+      userId: { in: userIds },
+      rank: 1,
+      gender: null,
+      region: null,
+      runType: null,
+      ageBand: null,
+    },
+    _count: { _all: true },
+  });
+  return new Map(wins.map((w) => [w.userId, w._count._all]));
 }
 
 export async function getHallOfFame(db: PrismaClient, periodType?: PeriodType, limit = 60) {

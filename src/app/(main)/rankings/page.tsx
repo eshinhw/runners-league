@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Gender, Region, RunType } from "@/generated/prisma/client";
+import { RankChange } from "@/components/RankChange";
 import { formatDistance } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import {
@@ -7,6 +8,7 @@ import {
   AGE_BAND_LABEL,
   type AgeBand,
   GENDER_LABEL,
+  getChampionCounts,
   getCurrentPeriodKey,
   getHallOfFame,
   getLeaderboard,
@@ -15,6 +17,7 @@ import {
   type RankingFilters,
   REGION_LABEL,
   RUN_TYPE_LABEL,
+  shiftPeriodKey,
 } from "@/lib/rankings";
 
 export const dynamic = "force-dynamic";
@@ -58,6 +61,18 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
 
   const leaderboard = tab !== "hof" ? await getLeaderboard(prisma, kind, periodKey, filters, 50) : null;
   const winners = tab === "hof" ? await getHallOfFame(prisma) : [];
+
+  let previousRankByUser = new Map<string, number>();
+  let championCountByUser = new Map<string, number>();
+  if (leaderboard) {
+    const previousPeriodKey = shiftPeriodKey(kind, periodKey, -1);
+    const previousBoard = await getLeaderboard(prisma, kind, previousPeriodKey, filters, 500);
+    previousRankByUser = new Map(previousBoard.rows.map((r) => [r.userId, r.rank]));
+    championCountByUser = await getChampionCounts(
+      prisma,
+      leaderboard.rows.map((r) => r.userId),
+    );
+  }
 
   const winnersByPeriod = new Map<string, typeof winners>();
   for (const w of winners) {
@@ -151,6 +166,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
           <thead>
             <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-400 dark:border-zinc-800">
               <th className="w-12 py-2">순위</th>
+              <th className="w-12 py-2">변동</th>
               <th className="py-2">러너</th>
               <th className="py-2 text-right">마일리지</th>
               <th className="py-2 text-right">러닝 횟수</th>
@@ -158,21 +174,32 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
           </thead>
           <tbody>
             {leaderboard && leaderboard.rows.length > 0 ? (
-              leaderboard.rows.map((row) => (
-                <tr key={row.userId} className="border-b border-zinc-100 dark:border-zinc-900">
-                  <td className="py-2 font-mono tabular-nums">{MEDALS[row.rank - 1] ?? row.rank}</td>
-                  <td className="py-2">
-                    <Link href={`/profile/${row.username}`} className="font-medium hover:underline">
-                      {row.displayName}
-                    </Link>
-                  </td>
-                  <td className="py-2 text-right font-mono tabular-nums">{formatDistance(row.totalDistanceM)}</td>
-                  <td className="py-2 text-right font-mono tabular-nums text-zinc-500">{row.runCount}</td>
-                </tr>
-              ))
+              leaderboard.rows.map((row) => {
+                const championCount = championCountByUser.get(row.userId) ?? 0;
+                return (
+                  <tr key={row.userId} className="border-b border-zinc-100 dark:border-zinc-900">
+                    <td className="py-2 font-mono tabular-nums">{MEDALS[row.rank - 1] ?? row.rank}</td>
+                    <td className="py-2">
+                      <RankChange current={row.rank} previous={previousRankByUser.get(row.userId)} />
+                    </td>
+                    <td className="py-2">
+                      <Link href={`/profile/${row.username}`} className="inline-flex items-center gap-1.5 font-medium hover:underline">
+                        {row.displayName}
+                        {championCount > 0 && (
+                          <span title={`역대 종합 1위 ${championCount}회`} className="text-xs font-normal text-amber-500">
+                            🏆{championCount > 1 ? `×${championCount}` : ""}
+                          </span>
+                        )}
+                      </Link>
+                    </td>
+                    <td className="py-2 text-right font-mono tabular-nums">{formatDistance(row.totalDistanceM)}</td>
+                    <td className="py-2 text-right font-mono tabular-nums text-zinc-500">{row.runCount}</td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
-                <td colSpan={4} className="py-6 text-center text-sm text-zinc-500">
+                <td colSpan={5} className="py-6 text-center text-sm text-zinc-500">
                   이 조건에 해당하는 기록이 아직 없습니다.
                 </td>
               </tr>
