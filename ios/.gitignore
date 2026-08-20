@@ -1,0 +1,9 @@
+# Xcode
+xcuserdata/
+*.xcuserstate
+DerivedData/
+.build/
+
+# xcodegen-generated project — regenerate with `xcodegen generate`
+RunnersLeagueSync/RunnersLeagueSync.xcodeproj/
+RunnersLeagueSync/Generated/
