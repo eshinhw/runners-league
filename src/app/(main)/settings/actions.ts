@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 
 async function requireUserId(): Promise<string> {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("로그인이 필요합니다.");
+  if (!session?.user?.id) throw new Error("You need to be signed in.");
   return session.user.id;
 }
 
@@ -19,7 +19,7 @@ export async function addGear(formData: FormData) {
   const model = String(formData.get("model") ?? "").trim();
   const nickname = String(formData.get("nickname") ?? "").trim();
 
-  if (!brand || !model) throw new Error("브랜드와 모델명을 입력해주세요.");
+  if (!brand || !model) throw new Error("Please enter a brand and model.");
 
   await prisma.gear.create({
     data: { ownerId: userId, category, brand, model, nickname: nickname || null },

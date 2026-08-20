@@ -33,9 +33,9 @@ type SearchParams = {
 };
 
 const TABS: { key: Tab; label: string }[] = [
-  { key: "week", label: "이번 주" },
-  { key: "month", label: "이번 달" },
-  { key: "hof", label: "명예의 전당" },
+  { key: "week", label: "This Week" },
+  { key: "month", label: "This Month" },
+  { key: "hof", label: "Hall of Fame" },
 ];
 
 const MEDALS = ["🥇", "🥈", "🥉"];
@@ -95,7 +95,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
       <div>
         <h1 className="text-xl font-semibold">Rankings</h1>
         <p className="text-sm text-zinc-500">
-          {tab === "hof" ? "역대 우승자 기록" : `${periodLabel} · 마일리지 순위`}
+          {tab === "hof" ? "All-time winners" : `${periodLabel} · Mileage leaderboard`}
         </p>
       </div>
 
@@ -119,7 +119,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
         <form className="flex flex-wrap gap-2 text-sm" action="/rankings" method="get">
           <input type="hidden" name="tab" value={tab} />
           <select name="gender" defaultValue={sp.gender ?? ""} className="rounded border border-zinc-300 bg-white px-2 py-1 dark:border-zinc-700 dark:bg-zinc-900">
-            <option value="">성별 전체</option>
+            <option value="">All genders</option>
             {(["MALE", "FEMALE"] as const).map((g) => (
               <option key={g} value={g}>
                 {GENDER_LABEL[g]}
@@ -127,7 +127,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
             ))}
           </select>
           <select name="ageBand" defaultValue={sp.ageBand ?? ""} className="rounded border border-zinc-300 bg-white px-2 py-1 dark:border-zinc-700 dark:bg-zinc-900">
-            <option value="">나이대 전체</option>
+            <option value="">All ages</option>
             {AGE_BANDS.map((a) => (
               <option key={a} value={a}>
                 {AGE_BAND_LABEL[a]}
@@ -135,7 +135,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
             ))}
           </select>
           <select name="region" defaultValue={sp.region ?? ""} className="rounded border border-zinc-300 bg-white px-2 py-1 dark:border-zinc-700 dark:bg-zinc-900">
-            <option value="">지역 전체</option>
+            <option value="">All regions</option>
             {Object.entries(REGION_LABEL).map(([k, v]) => (
               <option key={k} value={k}>
                 {v}
@@ -143,7 +143,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
             ))}
           </select>
           <select name="runType" defaultValue={sp.runType ?? ""} className="rounded border border-zinc-300 bg-white px-2 py-1 dark:border-zinc-700 dark:bg-zinc-900">
-            <option value="">러닝 타입 전체</option>
+            <option value="">All run types</option>
             {Object.entries(RUN_TYPE_LABEL).map(([k, v]) => (
               <option key={k} value={k}>
                 {v}
@@ -151,11 +151,11 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
             ))}
           </select>
           <button type="submit" className="rounded bg-orange-500 px-3 py-1 font-medium text-white">
-            필터 적용
+            Apply
           </button>
           {(sp.gender || sp.region || sp.runType || sp.ageBand) && (
             <Link href={filterQS({ gender: "", region: "", runType: "", ageBand: "" })} className="px-2 py-1 text-zinc-500 underline">
-              초기화
+              Reset
             </Link>
           )}
         </form>
@@ -165,11 +165,11 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-400 dark:border-zinc-800">
-              <th className="w-12 py-2">순위</th>
-              <th className="w-12 py-2">변동</th>
-              <th className="py-2">러너</th>
-              <th className="py-2 text-right">마일리지</th>
-              <th className="py-2 text-right">러닝 횟수</th>
+              <th className="w-12 py-2">Rank</th>
+              <th className="w-12 py-2">Change</th>
+              <th className="py-2">Runner</th>
+              <th className="py-2 text-right">Mileage</th>
+              <th className="py-2 text-right">Runs</th>
             </tr>
           </thead>
           <tbody>
@@ -186,7 +186,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
                       <Link href={`/profile/${row.username}`} className="inline-flex items-center gap-1.5 font-medium hover:underline">
                         {row.displayName}
                         {championCount > 0 && (
-                          <span title={`역대 종합 1위 ${championCount}회`} className="text-xs font-normal text-amber-500">
+                          <span title={`${championCount}x all-time #1`} className="text-xs font-normal text-amber-500">
                             🏆{championCount > 1 ? `×${championCount}` : ""}
                           </span>
                         )}
@@ -200,7 +200,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
             ) : (
               <tr>
                 <td colSpan={5} className="py-6 text-center text-sm text-zinc-500">
-                  이 조건에 해당하는 기록이 아직 없습니다.
+                  No results for this filter yet.
                 </td>
               </tr>
             )}
@@ -208,7 +208,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
         </table>
       ) : (
         <div className="flex flex-col gap-6">
-          {winnersByPeriod.size === 0 && <p className="text-sm text-zinc-500">아직 마감된 기간이 없습니다.</p>}
+          {winnersByPeriod.size === 0 && <p className="text-sm text-zinc-500">No periods have closed yet.</p>}
           {[...winnersByPeriod.entries()].map(([label, list]) => (
             <div key={label} className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
               <h3 className="mb-3 font-medium">{label}</h3>

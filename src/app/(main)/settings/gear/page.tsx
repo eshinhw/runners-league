@@ -6,11 +6,11 @@ import { addGear, retireGear } from "../actions";
 export const dynamic = "force-dynamic";
 
 const CATEGORY_LABEL: Record<string, string> = {
-  SHOE: "신발",
-  WATCH: "워치",
-  APPAREL: "의류",
-  ACCESSORY: "액세서리 (이어폰 등)",
-  NUTRITION: "보충제",
+  SHOE: "Shoes",
+  WATCH: "Watch",
+  APPAREL: "Apparel",
+  ACCESSORY: "Accessory (earbuds, etc.)",
+  NUTRITION: "Nutrition",
 };
 
 const inputCls =
@@ -21,7 +21,7 @@ export default async function MyGearPage() {
   if (!session?.user?.id) {
     return (
       <main className="flex flex-col items-center gap-3 py-16 text-center">
-        <p className="text-sm text-zinc-500">Gear를 관리하려면 로그인이 필요합니다.</p>
+        <p className="text-sm text-zinc-500">Sign in to manage your gear.</p>
       </main>
     );
   }
@@ -33,7 +33,7 @@ export default async function MyGearPage() {
 
   return (
     <main className="flex max-w-md flex-col gap-6">
-      <h1 className="text-xl font-semibold">My Gear</h1>
+      <h1 className="text-xl font-semibold">My Gears</h1>
 
       <form action={addGear} className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
         <div className="grid grid-cols-2 gap-2">
@@ -44,17 +44,17 @@ export default async function MyGearPage() {
               </option>
             ))}
           </select>
-          <input name="brand" placeholder="브랜드" required className={inputCls} />
+          <input name="brand" placeholder="Brand" required className={inputCls} />
         </div>
-        <input name="model" placeholder="모델명" required className={inputCls} />
-        <input name="nickname" placeholder="별명 (선택)" className={inputCls} />
+        <input name="model" placeholder="Model" required className={inputCls} />
+        <input name="nickname" placeholder="Nickname (optional)" className={inputCls} />
         <button type="submit" className="rounded bg-orange-500 px-3 py-1.5 text-sm font-medium text-white">
-          추가
+          Add
         </button>
       </form>
 
       <ul className="flex flex-col gap-2">
-        {gears.length === 0 && <p className="text-sm text-zinc-500">등록된 장비가 없습니다.</p>}
+        {gears.length === 0 && <p className="text-sm text-zinc-500">No gear added yet.</p>}
         {gears.map((g) => (
           <li
             key={g.id}
@@ -70,11 +70,11 @@ export default async function MyGearPage() {
               <form action={retireGear}>
                 <input type="hidden" name="gearId" value={g.id} />
                 <button type="submit" className="text-xs text-zinc-500 underline">
-                  은퇴 처리
+                  Retire
                 </button>
               </form>
             ) : (
-              <span className="text-xs text-zinc-400">은퇴함</span>
+              <span className="text-xs text-zinc-400">Retired</span>
             )}
           </li>
         ))}

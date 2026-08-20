@@ -94,7 +94,7 @@ export async function syncStravaActivitiesForUser(
   userId: string,
 ): Promise<{ imported: number; skippedManual: number; skippedNonRun: number }> {
   const accessToken = await getValidStravaAccessToken(userId);
-  if (!accessToken) throw new Error("Strava 계정이 연결되어 있지 않습니다.");
+  if (!accessToken) throw new Error("Your Strava account isn't connected.");
 
   const activities = await fetchStravaActivities(accessToken);
   let imported = 0;

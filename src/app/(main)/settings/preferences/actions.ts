@@ -7,10 +7,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function updatePreferences(formData: FormData) {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("로그인이 필요합니다.");
+  if (!session?.user?.id) throw new Error("You need to be signed in.");
 
   const unitSystem = String(formData.get("unitSystem") ?? "METRIC") as UnitSystem;
-  const language = String(formData.get("language") ?? "KO") as Language;
+  const language = String(formData.get("language") ?? "EN") as Language;
 
   await prisma.user.update({
     where: { id: session.user.id },

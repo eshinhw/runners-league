@@ -8,7 +8,7 @@ import { syncStravaActivitiesForUser } from "@/lib/strava";
 
 export async function syncStravaNow() {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("로그인이 필요합니다.");
+  if (!session?.user?.id) throw new Error("You need to be signed in.");
 
   await syncStravaActivitiesForUser(session.user.id);
 
@@ -18,7 +18,7 @@ export async function syncStravaNow() {
 
 export async function createDeviceToken(label: string): Promise<string> {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("로그인이 필요합니다.");
+  if (!session?.user?.id) throw new Error("You need to be signed in.");
 
   const token = `rl_${crypto.randomBytes(24).toString("hex")}`;
   const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
@@ -33,7 +33,7 @@ export async function createDeviceToken(label: string): Promise<string> {
 
 export async function revokeDeviceToken(tokenId: string) {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("로그인이 필요합니다.");
+  if (!session?.user?.id) throw new Error("You need to be signed in.");
 
   await prisma.deviceToken.deleteMany({
     where: { id: tokenId, userId: session.user.id },

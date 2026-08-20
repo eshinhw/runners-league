@@ -14,8 +14,8 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       <header className="border-b border-zinc-200 dark:border-zinc-800">
-        <div className="mx-auto flex max-w-2xl items-center gap-6 px-4 py-3">
-          <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
+        <div className="mx-auto flex max-w-5xl items-center gap-6 px-6 py-3">
+          <Link href="/rankings" className="flex items-center gap-2 font-semibold tracking-tight">
             <span className="h-5 w-5 rounded bg-orange-500" />
             Runners League
           </Link>
@@ -35,7 +35,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
           />
         </div>
       </header>
-      <div className="mx-auto max-w-2xl px-4 py-6">{children}</div>
+      <div className="mx-auto max-w-5xl px-6 py-6">{children}</div>
     </div>
   );
 }

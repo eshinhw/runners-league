@@ -12,8 +12,8 @@ export const dynamic = "force-dynamic";
 type Tab = "week" | "month";
 
 const TABS: { key: Tab; label: string; periodType: "WEEKLY" | "MONTHLY" }[] = [
-  { key: "week", label: "이번 주", periodType: "WEEKLY" },
-  { key: "month", label: "이번 달", periodType: "MONTHLY" },
+  { key: "week", label: "This Week", periodType: "WEEKLY" },
+  { key: "month", label: "This Month", periodType: "MONTHLY" },
 ];
 
 const MEDALS = ["🥇", "🥈", "🥉"];
@@ -52,7 +52,7 @@ export default async function RacesPage({
       <div>
         <h1 className="text-xl font-semibold">Races</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          기간마다 열리는 가상 레이스에 참가해서 동기화된 마일리지로 겨뤄보세요.
+          Join a recurring virtual race and compete on your synced mileage.
         </p>
       </div>
 
@@ -92,7 +92,7 @@ export default async function RacesPage({
               </div>
 
               <div className="mt-3 flex items-center justify-between">
-                <span className="text-xs text-zinc-500">참가자 {participantCount}명</span>
+                <span className="text-xs text-zinc-500">{participantCount} participants</span>
                 {session?.user?.id ? (
                   joined ? (
                     <ChallengeLeaveButton challengeId={challenge.id} />
@@ -102,13 +102,13 @@ export default async function RacesPage({
                         type="submit"
                         className="rounded bg-orange-500 px-3 py-1.5 text-sm font-medium text-white"
                       >
-                        참가하기
+                        Join
                       </button>
                     </form>
                   )
                 ) : (
                   <Link href="/login" className="text-sm font-medium text-orange-500 underline">
-                    로그인 후 참가
+                    Sign in to join
                   </Link>
                 )}
               </div>

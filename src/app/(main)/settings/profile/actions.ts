@@ -7,10 +7,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function updateProfile(formData: FormData) {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("로그인이 필요합니다.");
+  if (!session?.user?.id) throw new Error("You need to be signed in.");
 
   const displayName = String(formData.get("displayName") ?? "").trim();
-  if (!displayName) throw new Error("이름을 입력해주세요.");
+  if (!displayName) throw new Error("Please enter your name.");
 
   const bio = String(formData.get("bio") ?? "").trim();
   const city = String(formData.get("city") ?? "").trim();

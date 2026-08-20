@@ -19,7 +19,7 @@ export function DeviceTokenPanel({ tokens }: { tokens: TokenRow[] }) {
       {newToken && (
         <div className="rounded border border-amber-400 bg-amber-50 p-3 text-xs dark:border-amber-700 dark:bg-amber-950">
           <p className="mb-1.5 font-medium text-amber-700 dark:text-amber-300">
-            이 토큰은 다시 표시되지 않습니다. 지금 복사해서 iOS 앱 설정 화면에 붙여넣으세요.
+            This token won&apos;t be shown again. Copy it now and paste it into the iOS app&apos;s settings screen.
           </p>
           <code className="block break-all rounded bg-white px-2 py-1.5 dark:bg-zinc-900">{newToken}</code>
         </div>
@@ -36,7 +36,7 @@ export function DeviceTokenPanel({ tokens }: { tokens: TokenRow[] }) {
         }
         className="self-start rounded bg-orange-500 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
       >
-        {pending ? "발급 중..." : "토큰 발급"}
+        {pending ? "Issuing..." : "Issue Token"}
       </button>
 
       {tokens.length > 0 && (
@@ -44,12 +44,12 @@ export function DeviceTokenPanel({ tokens }: { tokens: TokenRow[] }) {
           {tokens.map((t) => (
             <li key={t.id} className="flex items-center justify-between gap-3 rounded border border-zinc-200 px-2.5 py-1.5 dark:border-zinc-800">
               <span>
-                {t.label ?? "Device"} · 발급 {new Date(t.createdAt).toLocaleDateString("ko-KR")}
-                {t.lastUsedAt && ` · 마지막 사용 ${new Date(t.lastUsedAt).toLocaleDateString("ko-KR")}`}
+                {t.label ?? "Device"} · Issued {new Date(t.createdAt).toLocaleDateString("en-US")}
+                {t.lastUsedAt && ` · Last used ${new Date(t.lastUsedAt).toLocaleDateString("en-US")}`}
               </span>
               <form action={revokeDeviceToken.bind(null, t.id)}>
                 <button type="submit" className="shrink-0 text-rose-500 underline">
-                  폐기
+                  Revoke
                 </button>
               </form>
             </li>

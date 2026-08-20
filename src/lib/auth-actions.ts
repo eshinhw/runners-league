@@ -8,8 +8,8 @@ export async function googleSignIn() {
 
 export async function emailSignIn(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
-  if (!email) throw new Error("이메일을 입력해주세요.");
-  await signIn("email", { email, redirectTo: "/" });
+  if (!email) throw new Error("Please enter your email.");
+  await signIn("email", { email, redirectTo: "/rankings" });
 }
 
 export async function userSignOut() {

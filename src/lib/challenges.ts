@@ -13,29 +13,29 @@ const TEMPLATES: ChallengeTemplate[] = [
   {
     templateKey: "weekly-open",
     kind: "week",
-    titleFor: (label) => `${label} 오픈 마일리지 레이스`,
-    description: "이번 주 가장 많이 뛴 참가자가 1위. 목표 거리 없이 순수 마일리지 대결.",
+    titleFor: (label) => `${label} Open Mileage Race`,
+    description: "Whoever logs the most mileage this week wins. No target distance — pure mileage battle.",
     targetDistanceM: null,
   },
   {
     templateKey: "weekly-5k",
     kind: "week",
-    titleFor: (label) => `${label} 5K 챌린지`,
-    description: "이번 주 안에 누적 5km 이상 뛰어보세요.",
+    titleFor: (label) => `${label} 5K Challenge`,
+    description: "Run a combined 5km or more this week.",
     targetDistanceM: 5000,
   },
   {
     templateKey: "monthly-open",
     kind: "month",
-    titleFor: (label) => `${label} 오픈 마일리지 레이스`,
-    description: "이번 달 가장 많이 뛴 참가자가 1위. 목표 거리 없이 순수 마일리지 대결.",
+    titleFor: (label) => `${label} Open Mileage Race`,
+    description: "Whoever logs the most mileage this month wins. No target distance — pure mileage battle.",
     targetDistanceM: null,
   },
   {
     templateKey: "monthly-50k",
     kind: "month",
-    titleFor: (label) => `${label} 50K 챌린지`,
-    description: "이번 달 안에 누적 50km 이상 뛰어보세요 (주당 약 12.5km 페이스).",
+    titleFor: (label) => `${label} 50K Challenge`,
+    description: "Run a combined 50km or more this month (about 12.5km/week).",
     targetDistanceM: 50_000,
   },
 ];
@@ -60,7 +60,13 @@ export async function ensureCurrentChallenges(db: PrismaClient): Promise<void> {
           description: template.description,
           targetDistanceM: template.targetDistanceM,
         },
-        update: {},
+        // Re-applied on every load so template copy edits (e.g. a wording or
+        // locale change) propagate to already-created periods too.
+        update: {
+          title: template.titleFor(periodLabel),
+          description: template.description,
+          targetDistanceM: template.targetDistanceM,
+        },
       });
     }),
   );

@@ -3,49 +3,45 @@ import type { Gender, PeriodType, PrismaClient, Region, RunType } from "../gener
 export type PeriodKind = "week" | "month";
 
 export const GENDER_LABEL: Record<Gender, string> = {
-  MALE: "남성",
-  FEMALE: "여성",
-  UNSPECIFIED: "전체",
+  MALE: "Male",
+  FEMALE: "Female",
+  UNSPECIFIED: "All",
 };
 
 export const REGION_LABEL: Record<Region, string> = {
-  SEOUL: "서울",
-  BUSAN: "부산",
-  INCHEON: "인천",
-  DAEGU: "대구",
-  DAEJEON: "대전",
-  GWANGJU: "광주",
-  ULSAN: "울산",
-  SEJONG: "세종",
-  GYEONGGI: "경기",
-  GANGWON: "강원",
-  CHUNGBUK: "충북",
-  CHUNGNAM: "충남",
-  JEONBUK: "전북",
-  JEONNAM: "전남",
-  GYEONGBUK: "경북",
-  GYEONGNAM: "경남",
-  JEJU: "제주",
-  OTHER: "기타",
+  ONTARIO: "Ontario",
+  QUEBEC: "Quebec",
+  BRITISH_COLUMBIA: "British Columbia",
+  ALBERTA: "Alberta",
+  MANITOBA: "Manitoba",
+  SASKATCHEWAN: "Saskatchewan",
+  NOVA_SCOTIA: "Nova Scotia",
+  NEW_BRUNSWICK: "New Brunswick",
+  NEWFOUNDLAND_AND_LABRADOR: "Newfoundland and Labrador",
+  PRINCE_EDWARD_ISLAND: "Prince Edward Island",
+  YUKON: "Yukon",
+  NORTHWEST_TERRITORIES: "Northwest Territories",
+  NUNAVUT: "Nunavut",
+  OTHER: "Other",
 };
 
 export const RUN_TYPE_LABEL: Record<RunType, string> = {
-  SPEED: "스피드",
-  TEMPO: "템포",
-  LSD: "LSD (롱런)",
-  EASY: "이지런",
-  RACE: "레이스",
+  SPEED: "Speed",
+  TEMPO: "Tempo",
+  LSD: "LSD (Long Run)",
+  EASY: "Easy Run",
+  RACE: "Race",
 };
 
 export const AGE_BANDS = ["10s", "20s", "30s", "40s", "50s+"] as const;
 export type AgeBand = (typeof AGE_BANDS)[number];
 
 export const AGE_BAND_LABEL: Record<AgeBand, string> = {
-  "10s": "10대",
-  "20s": "20대",
-  "30s": "30대",
-  "40s": "40대",
-  "50s+": "50대+",
+  "10s": "10s",
+  "20s": "20s",
+  "30s": "30s",
+  "40s": "40s",
+  "50s+": "50s+",
 };
 
 export function computeAgeBand(birthDate: Date | null, at = new Date()): AgeBand | null {
@@ -125,18 +121,27 @@ export function shiftPeriodKey(kind: PeriodKind, key: string, delta: number): st
   return `${year}-W${String(week).padStart(2, "0")}`;
 }
 
-const WEEK_ORDINAL = ["첫째", "둘째", "셋째", "넷째", "다섯째"];
+const MONTH_NAME = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+function ordinalSuffix(n: number): string {
+  if (n % 10 === 1 && n % 100 !== 11) return `${n}st`;
+  if (n % 10 === 2 && n % 100 !== 12) return `${n}nd`;
+  if (n % 10 === 3 && n % 100 !== 13) return `${n}rd`;
+  return `${n}th`;
+}
 
 export function getPeriodLabel(kind: PeriodKind, key: string): string {
   if (kind === "month") {
     const [y, m] = key.split("-").map(Number);
-    return `${y}년 ${m}월`;
+    return `${MONTH_NAME[m - 1]} ${y}`;
   }
   const [yStr, wStr] = key.split("-W");
   const { start } = isoWeekRange(Number(yStr), Number(wStr));
   const weekOfMonth = Math.ceil(start.getUTCDate() / 7);
-  const ordinal = WEEK_ORDINAL[weekOfMonth - 1] ?? `${weekOfMonth}`;
-  return `${start.getUTCFullYear()}년 ${start.getUTCMonth() + 1}월 ${ordinal}주`;
+  return `${MONTH_NAME[start.getUTCMonth()]} ${ordinalSuffix(weekOfMonth)} week, ${start.getUTCFullYear()}`;
 }
 
 // ---- Leaderboard queries ----

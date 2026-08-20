@@ -27,7 +27,7 @@ model User {
   heightCm    Int?
   region      Region?
   unitSystem  UnitSystem @default(METRIC)
-  language    Language   @default(KO)
+  language    Language   @default(EN)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -113,23 +113,19 @@ enum Language {
 }
 
 enum Region {
-  SEOUL
-  BUSAN
-  INCHEON
-  DAEGU
-  DAEJEON
-  GWANGJU
-  ULSAN
-  SEJONG
-  GYEONGGI
-  GANGWON
-  CHUNGBUK
-  CHUNGNAM
-  JEONBUK
-  JEONNAM
-  GYEONGBUK
-  GYEONGNAM
-  JEJU
+  ONTARIO
+  QUEBEC
+  BRITISH_COLUMBIA
+  ALBERTA
+  MANITOBA
+  SASKATCHEWAN
+  NOVA_SCOTIA
+  NEW_BRUNSWICK
+  NEWFOUNDLAND_AND_LABRADOR
+  PRINCE_EDWARD_ISLAND
+  YUKON
+  NORTHWEST_TERRITORIES
+  NUNAVUT
   OTHER
 }
 
@@ -229,6 +225,8 @@ model Activity {
   routeGeoJson  Json?
   location      String? // free-text race/run location, e.g. "Boston, MA" — distinct from the user's home city
   photoUrls     String[]     @default([]) // user-uploaded evidence photos (bib, medal, finish clock) for manual entries
+  avgHeartRateBpm Int? // optional self-reported stat, manual entries only
+  avgCadenceSpm   Int? // optional self-reported stat (steps per minute), manual entries only
   createdAt     DateTime     @default(now())
 
   gearLinks ActivityGear[]

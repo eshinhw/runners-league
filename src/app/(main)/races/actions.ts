@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 
 async function requireUserId(): Promise<string> {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("로그인이 필요합니다.");
+  if (!session?.user?.id) throw new Error("You need to be signed in.");
   return session.user.id;
 }
 

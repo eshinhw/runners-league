@@ -30,12 +30,12 @@ async function main() {
   await prisma.user.deleteMany();
 
   const userSeeds = [
-    { key: "eddie", email: "eddie@runnersleague.dev", username: "eddie", displayName: "Eddie Shin", bio: "Marathon PB 3:12. Training for Boston.", city: "Seoul", country: "South Korea", gender: "MALE" as const, birthDate: new Date("1992-04-12"), region: "SEOUL" as const },
-    { key: "jenny", email: "jenny@runnersleague.dev", username: "jenny.runs", displayName: "Jenny Park", bio: "Trail running & coffee.", city: "Seoul", country: "South Korea", gender: "FEMALE" as const, birthDate: new Date("1996-09-03"), region: "SEOUL" as const },
-    { key: "mark", email: "mark@runnersleague.dev", username: "markk", displayName: "Mark Kim", bio: "Sub-40 10K chaser.", city: "Busan", country: "South Korea", gender: "MALE" as const, birthDate: new Date("1988-01-20"), region: "BUSAN" as const },
-    { key: "sora", email: "sora@runnersleague.dev", username: "sora.k", displayName: "Sora Kang", bio: "First marathon this fall 🏃‍♀️", city: "Incheon", country: "South Korea", gender: "FEMALE" as const, birthDate: new Date("2001-06-30"), region: "INCHEON" as const },
-    { key: "jiho", email: "jiho@runnersleague.dev", username: "jiho.run", displayName: "Jiho Lee", bio: "Ultra curious. 50K next spring.", city: "Daegu", country: "South Korea", gender: "MALE" as const, birthDate: new Date("1984-11-08"), region: "DAEGU" as const },
-    { key: "yuna", email: "yuna@runnersleague.dev", username: "yuna.c", displayName: "Yuna Choi", bio: "Weekend LSD, weekday commute runs.", city: "Daejeon", country: "South Korea", gender: "FEMALE" as const, birthDate: new Date("1990-03-15"), region: "DAEJEON" as const },
+    { key: "eddie", email: "eddie@runnersleague.dev", username: "eddie", displayName: "Eddie Shin", bio: "Marathon PB 3:12. Training for Boston.", city: "Toronto", country: "Canada", gender: "MALE" as const, birthDate: new Date("1992-04-12"), region: "ONTARIO" as const },
+    { key: "jenny", email: "jenny@runnersleague.dev", username: "jenny.runs", displayName: "Jenny Park", bio: "Trail running & coffee.", city: "Toronto", country: "Canada", gender: "FEMALE" as const, birthDate: new Date("1996-09-03"), region: "ONTARIO" as const },
+    { key: "mark", email: "mark@runnersleague.dev", username: "markk", displayName: "Mark Kim", bio: "Sub-40 10K chaser.", city: "Vancouver", country: "Canada", gender: "MALE" as const, birthDate: new Date("1988-01-20"), region: "BRITISH_COLUMBIA" as const },
+    { key: "sora", email: "sora@runnersleague.dev", username: "sora.k", displayName: "Sora Kang", bio: "First marathon this fall 🏃‍♀️", city: "Montreal", country: "Canada", gender: "FEMALE" as const, birthDate: new Date("2001-06-30"), region: "QUEBEC" as const },
+    { key: "jiho", email: "jiho@runnersleague.dev", username: "jiho.run", displayName: "Jiho Lee", bio: "Ultra curious. 50K next spring.", city: "Calgary", country: "Canada", gender: "MALE" as const, birthDate: new Date("1984-11-08"), region: "ALBERTA" as const },
+    { key: "yuna", email: "yuna@runnersleague.dev", username: "yuna.c", displayName: "Yuna Choi", bio: "Weekend LSD, weekday commute runs.", city: "Ottawa", country: "Canada", gender: "FEMALE" as const, birthDate: new Date("1990-03-15"), region: "ONTARIO" as const },
   ];
 
   const users = Object.fromEntries(
@@ -88,7 +88,11 @@ async function main() {
         await prisma.activity.create({
           data: {
             userId: profile.user.id,
-            source: "MANUAL",
+            // Device-verified source so these count toward Rankings/Hall of
+            // Fame — "MANUAL" is reserved for self-reported My Runs entries,
+            // which are intentionally excluded from ranked mileage.
+            source: "APPLE_HEALTH",
+            externalId: `seed-${profile.user.id}-${month}-${i}`,
             distanceM,
             durationSec,
             avgPaceSecPerKm: Math.round(durationSec / (distanceM / 1000)),
@@ -139,9 +143,9 @@ async function main() {
 
   await prisma.comment.createMany({
     data: [
-      { authorId: jenny.id, activityId: activities[0].id, body: "빠르다 🔥" },
-      { authorId: eddie.id, activityId: activities[1].id, body: "코스 이쁘네요, 어디에요?" },
-      { authorId: mark.id, activityId: activities[3].id, body: "첫 10K 축하해요!" },
+      { authorId: jenny.id, activityId: activities[0].id, body: "That's fast 🔥" },
+      { authorId: eddie.id, activityId: activities[1].id, body: "Beautiful route, where is this?" },
+      { authorId: mark.id, activityId: activities[3].id, body: "Congrats on your first 10K!" },
     ],
   });
 

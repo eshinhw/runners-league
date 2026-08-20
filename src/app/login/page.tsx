@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
   const session = await auth();
-  if (session?.user) redirect("/");
+  if (session?.user) redirect("/rankings");
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 px-6">
@@ -18,8 +18,8 @@ export default async function LoginPage() {
 
       <div className="flex w-full max-w-sm flex-col items-center gap-5 rounded-xl border border-zinc-200 p-6 dark:border-zinc-800">
         <div className="text-center">
-          <h1 className="text-lg font-semibold">로그인</h1>
-          <p className="mt-1 text-sm text-zinc-500">계속하려면 로그인 방법을 선택하세요.</p>
+          <h1 className="text-lg font-semibold">Log In</h1>
+          <p className="mt-1 text-sm text-zinc-500">Choose how you&apos;d like to continue.</p>
         </div>
 
         <form action={googleSignIn} className="flex justify-center">
@@ -27,13 +27,13 @@ export default async function LoginPage() {
             type="submit"
             className="flex w-64 items-center justify-center gap-2 rounded-lg border border-zinc-300 py-2 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900"
           >
-            Google로 계속하기
+            Continue with Google
           </button>
         </form>
 
         <div className="flex w-64 items-center gap-3 text-xs text-zinc-400">
           <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
-          또는
+          or
           <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
         </div>
 
@@ -49,7 +49,7 @@ export default async function LoginPage() {
             type="submit"
             className="w-64 rounded-lg bg-orange-500 py-2 text-sm font-medium text-white hover:bg-orange-600"
           >
-            이메일로 로그인 링크 받기
+            Send Email Sign-in Link
           </button>
         </form>
       </div>

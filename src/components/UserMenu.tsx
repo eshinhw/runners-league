@@ -89,7 +89,7 @@ export function UserMenu({ user }: { user: SessionUser | null }) {
               role="menuitem"
               className="block w-full px-3 py-2 text-left text-rose-600 hover:bg-zinc-100 dark:text-rose-400 dark:hover:bg-zinc-900"
             >
-              로그아웃
+              Log out
             </button>
           </form>
         </div>

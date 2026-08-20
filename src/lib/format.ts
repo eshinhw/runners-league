@@ -22,12 +22,12 @@ export function formatDuration(totalSec: number): string {
 export function formatRelativeTime(date: Date): string {
   const diffMs = Date.now() - date.getTime();
   const diffMin = Math.round(diffMs / 60000);
-  if (diffMin < 1) return "방금 전";
-  if (diffMin < 60) return `${diffMin}분 전`;
+  if (diffMin < 1) return "just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
   const diffHour = Math.round(diffMin / 60);
-  if (diffHour < 24) return `${diffHour}시간 전`;
+  if (diffHour < 24) return `${diffHour}h ago`;
   const diffDay = Math.round(diffHour / 24);
-  return `${diffDay}일 전`;
+  return `${diffDay}d ago`;
 }
 
 export function initials(name: string): string {

@@ -27,7 +27,7 @@ export default async function ProfilePage() {
   if (!session?.user?.id) {
     return (
       <main className="flex flex-col items-center gap-3 py-16 text-center">
-        <p className="text-sm text-zinc-500">프로필을 변경하려면 로그인이 필요합니다.</p>
+        <p className="text-sm text-zinc-500">Sign in to edit your profile.</p>
       </main>
     );
   }
@@ -38,27 +38,27 @@ export default async function ProfilePage() {
     <main className="flex max-w-md flex-col gap-5">
       <div>
         <h1 className="text-xl font-semibold">My Profile</h1>
-        <p className="mt-1 text-sm text-zinc-500">개인 정보를 관리합니다.</p>
+        <p className="mt-1 text-sm text-zinc-500">Manage your personal information.</p>
       </div>
 
       <form action={updateProfile} className="flex flex-col gap-4">
-        <Field label="이름">
+        <Field label="Name">
           <input name="displayName" defaultValue={user.displayName} required className={inputCls} />
         </Field>
-        <Field label="소개">
+        <Field label="Bio">
           <textarea name="bio" defaultValue={user.bio ?? ""} rows={3} className={inputCls} />
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field label="사는 도시">
-            <input name="city" defaultValue={user.city ?? ""} placeholder="예: Seoul" className={inputCls} />
+          <Field label="City">
+            <input name="city" defaultValue={user.city ?? ""} placeholder="e.g. Toronto" className={inputCls} />
           </Field>
-          <Field label="국가">
-            <input name="country" defaultValue={user.country ?? ""} placeholder="예: South Korea" className={inputCls} />
+          <Field label="Country">
+            <input name="country" defaultValue={user.country ?? "Canada"} placeholder="e.g. Canada" className={inputCls} />
           </Field>
         </div>
 
-        <Field label="성별">
+        <Field label="Gender">
           <select name="gender" defaultValue={user.gender} className={inputCls}>
             {Object.entries(GENDER_LABEL).map(([k, v]) => (
               <option key={k} value={k}>
@@ -68,7 +68,7 @@ export default async function ProfilePage() {
           </select>
         </Field>
 
-        <Field label="생년월일">
+        <Field label="Date of Birth">
           <input
             name="birthDate"
             type="date"
@@ -79,7 +79,7 @@ export default async function ProfilePage() {
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field label="체중 (kg)">
+          <Field label="Weight (kg)">
             <input
               name="weightKg"
               type="number"
@@ -90,7 +90,7 @@ export default async function ProfilePage() {
               className={inputCls}
             />
           </Field>
-          <Field label="키 (cm)">
+          <Field label="Height (cm)">
             <input
               name="heightCm"
               type="number"
@@ -102,9 +102,9 @@ export default async function ProfilePage() {
           </Field>
         </div>
 
-        <Field label="랭킹 지역 세그먼트">
+        <Field label="Rankings Region Segment">
           <select name="region" defaultValue={user.region ?? ""} className={inputCls}>
-            <option value="">선택 안 함</option>
+            <option value="">Not set</option>
             {Object.entries(REGION_LABEL).map(([k, v]) => (
               <option key={k} value={k}>
                 {v}
@@ -112,10 +112,12 @@ export default async function ProfilePage() {
             ))}
           </select>
         </Field>
-        <p className="text-xs text-zinc-400">성별·생년월일·지역은 Rankings 세그먼트 필터에 사용됩니다.</p>
+        <p className="text-xs text-zinc-400">
+          Gender, date of birth, and region are used for Rankings segment filters.
+        </p>
 
         <button type="submit" className="mt-1 rounded bg-orange-500 px-4 py-2 text-sm font-medium text-white">
-          저장
+          Save
         </button>
       </form>
     </main>

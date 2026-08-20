@@ -13,7 +13,7 @@ const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/h
 
 async function requireUserId(): Promise<string> {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("로그인이 필요합니다.");
+  if (!session?.user?.id) throw new Error("You need to be signed in.");
   return session.user.id;
 }
 
@@ -34,28 +34,43 @@ async function savePhotos(files: File[]): Promise<string[]> {
   return urls;
 }
 
+// Parses "M:SS" or "MM:SS" pace input into seconds per km. Returns null for
+// blank/invalid input so callers can fall back to the distance/duration-based
+// average instead.
+function parsePaceToSecPerKm(raw: string): number | null {
+  const match = raw.trim().match(/^(\d+):([0-5]?\d)$/);
+  if (!match) return null;
+  return Number(match[1]) * 60 + Number(match[2]);
+}
+
 export async function addRun(formData: FormData) {
   const userId = await requireUserId();
 
   const title = String(formData.get("title") ?? "").trim();
-  if (!title) throw new Error("레이스/러닝 이름을 입력해주세요.");
+  if (!title) throw new Error("Please enter a race/run name.");
 
   const runType = String(formData.get("runType") ?? "RACE") as RunType;
   const location = String(formData.get("location") ?? "").trim();
   const startedAtRaw = String(formData.get("startedAt") ?? "");
-  if (!startedAtRaw) throw new Error("날짜를 입력해주세요.");
+  if (!startedAtRaw) throw new Error("Please enter a date.");
 
   const distancePreset = String(formData.get("distancePreset") ?? "");
   const distanceKmRaw = String(formData.get("distanceKm") ?? "");
   const distanceM =
     distancePreset === "custom" ? Math.round(Number(distanceKmRaw || 0) * 1000) : Number(distancePreset || 0);
-  if (!distanceM || distanceM <= 0) throw new Error("거리를 입력해주세요.");
+  if (!distanceM || distanceM <= 0) throw new Error("Please enter a distance.");
 
   const hours = Number(formData.get("hours") ?? 0);
   const minutes = Number(formData.get("minutes") ?? 0);
   const seconds = Number(formData.get("seconds") ?? 0);
   const durationSec = hours * 3600 + minutes * 60 + seconds;
-  if (durationSec <= 0) throw new Error("완주 시간을 입력해주세요.");
+  if (durationSec <= 0) throw new Error("Please enter a finish time.");
+
+  const paceRaw = String(formData.get("avgPace") ?? "");
+  const avgPaceSecPerKm = parsePaceToSecPerKm(paceRaw) ?? Math.round(durationSec / (distanceM / 1000));
+
+  const heartRateRaw = String(formData.get("avgHeartRate") ?? "");
+  const cadenceRaw = String(formData.get("avgCadence") ?? "");
 
   const photos = formData.getAll("photos").filter((f): f is File => f instanceof File);
   const photoUrls = await savePhotos(photos);
@@ -68,7 +83,9 @@ export async function addRun(formData: FormData) {
       runType,
       distanceM,
       durationSec,
-      avgPaceSecPerKm: Math.round(durationSec / (distanceM / 1000)),
+      avgPaceSecPerKm,
+      avgHeartRateBpm: heartRateRaw ? Number(heartRateRaw) : null,
+      avgCadenceSpm: cadenceRaw ? Number(cadenceRaw) : null,
       startedAt: new Date(startedAtRaw),
       location: location || null,
       photoUrls,
