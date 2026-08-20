@@ -2,6 +2,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth from "next-auth";
 import type { Adapter } from "next-auth/adapters";
 import Google from "next-auth/providers/google";
+import Nodemailer from "next-auth/providers/nodemailer";
 import { prisma } from "@/lib/prisma";
 
 async function uniqueUsernameFrom(seed: string): Promise<string> {
@@ -48,10 +49,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
     }),
+    Nodemailer({
+      id: "email",
+      // Falls back to an unreachable placeholder so builds don't fail before
+      // EMAIL_SERVER is configured; sending simply errors at runtime until it is.
+      server: process.env.EMAIL_SERVER || "smtp://user:pass@localhost:1025",
+      from: process.env.EMAIL_FROM || "Runners League <noreply@runnersleague.app>",
+    }),
   ],
   session: { strategy: "database" },
   trustHost: true,
-  pages: {},
+  pages: {
+    signIn: "/login",
+  },
   callbacks: {
     session: async ({ session, user }) => {
       if (session.user) {

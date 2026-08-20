@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { googleSignIn, userSignOut } from "@/lib/auth-actions";
+import { userSignOut } from "@/lib/auth-actions";
 import { initials } from "@/lib/format";
 
 type SessionUser = {
@@ -15,14 +15,12 @@ export function UserMenu({ user }: { user: SessionUser | null }) {
 
   if (!user) {
     return (
-      <form action={googleSignIn} className="ml-auto">
-        <button
-          type="submit"
-          className="rounded-full border border-zinc-300 px-3 py-1.5 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900"
-        >
-          Google로 로그인
-        </button>
-      </form>
+      <Link
+        href="/login"
+        className="ml-auto rounded-full border border-zinc-300 px-3 py-1.5 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900"
+      >
+        Login
+      </Link>
     );
   }
 
