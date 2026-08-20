@@ -9,7 +9,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   SHOE: "신발",
   WATCH: "워치",
   APPAREL: "의류",
-  ACCESSORY: "액세서리",
+  ACCESSORY: "액세서리 (이어폰 등)",
   NUTRITION: "보충제",
 };
 

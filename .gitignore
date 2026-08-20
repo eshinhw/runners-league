@@ -47,3 +47,7 @@ next-env.d.ts
 /.agents
 /.windsurf
 skills-lock.json
+
+# user-uploaded run photos (local disk storage — swap for object storage in prod)
+/public/uploads/runs/*
+!/public/uploads/runs/.gitkeep

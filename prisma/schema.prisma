@@ -19,10 +19,15 @@ model User {
   displayName String
   avatarUrl   String?
   bio         String?
-  location    String?
+  city        String?
+  country     String?
   gender      Gender   @default(UNSPECIFIED)
-  birthYear   Int?
+  birthDate   DateTime?
+  weightKg    Float?
+  heightCm    Int?
   region      Region?
+  unitSystem  UnitSystem @default(METRIC)
+  language    Language   @default(KO)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -95,6 +100,16 @@ enum Gender {
   MALE
   FEMALE
   UNSPECIFIED
+}
+
+enum UnitSystem {
+  METRIC
+  IMPERIAL
+}
+
+enum Language {
+  KO
+  EN
 }
 
 enum Region {
@@ -212,6 +227,8 @@ model Activity {
   runType       RunType?
   startedAt     DateTime
   routeGeoJson  Json?
+  location      String? // free-text race/run location, e.g. "Boston, MA" — distinct from the user's home city
+  photoUrls     String[]     @default([]) // user-uploaded evidence photos (bib, medal, finish clock) for manual entries
   createdAt     DateTime     @default(now())
 
   gearLinks ActivityGear[]

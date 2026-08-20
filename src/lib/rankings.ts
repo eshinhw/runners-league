@@ -48,9 +48,14 @@ export const AGE_BAND_LABEL: Record<AgeBand, string> = {
   "50s+": "50대+",
 };
 
-export function computeAgeBand(birthYear: number | null, atYear = new Date().getFullYear()): AgeBand | null {
-  if (!birthYear) return null;
-  const age = atYear - birthYear;
+export function computeAgeBand(birthDate: Date | null, at = new Date()): AgeBand | null {
+  if (!birthDate) return null;
+  let age = at.getFullYear() - birthDate.getFullYear();
+  const hadBirthdayThisYear =
+    at.getMonth() > birthDate.getMonth() ||
+    (at.getMonth() === birthDate.getMonth() && at.getDate() >= birthDate.getDate());
+  if (!hadBirthdayThisYear) age -= 1;
+
   if (age < 20) return "10s";
   if (age < 30) return "20s";
   if (age < 40) return "30s";
@@ -172,10 +177,10 @@ export async function getLeaderboard(
         ...(filters.gender ? { gender: filters.gender } : {}),
         ...(filters.region ? { region: filters.region } : {}),
       },
-      select: { id: true, birthYear: true },
+      select: { id: true, birthDate: true },
     });
     eligibleUserIds = candidates
-      .filter((u) => !filters.ageBand || computeAgeBand(u.birthYear) === filters.ageBand)
+      .filter((u) => !filters.ageBand || computeAgeBand(u.birthDate) === filters.ageBand)
       .map((u) => u.id);
   }
   if (participantUserIds) {

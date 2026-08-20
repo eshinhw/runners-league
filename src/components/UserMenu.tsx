@@ -52,23 +52,31 @@ export function UserMenu({ user }: { user: SessionUser | null }) {
           className="absolute right-0 top-10 z-10 w-40 overflow-hidden rounded-lg border border-zinc-200 bg-white py-1 text-sm shadow-lg dark:border-zinc-800 dark:bg-zinc-950"
         >
           <Link
+            href="/settings/profile"
+            role="menuitem"
+            className="block px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+            onClick={() => setOpen(false)}
+          >
+            My Profile
+          </Link>
+          <Link
+            href="/settings/runs"
+            role="menuitem"
+            className="block px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+            onClick={() => setOpen(false)}
+          >
+            My Runs
+          </Link>
+          <Link
             href="/settings/gear"
             role="menuitem"
             className="block px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-900"
             onClick={() => setOpen(false)}
           >
-            My Gear
+            My Gears
           </Link>
           <Link
-            href="/settings/connections"
-            role="menuitem"
-            className="block px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-900"
-            onClick={() => setOpen(false)}
-          >
-            Connections
-          </Link>
-          <Link
-            href="/settings"
+            href="/settings/preferences"
             role="menuitem"
             className="block px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-900"
             onClick={() => setOpen(false)}
