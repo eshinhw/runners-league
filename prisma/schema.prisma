@@ -42,6 +42,7 @@ model User {
   likes            Like[]
   externalAccounts ExternalAccount[]
   leaderboardWins  LeaderboardWinner[]
+  deviceTokens     DeviceToken[]
 
   following Follow[] @relation("Follower")
   followers Follow[] @relation("Followee")
@@ -225,6 +226,21 @@ enum ActivitySource {
   MANUAL
   STRAVA
   GARMIN
+  APPLE_HEALTH
+}
+
+// Personal access token for the iOS HealthKit companion app to authenticate
+// its sync requests. Never store the raw token — only its hash.
+model DeviceToken {
+  id         String    @id @default(cuid())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  tokenHash  String    @unique
+  label      String?
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+
+  @@index([userId])
 }
 
 // SPEED/TEMPO = interval & threshold work, LSD = long slow distance, EASY = easy pace, RACE = official race effort

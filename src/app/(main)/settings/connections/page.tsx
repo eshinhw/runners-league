@@ -1,3 +1,4 @@
+import { DeviceTokenPanel } from "@/components/DeviceTokenPanel";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { syncStravaNow } from "./actions";
@@ -14,9 +15,15 @@ export default async function ConnectionsPage() {
     );
   }
 
-  const [stravaAccount, stravaActivityCount] = await Promise.all([
+  const [stravaAccount, stravaActivityCount, healthActivityCount, deviceTokens] = await Promise.all([
     prisma.externalAccount.findFirst({ where: { userId: session.user.id, provider: "STRAVA" } }),
     prisma.activity.count({ where: { userId: session.user.id, source: "STRAVA" } }),
+    prisma.activity.count({ where: { userId: session.user.id, source: "APPLE_HEALTH" } }),
+    prisma.deviceToken.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, label: true, createdAt: true, lastUsedAt: true },
+    }),
   ]);
 
   return (
@@ -63,18 +70,20 @@ export default async function ConnectionsPage() {
         </button>
       </div>
 
-      <div className="flex items-center justify-between rounded-lg border border-zinc-200 p-4 opacity-50 dark:border-zinc-800">
+      <div className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
         <div>
           <div className="font-medium">Apple Watch (HealthKit)</div>
-          <div className="text-xs text-zinc-500">iOS 컴패니언 앱 필요 — 지원 예정</div>
+          <div className="text-xs text-zinc-500">
+            동기화된 러닝 {healthActivityCount}건 · iOS 컴패니언 앱에서 이 토큰으로 로그인하세요
+          </div>
         </div>
-        <button
-          type="button"
-          disabled
-          className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-400 dark:border-zinc-700"
-        >
-          준비 중
-        </button>
+        <DeviceTokenPanel
+          tokens={deviceTokens.map((t) => ({
+            ...t,
+            createdAt: t.createdAt.toISOString(),
+            lastUsedAt: t.lastUsedAt?.toISOString() ?? null,
+          }))}
+        />
       </div>
     </main>
   );
