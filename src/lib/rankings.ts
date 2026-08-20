@@ -179,6 +179,9 @@ export async function getLeaderboard(
     by: ["userId"],
     where: {
       startedAt: { gte: start, lt: end },
+      // Only device-synced activities count toward rankings — manual entries
+      // can't be trusted and would let anyone game their mileage.
+      source: { not: "MANUAL" },
       ...(filters.runType ? { runType: filters.runType } : {}),
       ...(eligibleUserIds ? { userId: { in: eligibleUserIds } } : {}),
     },

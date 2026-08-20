@@ -60,6 +60,14 @@ export function UserMenu({ user }: { user: SessionUser | null }) {
             My Gear
           </Link>
           <Link
+            href="/settings/connections"
+            role="menuitem"
+            className="block px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+            onClick={() => setOpen(false)}
+          >
+            Connections
+          </Link>
+          <Link
             href="/settings"
             role="menuitem"
             className="block px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-900"
