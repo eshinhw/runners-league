@@ -3,6 +3,7 @@ xcuserdata/
 *.xcuserstate
 DerivedData/
 .build/
+RunnersLeagueSync/build/
 
 # xcodegen-generated project — regenerate with `xcodegen generate`
 RunnersLeagueSync/RunnersLeagueSync.xcodeproj/
