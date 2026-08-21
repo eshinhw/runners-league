@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { addGear } from "@/app/(main)/settings/actions";
+import { updateGear } from "@/app/(main)/settings/actions";
 import { useToast } from "@/components/Toast";
-import type { GearCategory } from "@/generated/prisma/client";
+import type { Gear, GearCategory } from "@/generated/prisma/client";
 import {
   GEAR_BRAND_LIST,
   GEAR_CATEGORY_LABEL,
@@ -20,10 +20,22 @@ const inputCls =
 const CURRENT_YEAR = new Date().getFullYear();
 const PURCHASE_YEARS = Array.from({ length: 21 }, (_, i) => CURRENT_YEAR - i);
 
-export function AddGearModal() {
+function initialBrandChoice(gear: Gear): string {
+  const catalog = isCatalogCategory(gear.category) ? GEAR_PRODUCT_CATALOG[gear.category] : null;
+  if (catalog) {
+    const models = catalog[gear.brand];
+    const known = models && gear.model && models.includes(gear.model);
+    return known ? gear.brand : OTHER;
+  }
+  const brandOnlyList = isBrandOnlyCategory(gear.category) ? GEAR_BRAND_LIST[gear.category] : null;
+  if (brandOnlyList) return brandOnlyList.includes(gear.brand) ? gear.brand : OTHER;
+  return OTHER;
+}
+
+export function EditGearModal({ gear }: { gear: Gear }) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
-  const [category, setCategory] = useState<GearCategory>("SHOE");
+  const [category, setCategory] = useState<GearCategory>(gear.category);
   const [brandChoice, setBrandChoice] = useState("");
   const [model, setModel] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -35,11 +47,13 @@ export function AddGearModal() {
   const modelOptions = catalog && brandChoice && brandChoice !== OTHER ? (catalog[brandChoice] ?? []) : [];
   const isOtherBrand = brandChoice === OTHER;
 
-  function resetForm() {
-    setCategory("SHOE");
-    setBrandChoice("");
-    setModel("");
+  function openModal() {
+    const initBrand = initialBrandChoice(gear);
+    setCategory(gear.category);
+    setBrandChoice(initBrand);
+    setModel(initBrand === OTHER ? "" : (gear.model ?? ""));
     setError(null);
+    setOpen(true);
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -64,21 +78,16 @@ export function AddGearModal() {
     }
 
     startTransition(async () => {
-      await addGear(formData);
-      resetForm();
+      await updateGear(gear.id, formData);
       setOpen(false);
-      showToast("Gear added");
+      showToast("Gear updated");
     });
   }
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="self-start rounded bg-orange-500 px-3 py-1.5 text-sm font-medium text-white"
-      >
-        + Add Gear
+      <button type="button" onClick={openModal} className="text-xs text-zinc-500 underline">
+        Edit
       </button>
 
       {open && (
@@ -93,7 +102,7 @@ export function AddGearModal() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Add Gear</h2>
+              <h2 className="text-lg font-semibold">Edit Gear</h2>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
@@ -148,7 +157,13 @@ export function AddGearModal() {
                     </select>
 
                     {isOtherBrand ? (
-                      <input name="model" placeholder="Model" required className={inputCls} />
+                      <input
+                        name="model"
+                        placeholder="Model"
+                        required
+                        defaultValue={gear.model ?? ""}
+                        className={inputCls}
+                      />
                     ) : (
                       <select
                         name="model"
@@ -171,7 +186,13 @@ export function AddGearModal() {
                   </div>
 
                   {isOtherBrand && (
-                    <input name="brand" placeholder="Brand name" required className={inputCls} />
+                    <input
+                      name="brand"
+                      placeholder="Brand name"
+                      required
+                      defaultValue={gear.brand}
+                      className={inputCls}
+                    />
                   )}
                 </>
               )}
@@ -197,22 +218,38 @@ export function AddGearModal() {
                   </select>
 
                   {isOtherBrand && (
-                    <input name="brand" placeholder="Brand name" required className={inputCls} />
+                    <input
+                      name="brand"
+                      placeholder="Brand name"
+                      required
+                      defaultValue={gear.brand}
+                      className={inputCls}
+                    />
                   )}
                 </>
               )}
 
               {!catalog && !brandOnlyList && (
                 <div className="grid grid-cols-2 gap-2">
-                  <input name="brand" placeholder="Brand" required className={inputCls} />
-                  <input name="model" placeholder="Model" required className={inputCls} />
+                  <input name="brand" placeholder="Brand" required defaultValue={gear.brand} className={inputCls} />
+                  <input
+                    name="model"
+                    placeholder="Model"
+                    required
+                    defaultValue={gear.model ?? ""}
+                    className={inputCls}
+                  />
                 </div>
               )}
 
               {catalog && (
                 <label className="flex flex-col gap-1">
                   <span className="text-xs font-medium text-zinc-500">Purchase year (optional)</span>
-                  <select name="purchaseYear" defaultValue="" className={inputCls}>
+                  <select
+                    name="purchaseYear"
+                    defaultValue={gear.purchaseDate ? gear.purchaseDate.getUTCFullYear() : ""}
+                    className={inputCls}
+                  >
                     <option value="">Not set</option>
                     {PURCHASE_YEARS.map((y) => (
                       <option key={y} value={y}>
@@ -230,7 +267,7 @@ export function AddGearModal() {
                 disabled={pending}
                 className="mt-1 rounded bg-orange-500 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
               >
-                {pending ? "Adding…" : "Add"}
+                {pending ? "Saving…" : "Save Changes"}
               </button>
             </form>
           </div>

@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { createPost } from "@/app/(main)/community/actions";
+import { useToast } from "@/components/Toast";
 
 const inputCls =
   "w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
@@ -11,6 +12,7 @@ export function PostComposer() {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const showToast = useToast();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -21,6 +23,7 @@ export function PostComposer() {
         await createPost(formData);
         formRef.current?.reset();
         setOpen(false);
+        showToast("Posted");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
       }

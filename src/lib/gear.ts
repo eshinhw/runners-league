@@ -63,6 +63,18 @@ export const GEAR_PRODUCT_CATALOG: Record<CatalogCategory, Record<string, string
 // products aren't meaningfully tracked by model the way shoes/watches are.
 export type BrandOnlyCategory = "APPAREL" | "NUTRITION";
 
+export function isCatalogCategory(category: GearCategory): category is CatalogCategory {
+  return category === "SHOE" || category === "WATCH" || category === "ACCESSORY";
+}
+
+export function isBrandOnlyCategory(category: GearCategory): category is BrandOnlyCategory {
+  return category === "APPAREL" || category === "NUTRITION";
+}
+
+// Sentinel used by Add/Edit Gear forms to switch a brand/model picker to
+// free-text entry.
+export const OTHER_BRAND = "__other__";
+
 export const GEAR_BRAND_LIST: Record<BrandOnlyCategory, string[]> = {
   APPAREL: [
     "Nike",

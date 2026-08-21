@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { updateRun } from "@/app/(main)/settings/runs/actions";
+import { useToast } from "@/components/Toast";
 import type { Activity } from "@/generated/prisma/client";
 import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
 
@@ -31,6 +32,7 @@ export function EditRaceModal({ run }: { run: Activity }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [keptPhotos, setKeptPhotos] = useState<string[]>(run.photoUrls);
+  const showToast = useToast();
 
   const { hours, minutes, seconds } = secToHms(run.durationSec);
   const year = run.startedAt.getUTCFullYear();
@@ -43,6 +45,7 @@ export function EditRaceModal({ run }: { run: Activity }) {
       try {
         await updateRun(run.id, formData);
         setOpen(false);
+        showToast("Race updated");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
       }

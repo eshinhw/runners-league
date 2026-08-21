@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { updateProfile } from "@/app/(main)/settings/profile/actions";
+import { useToast } from "@/components/Toast";
 import type { Gender } from "@/generated/prisma/client";
 import { GENDER_LABEL } from "@/lib/rankings";
 
@@ -65,6 +66,7 @@ export function ProfileEditor({ user }: { user: ProfileUser }) {
   const [editing, setEditing] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const showToast = useToast();
 
   const birthParts = birthDateParts(user.birthDate);
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
@@ -77,6 +79,7 @@ export function ProfileEditor({ user }: { user: ProfileUser }) {
       try {
         await updateProfile(formData);
         setEditing(false);
+        showToast("Profile saved");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
       }

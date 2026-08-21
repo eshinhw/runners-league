@@ -52,6 +52,28 @@ export async function addGear(formData: FormData) {
   revalidatePath("/settings/gear");
 }
 
+export async function updateGear(gearId: string, formData: FormData) {
+  const userId = await requireUserId();
+
+  const existing = await prisma.gear.findFirst({ where: { id: gearId, ownerId: userId } });
+  if (!existing) throw new Error("Gear not found.");
+
+  const category = String(formData.get("category") ?? "") as GearCategory;
+  const brand = String(formData.get("brand") ?? "").trim();
+  const model = String(formData.get("model") ?? "").trim();
+  if (!brand) throw new Error("Please enter a brand.");
+
+  const purchaseYearRaw = String(formData.get("purchaseYear") ?? "");
+  const purchaseDate = purchaseYearRaw ? new Date(Date.UTC(Number(purchaseYearRaw), 0, 1)) : null;
+
+  await prisma.gear.update({
+    where: { id: gearId },
+    data: { category, brand, model: model || null, purchaseDate },
+  });
+
+  revalidatePath("/settings/gear");
+}
+
 export async function retireGear(formData: FormData) {
   const userId = await requireUserId();
   const gearId = String(formData.get("gearId") ?? "");

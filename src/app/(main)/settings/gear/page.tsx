@@ -1,5 +1,6 @@
 import type { Gear, GearCategory, UnitSystem } from "@/generated/prisma/client";
 import { AddGearModal } from "@/components/gear/AddGearModal";
+import { EditGearModal } from "@/components/gear/EditGearModal";
 import { GearDeleteButton } from "@/components/gear/GearDeleteButton";
 import { GearSlotIcon } from "@/components/GearSlotIcon";
 import { auth } from "@/lib/auth";
@@ -42,14 +43,18 @@ function GearRow({ gear, unitSystem }: { gear: Gear; unitSystem: UnitSystem }) {
       </div>
 
       {!gear.retiredAt ? (
-        <form action={retireGear}>
-          <input type="hidden" name="gearId" value={gear.id} />
-          <button type="submit" className="shrink-0 text-xs text-zinc-500 underline">
-            Retire
-          </button>
-        </form>
+        <div className="flex shrink-0 items-center gap-3">
+          <EditGearModal gear={gear} />
+          <form action={retireGear}>
+            <input type="hidden" name="gearId" value={gear.id} />
+            <button type="submit" className="text-xs text-zinc-500 underline">
+              Retire
+            </button>
+          </form>
+        </div>
       ) : (
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-3">
+          <EditGearModal gear={gear} />
           <span className="text-xs text-zinc-400">Retired</span>
           <form action={unretireGear}>
             <input type="hidden" name="gearId" value={gear.id} />

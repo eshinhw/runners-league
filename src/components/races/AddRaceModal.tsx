@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { addRun } from "@/app/(main)/settings/runs/actions";
+import { useToast } from "@/components/Toast";
 import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
 
 const inputCls =
@@ -15,6 +16,7 @@ export function AddRaceModal() {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const showToast = useToast();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -25,6 +27,7 @@ export function AddRaceModal() {
         await addRun(formData);
         formRef.current?.reset();
         setOpen(false);
+        showToast("Race added");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
       }
