@@ -1,4 +1,5 @@
 import { AddRaceModal } from "@/components/races/AddRaceModal";
+import { EditRaceModal } from "@/components/races/EditRaceModal";
 import { RunDeleteButton } from "@/components/RunDeleteButton";
 import { auth } from "@/lib/auth";
 import { formatDistance, formatDuration, formatPace } from "@/lib/format";
@@ -20,6 +21,7 @@ export default async function MyRunsPage() {
     where: { userId: session.user.id, source: "MANUAL", major: { not: null } },
     orderBy: { startedAt: "desc" },
   });
+  const unitSystem = session.user.unitSystem;
 
   return (
     <main className="flex flex-col gap-6">
@@ -55,12 +57,15 @@ export default async function MyRunsPage() {
                 <div className="font-medium">{run.title}</div>
                 <div className="text-xs text-zinc-500">{run.location ? `${run.location}` : ""}</div>
               </div>
-              <RunDeleteButton activityId={run.id} />
+              <div className="flex shrink-0 items-center gap-3">
+                <EditRaceModal run={run} />
+                <RunDeleteButton activityId={run.id} />
+              </div>
             </div>
             <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 font-mono text-sm tabular-nums">
-              <span>{formatDistance(run.distanceM)}</span>
+              <span>{formatDistance(run.distanceM, unitSystem)}</span>
               <span>{formatDuration(run.durationSec)}</span>
-              <span className="text-zinc-500">{formatPace(run.avgPaceSecPerKm)}/km</span>
+              <span className="text-zinc-500">{formatPace(run.avgPaceSecPerKm, unitSystem)}</span>
               {run.avgHeartRateBpm && <span className="text-zinc-500">{run.avgHeartRateBpm} bpm</span>}
               {run.avgCadenceSpm && <span className="text-zinc-500">{run.avgCadenceSpm} spm</span>}
             </div>

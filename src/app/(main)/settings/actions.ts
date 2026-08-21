@@ -37,7 +37,7 @@ export async function addGear(formData: FormData) {
   const model = String(formData.get("model") ?? "").trim();
   const nickname = String(formData.get("nickname") ?? "").trim();
 
-  if (!brand || !model) throw new Error("Please enter a brand and model.");
+  if (!brand) throw new Error("Please enter a brand.");
 
   const purchaseYearRaw = String(formData.get("purchaseYear") ?? "");
   const purchaseDate = purchaseYearRaw ? new Date(Date.UTC(Number(purchaseYearRaw), 0, 1)) : null;
@@ -46,7 +46,7 @@ export async function addGear(formData: FormData) {
   const photoUrl = await savePhoto(photo instanceof File ? photo : null);
 
   await prisma.gear.create({
-    data: { ownerId: userId, category, brand, model, nickname: nickname || null, purchaseDate, photoUrl },
+    data: { ownerId: userId, category, brand, model: model || null, nickname: nickname || null, purchaseDate, photoUrl },
   });
 
   revalidatePath("/settings/gear");
@@ -59,6 +59,18 @@ export async function retireGear(formData: FormData) {
   await prisma.gear.updateMany({
     where: { id: gearId, ownerId: userId },
     data: { retiredAt: new Date() },
+  });
+
+  revalidatePath("/settings/gear");
+}
+
+export async function unretireGear(formData: FormData) {
+  const userId = await requireUserId();
+  const gearId = String(formData.get("gearId") ?? "");
+
+  await prisma.gear.updateMany({
+    where: { id: gearId, ownerId: userId },
+    data: { retiredAt: null },
   });
 
   revalidatePath("/settings/gear");

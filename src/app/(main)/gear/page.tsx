@@ -1,6 +1,7 @@
 import type { GearCategory } from "@/generated/prisma/client";
 import { SignInGate } from "@/components/SignInGate";
 import { auth } from "@/lib/auth";
+import { formatGearName } from "@/lib/format";
 import { GEAR_CATEGORY_LABEL, GEAR_CATEGORY_ORDER } from "@/lib/gear";
 import { prisma } from "@/lib/prisma";
 
@@ -63,9 +64,7 @@ export default async function GearPage() {
                 className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
               >
                 <div className="text-lg">{MEDALS[i]}</div>
-                <div className="mt-1 font-medium">
-                  {item.brand} {item.model}
-                </div>
+                <div className="mt-1 font-medium">{formatGearName(item.brand, item.model)}</div>
                 <div className="mt-1 text-xs text-zinc-500">
                   {item._count._all} runner{item._count._all !== 1 ? "s" : ""}
                 </div>

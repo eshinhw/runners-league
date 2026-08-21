@@ -170,7 +170,7 @@ model Gear {
   ownerId       String
   category      GearCategory
   brand         String
-  model         String
+  model         String? // some categories (Apparel, Nutrition) are brand-only, no specific model
   nickname      String?
   photoUrl      String?
   purchaseDate  DateTime?

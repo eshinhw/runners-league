@@ -1,16 +1,21 @@
-import type { Gear, GearCategory } from "@/generated/prisma/client";
+import type { Gear, GearCategory, UnitSystem } from "@/generated/prisma/client";
 import { AddGearModal } from "@/components/gear/AddGearModal";
 import { GearDeleteButton } from "@/components/gear/GearDeleteButton";
 import { GearSlotIcon } from "@/components/GearSlotIcon";
 import { auth } from "@/lib/auth";
-import { formatDistance } from "@/lib/format";
+import { formatDistance, formatGearName } from "@/lib/format";
 import { GEAR_CATEGORY_LABEL, GEAR_CATEGORY_ORDER } from "@/lib/gear";
 import { prisma } from "@/lib/prisma";
-import { retireGear } from "../actions";
+import { retireGear, unretireGear } from "../actions";
 
 export const dynamic = "force-dynamic";
 
-function GearRow({ gear }: { gear: Gear }) {
+function GearRow({ gear, unitSystem }: { gear: Gear; unitSystem: UnitSystem }) {
+  const metaParts = [
+    gear.purchaseDate ? `Purchased ${gear.purchaseDate.getUTCFullYear()}` : null,
+    gear.totalDistanceM > 0 ? formatDistance(gear.totalDistanceM, unitSystem) : null,
+  ].filter((p): p is string => Boolean(p));
+
   return (
     <div
       className={`flex items-center gap-3 rounded-lg border p-3 ${
@@ -31,13 +36,9 @@ function GearRow({ gear }: { gear: Gear }) {
 
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-200">
-          {gear.nickname ?? `${gear.brand} ${gear.model}`}
+          {gear.nickname ?? formatGearName(gear.brand, gear.model)}
         </div>
-        <div className="text-xs text-zinc-500">
-          {gear.brand} {gear.model}
-          {gear.purchaseDate && ` · Purchased ${gear.purchaseDate.getUTCFullYear()}`}
-          {gear.totalDistanceM > 0 && ` · ${formatDistance(gear.totalDistanceM)}`}
-        </div>
+        {metaParts.length > 0 && <div className="text-xs text-zinc-500">{metaParts.join(" · ")}</div>}
       </div>
 
       {!gear.retiredAt ? (
@@ -50,6 +51,12 @@ function GearRow({ gear }: { gear: Gear }) {
       ) : (
         <div className="flex shrink-0 items-center gap-2">
           <span className="text-xs text-zinc-400">Retired</span>
+          <form action={unretireGear}>
+            <input type="hidden" name="gearId" value={gear.id} />
+            <button type="submit" className="text-xs text-zinc-500 underline">
+              Restore
+            </button>
+          </form>
           <GearDeleteButton gearId={gear.id} />
         </div>
       )}
@@ -100,7 +107,7 @@ export default async function MyGearPage() {
           </h2>
           <div className="flex flex-col gap-2">
             {items.map((g) => (
-              <GearRow key={g.id} gear={g} />
+              <GearRow key={g.id} gear={g} unitSystem={session.user.unitSystem} />
             ))}
           </div>
         </section>

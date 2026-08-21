@@ -1,5 +1,6 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth from "next-auth";
+import type { Session } from "next-auth";
 import type { Adapter } from "next-auth/adapters";
 import Google from "next-auth/providers/google";
 import Nodemailer from "next-auth/providers/nodemailer";
@@ -71,6 +72,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user) {
         session.user.id = user.id;
         session.user.username = (user as { username?: string }).username;
+        session.user.unitSystem = (user as { unitSystem?: Session["user"]["unitSystem"] }).unitSystem ?? "METRIC";
       }
       return session;
     },

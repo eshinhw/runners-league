@@ -3,7 +3,14 @@
 import { useState, useTransition } from "react";
 import { addGear } from "@/app/(main)/settings/actions";
 import type { GearCategory } from "@/generated/prisma/client";
-import { GEAR_CATEGORY_LABEL, GEAR_CATEGORY_ORDER, GEAR_PRODUCT_CATALOG, type CatalogCategory } from "@/lib/gear";
+import {
+  GEAR_BRAND_LIST,
+  GEAR_CATEGORY_LABEL,
+  GEAR_CATEGORY_ORDER,
+  GEAR_PRODUCT_CATALOG,
+  type BrandOnlyCategory,
+  type CatalogCategory,
+} from "@/lib/gear";
 
 const inputCls =
   "w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
@@ -11,25 +18,33 @@ const inputCls =
 const CURRENT_YEAR = new Date().getFullYear();
 const PURCHASE_YEARS = Array.from({ length: 21 }, (_, i) => CURRENT_YEAR - i);
 
+const OTHER = "__other__";
+
 function isCatalogCategory(category: GearCategory): category is CatalogCategory {
   return category === "SHOE" || category === "WATCH" || category === "ACCESSORY";
+}
+
+function isBrandOnlyCategory(category: GearCategory): category is BrandOnlyCategory {
+  return category === "APPAREL" || category === "NUTRITION";
 }
 
 export function AddGearModal() {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [category, setCategory] = useState<GearCategory>("SHOE");
-  const [brand, setBrand] = useState("");
+  const [brandChoice, setBrandChoice] = useState("");
   const [model, setModel] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const catalog = isCatalogCategory(category) ? GEAR_PRODUCT_CATALOG[category] : null;
-  const brandOptions = catalog ? Object.keys(catalog) : [];
-  const modelOptions = catalog && brand ? (catalog[brand] ?? []) : [];
+  const brandOnlyList = isBrandOnlyCategory(category) ? GEAR_BRAND_LIST[category] : null;
+  const brandOptions = catalog ? Object.keys(catalog) : (brandOnlyList ?? []);
+  const modelOptions = catalog && brandChoice && brandChoice !== OTHER ? (catalog[brandChoice] ?? []) : [];
+  const isOtherBrand = brandChoice === OTHER;
 
   function resetForm() {
     setCategory("SHOE");
-    setBrand("");
+    setBrandChoice("");
     setModel("");
     setError(null);
   }
@@ -39,9 +54,20 @@ export function AddGearModal() {
     setError(null);
 
     const formData = new FormData(e.currentTarget);
-    if (catalog && (!brand || !model)) {
-      setError("Please select a brand and model.");
-      return;
+
+    if (catalog || brandOnlyList) {
+      const brandVal = String(formData.get("brand") ?? "").trim();
+      if (!brandVal) {
+        setError("Please select or enter a brand.");
+        return;
+      }
+    }
+    if (catalog) {
+      const modelVal = String(formData.get("model") ?? "").trim();
+      if (!modelVal) {
+        setError("Please select or enter a model.");
+        return;
+      }
     }
 
     startTransition(async () => {
@@ -91,7 +117,7 @@ export function AddGearModal() {
                 value={category}
                 onChange={(e) => {
                   setCategory(e.target.value as GearCategory);
-                  setBrand("");
+                  setBrandChoice("");
                   setModel("");
                 }}
                 className={inputCls}
@@ -103,16 +129,66 @@ export function AddGearModal() {
                 ))}
               </select>
 
-              {catalog ? (
-                <div className="grid grid-cols-2 gap-2">
+              {catalog && (
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    <select
+                      name={isOtherBrand ? undefined : "brand"}
+                      required={!isOtherBrand}
+                      value={brandChoice}
+                      onChange={(e) => {
+                        setBrandChoice(e.target.value);
+                        setModel("");
+                      }}
+                      className={inputCls}
+                    >
+                      <option value="" disabled>
+                        Select brand
+                      </option>
+                      {brandOptions.map((b) => (
+                        <option key={b} value={b}>
+                          {b}
+                        </option>
+                      ))}
+                      <option value={OTHER}>Other (enter manually)</option>
+                    </select>
+
+                    {isOtherBrand ? (
+                      <input name="model" placeholder="Model" required className={inputCls} />
+                    ) : (
+                      <select
+                        name="model"
+                        required
+                        value={model}
+                        onChange={(e) => setModel(e.target.value)}
+                        disabled={!brandChoice}
+                        className={inputCls}
+                      >
+                        <option value="" disabled>
+                          {brandChoice ? "Select model" : "Pick a brand first"}
+                        </option>
+                        {modelOptions.map((m) => (
+                          <option key={m} value={m}>
+                            {m}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+
+                  {isOtherBrand && (
+                    <input name="brand" placeholder="Brand name" required className={inputCls} />
+                  )}
+                </>
+              )}
+
+              {brandOnlyList && (
+                <>
                   <select
-                    name="brand"
-                    required
-                    value={brand}
-                    onChange={(e) => {
-                      setBrand(e.target.value);
-                      setModel("");
-                    }}
+                    name={isOtherBrand ? undefined : "brand"}
+                    required={!isOtherBrand}
+                    value={brandChoice}
+                    onChange={(e) => setBrandChoice(e.target.value)}
                     className={inputCls}
                   >
                     <option value="" disabled>
@@ -123,49 +199,35 @@ export function AddGearModal() {
                         {b}
                       </option>
                     ))}
+                    <option value={OTHER}>Other (enter manually)</option>
                   </select>
-                  <select
-                    name="model"
-                    required
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    disabled={!brand}
-                    className={inputCls}
-                  >
-                    <option value="" disabled>
-                      {brand ? "Select model" : "Pick a brand first"}
-                    </option>
-                    {modelOptions.map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ) : (
+
+                  {isOtherBrand && (
+                    <input name="brand" placeholder="Brand name" required className={inputCls} />
+                  )}
+                </>
+              )}
+
+              {!catalog && !brandOnlyList && (
                 <div className="grid grid-cols-2 gap-2">
                   <input name="brand" placeholder="Brand" required className={inputCls} />
                   <input name="model" placeholder="Model" required className={inputCls} />
                 </div>
               )}
 
-              <label className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-zinc-500">Purchase year (optional)</span>
-                <select name="purchaseYear" defaultValue="" className={inputCls}>
-                  <option value="">Not set</option>
-                  {PURCHASE_YEARS.map((y) => (
-                    <option key={y} value={y}>
-                      {y}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <input name="nickname" placeholder="Nickname (optional)" className={inputCls} />
-              <label className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-zinc-500">Photo (optional)</span>
-                <input name="photo" type="file" accept="image/*" className="text-xs" />
-              </label>
+              {catalog && (
+                <label className="flex flex-col gap-1">
+                  <span className="text-xs font-medium text-zinc-500">Purchase year (optional)</span>
+                  <select name="purchaseYear" defaultValue="" className={inputCls}>
+                    <option value="">Not set</option>
+                    {PURCHASE_YEARS.map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
 
               {error && <p className="text-sm text-rose-500">{error}</p>}
 

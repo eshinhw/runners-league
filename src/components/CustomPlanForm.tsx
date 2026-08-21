@@ -2,34 +2,37 @@
 
 import { useState } from "react";
 import { TrainingPlanTable } from "@/components/TrainingPlanTable";
+import type { UnitSystem } from "@/generated/prisma/client";
+import { distanceUnitLabel, KM_PER_MI } from "@/lib/format";
 import { formatPaceLabel, generateCustomPlan, type CustomPlanResult } from "@/lib/training";
 
 const inputCls =
   "w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
 
-function parsePaceToSecPerKm(raw: string): number | null {
+function parsePaceToSecPerUnit(raw: string): number | null {
   const match = raw.trim().match(/^(\d+):([0-5]?\d)$/);
   if (!match) return null;
   return Number(match[1]) * 60 + Number(match[2]);
 }
 
-export function CustomPlanForm() {
+export function CustomPlanForm({ unitSystem = "METRIC" }: { unitSystem?: UnitSystem }) {
   const [result, setResult] = useState<CustomPlanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const unit = distanceUnitLabel(unitSystem);
 
   function handleSubmit(formData: FormData) {
     setError(null);
 
-    const currentWeeklyKm = Number(formData.get("currentWeeklyKm"));
-    const avgPaceSecPerKm = parsePaceToSecPerKm(String(formData.get("avgPace") ?? ""));
+    const enteredDistance = Number(formData.get("currentWeeklyDistance"));
+    const enteredPaceSecPerUnit = parsePaceToSecPerUnit(String(formData.get("avgPace") ?? ""));
     const raceDateRaw = String(formData.get("raceDate") ?? "");
 
-    if (!currentWeeklyKm || currentWeeklyKm <= 0) {
+    if (!enteredDistance || enteredDistance <= 0) {
       setError("Please enter your current weekly distance.");
       return;
     }
-    if (!avgPaceSecPerKm) {
-      setError("Please enter your average pace as m:ss, e.g. 5:45.");
+    if (!enteredPaceSecPerUnit) {
+      setError(`Please enter your average pace as m:ss, e.g. 5:45.`);
       return;
     }
     if (!raceDateRaw) {
@@ -37,13 +40,16 @@ export function CustomPlanForm() {
       return;
     }
 
+    const currentWeeklyKm = unitSystem === "IMPERIAL" ? enteredDistance * KM_PER_MI : enteredDistance;
+    const avgPaceSecPerKm = unitSystem === "IMPERIAL" ? enteredPaceSecPerUnit / KM_PER_MI : enteredPaceSecPerUnit;
+
     const weeksToRace = (new Date(raceDateRaw).getTime() - Date.now()) / (7 * 24 * 3600 * 1000);
     if (weeksToRace < 0) {
       setError("Your race date needs to be in the future.");
       return;
     }
 
-    setResult(generateCustomPlan({ currentWeeklyKm, avgPaceSecPerKm, weeksToRace }));
+    setResult(generateCustomPlan({ currentWeeklyKm, avgPaceSecPerKm, weeksToRace, unitSystem }));
   }
 
   return (
@@ -54,11 +60,19 @@ export function CustomPlanForm() {
         </p>
         <div className="grid gap-3 sm:grid-cols-3">
           <label className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-zinc-500">Current weekly distance (km)</span>
-            <input name="currentWeeklyKm" type="number" min={5} max={150} step={1} placeholder="e.g. 25" className={inputCls} />
+            <span className="text-xs font-medium text-zinc-500">Current weekly distance ({unit})</span>
+            <input
+              name="currentWeeklyDistance"
+              type="number"
+              min={3}
+              max={100}
+              step={1}
+              placeholder={unitSystem === "IMPERIAL" ? "e.g. 15" : "e.g. 25"}
+              className={inputCls}
+            />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-zinc-500">Average pace (m:ss/km)</span>
+            <span className="text-xs font-medium text-zinc-500">Average pace (m:ss/{unit})</span>
             <input name="avgPace" placeholder="e.g. 5:45" className={inputCls} />
           </label>
           <label className="flex flex-col gap-1">
@@ -82,7 +96,7 @@ export function CustomPlanForm() {
                   key={p.label}
                   className="rounded-full border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
                 >
-                  {p.label}: <span className="font-mono">{formatPaceLabel(p.secPerKm)}</span>
+                  {p.label}: <span className="font-mono">{formatPaceLabel(p.secPerKm, unitSystem)}</span>
                 </span>
               ))}
             </div>
@@ -96,7 +110,7 @@ export function CustomPlanForm() {
             </ul>
           )}
 
-          <TrainingPlanTable plan={result.plan} />
+          <TrainingPlanTable plan={result.plan} unitSystem={unitSystem} />
         </div>
       )}
     </div>

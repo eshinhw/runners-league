@@ -58,3 +58,36 @@ export const GEAR_PRODUCT_CATALOG: Record<CatalogCategory, Record<string, string
     Soundcore: ["AeroFit Pro", "Sport X10"],
   },
 };
+
+// Categories that only offer a Brand picker — no specific model, since these
+// products aren't meaningfully tracked by model the way shoes/watches are.
+export type BrandOnlyCategory = "APPAREL" | "NUTRITION";
+
+export const GEAR_BRAND_LIST: Record<BrandOnlyCategory, string[]> = {
+  APPAREL: [
+    "Nike",
+    "Adidas",
+    "lululemon",
+    "On",
+    "Brooks",
+    "Under Armour",
+    "Tracksmith",
+    "Ciele Athletics",
+    "Path Projects",
+    "Bandit Running",
+    "Smartwool",
+    "2XU",
+  ],
+  NUTRITION: [
+    "GU Energy",
+    "Maurten",
+    "Precision Fuel & Hydration",
+    "Science in Sport (SiS)",
+    "Skratch Labs",
+    "Honey Stinger",
+    "Neversecond",
+    "UCAN",
+    "Tailwind Nutrition",
+    "Clif",
+  ],
+};

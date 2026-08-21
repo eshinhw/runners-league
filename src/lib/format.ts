@@ -1,12 +1,29 @@
-export function formatDistance(meters: number): string {
-  return `${(meters / 1000).toFixed(1)} km`;
+import type { UnitSystem } from "@/generated/prisma/client";
+
+export const KM_PER_MI = 1.609344;
+
+export function distanceUnitLabel(unitSystem: UnitSystem = "METRIC"): string {
+  return unitSystem === "IMPERIAL" ? "mi" : "km";
 }
 
-export function formatPace(secPerKm: number | null): string {
+export function formatDistance(meters: number, unitSystem: UnitSystem = "METRIC"): string {
+  const km = meters / 1000;
+  if (unitSystem === "IMPERIAL") return `${(km / KM_PER_MI).toFixed(1)} mi`;
+  return `${km.toFixed(1)} km`;
+}
+
+// Same as formatDistance, but for values already in km (e.g. training plan targets).
+export function formatDistanceKm(km: number, unitSystem: UnitSystem = "METRIC"): string {
+  const value = unitSystem === "IMPERIAL" ? km / KM_PER_MI : km;
+  return `${value.toFixed(1)} ${distanceUnitLabel(unitSystem)}`;
+}
+
+export function formatPace(secPerKm: number | null, unitSystem: UnitSystem = "METRIC"): string {
   if (!secPerKm) return "–";
-  const min = Math.floor(secPerKm / 60);
-  const sec = Math.round(secPerKm % 60);
-  return `${min}'${sec.toString().padStart(2, "0")}"`;
+  const secPerUnit = unitSystem === "IMPERIAL" ? secPerKm * KM_PER_MI : secPerKm;
+  const min = Math.floor(secPerUnit / 60);
+  const sec = Math.round(secPerUnit % 60);
+  return `${min}'${sec.toString().padStart(2, "0")}"/${distanceUnitLabel(unitSystem)}`;
 }
 
 export function formatDuration(totalSec: number): string {
@@ -38,6 +55,10 @@ export function calculateAge(birthDate: Date | null, at = new Date()): number | 
     (at.getMonth() === birthDate.getMonth() && at.getDate() >= birthDate.getDate());
   if (!hadBirthdayThisYear) age -= 1;
   return age;
+}
+
+export function formatGearName(brand: string, model: string | null): string {
+  return model ? `${brand} ${model}` : brand;
 }
 
 export function initials(name: string): string {

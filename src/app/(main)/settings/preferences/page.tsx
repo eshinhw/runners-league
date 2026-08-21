@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { updatePreferences } from "./actions";
@@ -48,12 +47,6 @@ export default async function PreferencesPage() {
           Save
         </button>
       </form>
-
-      <div className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
-        <Link href="/settings/connections" className="text-sm font-medium text-orange-500 underline">
-          Manage wearable connections (Strava, Apple Watch) →
-        </Link>
-      </div>
     </main>
   );
 }

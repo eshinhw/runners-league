@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import type { GearCategory } from "@/generated/prisma/client";
 import { GearSlotIcon } from "@/components/GearSlotIcon";
 import { TierBadge } from "@/components/TierBadge";
-import { calculateAge, formatDuration, formatPace, initials } from "@/lib/format";
+import { auth } from "@/lib/auth";
+import { calculateAge, formatDuration, formatGearName, formatPace, initials } from "@/lib/format";
 import { GEAR_CATEGORY_LABEL, GEAR_CATEGORY_ORDER } from "@/lib/gear";
 import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
 import { prisma } from "@/lib/prisma";
@@ -34,6 +35,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   });
 
   if (!user) notFound();
+
+  const viewerSession = await auth();
+  const unitSystem = viewerSession?.user?.unitSystem ?? "METRIC";
 
   const age = calculateAge(user.birthDate);
   const location = [user.city, user.country].filter(Boolean).join(", ");
@@ -117,7 +121,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                   <td className="py-2 text-zinc-500">{a.startedAt.toISOString().slice(0, 10)}</td>
                   <td className="py-2 text-right font-mono tabular-nums">{formatDuration(a.durationSec)}</td>
                   <td className="py-2 text-right font-mono tabular-nums text-zinc-500">
-                    {formatPace(a.avgPaceSecPerKm)}/km
+                    {formatPace(a.avgPaceSecPerKm, unitSystem)}
                   </td>
                 </tr>
               ))}
@@ -157,7 +161,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                   </div>
                   {item ? (
                     <div className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                      {item.nickname ?? `${item.brand} ${item.model}`}
+                      {item.nickname ?? formatGearName(item.brand, item.model)}
                     </div>
                   ) : (
                     <div className="text-sm text-zinc-400">Empty</div>

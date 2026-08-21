@@ -95,6 +95,60 @@ export async function addRun(formData: FormData) {
   revalidatePath("/settings/runs");
 }
 
+export async function updateRun(activityId: string, formData: FormData) {
+  const userId = await requireUserId();
+
+  const existing = await prisma.activity.findFirst({
+    where: { id: activityId, userId, source: "MANUAL" },
+  });
+  if (!existing) throw new Error("Race not found.");
+
+  const major = String(formData.get("major") ?? "") as MarathonMajor;
+  if (!MAJORS_ORDER.includes(major)) throw new Error("Please select a major marathon.");
+
+  const yearRaw = String(formData.get("year") ?? "");
+  const year = Number(yearRaw);
+  if (!year) throw new Error("Please select a year.");
+
+  const calendarEntry = MAJORS_CALENDAR.find((e) => e.major === major && e.year === year);
+  const startedAt = calendarEntry ? new Date(`${calendarEntry.date}T09:00:00Z`) : new Date(Date.UTC(year, 0, 1, 9));
+  const title = `${year} ${MAJOR_INFO[major].name}`;
+
+  const hours = Number(formData.get("hours") ?? 0);
+  const minutes = Number(formData.get("minutes") ?? 0);
+  const seconds = Number(formData.get("seconds") ?? 0);
+  const durationSec = hours * 3600 + minutes * 60 + seconds;
+  if (durationSec <= 0) throw new Error("Please enter a finish time.");
+
+  const paceRaw = String(formData.get("avgPace") ?? "");
+  const avgPaceSecPerKm = parsePaceToSecPerKm(paceRaw) ?? Math.round(durationSec / (MARATHON_DISTANCE_M / 1000));
+
+  const heartRateRaw = String(formData.get("avgHeartRate") ?? "");
+  const cadenceRaw = String(formData.get("avgCadence") ?? "");
+
+  const keptPhotoUrls = formData.getAll("keepPhoto").map((v) => String(v));
+  const newPhotos = formData.getAll("photos").filter((f): f is File => f instanceof File);
+  const newPhotoUrls = await savePhotos(newPhotos);
+  const photoUrls = [...keptPhotoUrls, ...newPhotoUrls];
+
+  await prisma.activity.update({
+    where: { id: activityId },
+    data: {
+      title,
+      major,
+      durationSec,
+      avgPaceSecPerKm,
+      avgHeartRateBpm: heartRateRaw ? Number(heartRateRaw) : null,
+      avgCadenceSpm: cadenceRaw ? Number(cadenceRaw) : null,
+      startedAt,
+      location: `${MAJOR_INFO[major].city}, ${MAJOR_INFO[major].country}`,
+      photoUrls,
+    },
+  });
+
+  revalidatePath("/settings/runs");
+}
+
 export async function deleteRun(activityId: string) {
   const userId = await requireUserId();
 

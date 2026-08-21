@@ -43,6 +43,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
 
   const sp = await searchParams;
   const tab: Tab = sp.tab === "edition" ? "edition" : "completed";
+  const unitSystem = session.user.unitSystem;
 
   const editions = tab === "edition" ? await getEditionsWithResults(prisma) : [];
   const availableMajors = MAJORS_ORDER.filter((m) => editions.some((e) => e.major === m));
@@ -173,7 +174,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
                     </td>
                     <td className="py-2 text-right font-mono tabular-nums">{formatDuration(row.durationSec)}</td>
                     <td className="py-2 text-right font-mono tabular-nums text-zinc-500">
-                      {formatPace(row.avgPaceSecPerKm)}/km
+                      {formatPace(row.avgPaceSecPerKm, unitSystem)}
                     </td>
                   </tr>
                 ))

@@ -1,3 +1,6 @@
+import type { UnitSystem } from "@/generated/prisma/client";
+import { distanceUnitLabel, formatDistanceKm, KM_PER_MI } from "@/lib/format";
+
 export type TrainingWeek = {
   week: number;
   phase: "Base" | "Build" | "Peak" | "Taper" | "Race";
@@ -115,6 +118,7 @@ export type CustomPlanInput = {
   currentWeeklyKm: number;
   avgPaceSecPerKm: number;
   weeksToRace: number;
+  unitSystem?: UnitSystem;
 };
 
 export type CustomPlanResult = {
@@ -123,15 +127,17 @@ export type CustomPlanResult = {
   notes: string[];
 };
 
-function formatPaceLabel(secPerKm: number): string {
-  const min = Math.floor(secPerKm / 60);
-  const sec = Math.round(secPerKm % 60);
-  return `${min}:${sec.toString().padStart(2, "0")}/km`;
+function formatPaceLabel(secPerKm: number, unitSystem: UnitSystem = "METRIC"): string {
+  const secPerUnit = unitSystem === "IMPERIAL" ? secPerKm * KM_PER_MI : secPerKm;
+  const min = Math.floor(secPerUnit / 60);
+  const sec = Math.round(secPerUnit % 60);
+  return `${min}:${sec.toString().padStart(2, "0")}/${distanceUnitLabel(unitSystem)}`;
 }
 
 export function generateCustomPlan(input: CustomPlanInput): CustomPlanResult {
   const weeksToRace = Math.max(4, Math.min(24, Math.round(input.weeksToRace)));
   const currentKm = Math.max(5, input.currentWeeklyKm);
+  const unitSystem = input.unitSystem ?? "METRIC";
   const taperWeeks = weeksToRace >= 10 ? 3 : 2;
 
   // Cap growth to a safe ~8%/week compounding rate, bounded by the weeks available.
@@ -172,7 +178,7 @@ export function generateCustomPlan(input: CustomPlanInput): CustomPlanResult {
     plan: {
       key: "custom",
       title: "Your Custom Plan",
-      subtitle: `${weeksToRace} weeks, built from your current ${currentKm}km/week base.`,
+      subtitle: `${weeksToRace} weeks, built from your current ${formatDistanceKm(currentKm, unitSystem)}/week base.`,
       weeks,
     },
     paces,
