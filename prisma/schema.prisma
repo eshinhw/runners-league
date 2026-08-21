@@ -238,8 +238,9 @@ model Activity {
   @@index([major])
 }
 
-// The World Marathon Majors — the 7 races that make up the modern Six/Seven
-// Star Finisher series.
+// The World Marathon Majors — the series is still growing (Sydney joined in
+// 2025, Cape Town is set to join in 2027), so this list is expected to gain
+// values over time rather than staying fixed at any particular count.
 enum MarathonMajor {
   TOKYO
   BOSTON
@@ -348,6 +349,7 @@ model Post {
 }
 
 enum PostType {
+  DISCUSSION
   TRAINING_PLAN
   ARTICLE
   QUESTION

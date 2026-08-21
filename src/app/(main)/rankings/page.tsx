@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { MarathonMajor } from "@/generated/prisma/client";
+import { SignInGate } from "@/components/SignInGate";
+import { auth } from "@/lib/auth";
 import { formatDuration, formatPace } from "@/lib/format";
 import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
 import { prisma } from "@/lib/prisma";
@@ -27,6 +29,16 @@ function isMajor(value: string | undefined): value is MarathonMajor {
 }
 
 export default async function RankingsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return (
+      <SignInGate
+        title="Rankings"
+        description="Sign in to see how you stack up against other runners chasing the World Marathon Majors."
+      />
+    );
+  }
+
   const sp = await searchParams;
   const tab: Tab = sp.tab === "edition" ? "edition" : "completed";
 
@@ -93,7 +105,9 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
                       ))}
                     </div>
                   </td>
-                  <td className="py-2 text-right font-mono tabular-nums">{row.majorsCompleted.length} / 7</td>
+                  <td className="py-2 text-right font-mono tabular-nums">
+                    {row.majorsCompleted.length} / {MAJORS_ORDER.length}
+                  </td>
                 </tr>
               ))
             ) : (

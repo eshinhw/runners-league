@@ -10,14 +10,90 @@ export const MAJORS_ORDER: MarathonMajor[] = [
   "NEW_YORK",
 ];
 
-export const MAJOR_INFO: Record<MarathonMajor, { name: string; city: string; country: string }> = {
-  TOKYO: { name: "Tokyo Marathon", city: "Tokyo", country: "Japan" },
-  BOSTON: { name: "Boston Marathon", city: "Boston", country: "USA" },
-  LONDON: { name: "London Marathon", city: "London", country: "UK" },
-  SYDNEY: { name: "Sydney Marathon", city: "Sydney", country: "Australia" },
-  BERLIN: { name: "Berlin Marathon", city: "Berlin", country: "Germany" },
-  CHICAGO: { name: "Chicago Marathon", city: "Chicago", country: "USA" },
-  NEW_YORK: { name: "New York City Marathon", city: "New York", country: "USA" },
+export type RaceDistance = "5K" | "10K" | "Half" | "Full" | "Ultra";
+
+export const MAJOR_INFO: Record<
+  MarathonMajor,
+  {
+    name: string;
+    city: string;
+    country: string;
+    websiteUrl: string;
+    distances: RaceDistance[];
+    description: string;
+    accent: [string, string]; // gradient pair used for the city art card
+  }
+> = {
+  TOKYO: {
+    name: "Tokyo Marathon",
+    city: "Tokyo",
+    country: "Japan",
+    websiteUrl: "https://www.marathon.tokyo/en/",
+    distances: ["10K", "Full"],
+    description:
+      "One of the fastest courses in the series, passing Tokyo Tower, the Imperial Palace, and Asakusa's Senso-ji Temple.",
+    accent: ["#6d28d9", "#db2777"],
+  },
+  BOSTON: {
+    name: "Boston Marathon",
+    city: "Boston",
+    country: "USA",
+    websiteUrl: "https://www.baa.org/races/boston-marathon",
+    distances: ["5K", "Full"],
+    description:
+      "The world's oldest annual marathon, run point-to-point from Hopkinton and finishing past the climb over Heartbreak Hill.",
+    accent: ["#1d4ed8", "#f59e0b"],
+  },
+  LONDON: {
+    name: "London Marathon",
+    city: "London",
+    country: "UK",
+    websiteUrl: "https://www.tcslondonmarathon.com/",
+    distances: ["5K", "Full"],
+    description:
+      "A flat, fast course along the Thames, drawing one of the largest fields in the series and finishing near Buckingham Palace.",
+    accent: ["#0f766e", "#0ea5e9"],
+  },
+  SYDNEY: {
+    name: "Sydney Marathon",
+    city: "Sydney",
+    country: "Australia",
+    websiteUrl: "https://www.sydneymarathon.com/",
+    distances: ["5K", "10K", "Half", "Full"],
+    description:
+      "The newest race in the series, crossing the Sydney Harbour Bridge with the Opera House as its finish-line backdrop.",
+    accent: ["#0891b2", "#f97316"],
+  },
+  BERLIN: {
+    name: "Berlin Marathon",
+    city: "Berlin",
+    country: "Germany",
+    websiteUrl: "https://www.bmw-berlin-marathon.com/en/",
+    distances: ["5K", "Full"],
+    description:
+      "Famous for record-breaking speed on one of the flattest courses in the world, finishing through the Brandenburg Gate.",
+    accent: ["#334155", "#dc2626"],
+  },
+  CHICAGO: {
+    name: "Chicago Marathon",
+    city: "Chicago",
+    country: "USA",
+    websiteUrl: "https://www.chicagomarathon.com/",
+    distances: ["5K", "Full"],
+    description:
+      "A fast, flat loop through Chicago's neighborhoods, ending in Grant Park along the Lake Michigan shoreline.",
+    accent: ["#1e3a8a", "#64748b"],
+  },
+  NEW_YORK: {
+    name: "New York City Marathon",
+    city: "New York",
+    country: "USA",
+    websiteUrl: "https://www.nyrr.org/tcsnycmarathon",
+    distances: ["5K", "Full"],
+    description:
+      "The world's largest marathon, crossing all five boroughs of New York City and finishing in Central Park.",
+    accent: ["#4c1d95", "#f97316"],
+  },
 };
 
 export type MajorEdition = {

@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { GENDER_LABEL, REGION_LABEL } from "@/lib/rankings";
+import { GENDER_LABEL } from "@/lib/rankings";
 import { updateProfile } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -35,7 +35,7 @@ export default async function ProfilePage() {
   const user = await prisma.user.findUniqueOrThrow({ where: { id: session.user.id } });
 
   return (
-    <main className="flex max-w-md flex-col gap-5">
+    <main className="flex max-w-3xl flex-col gap-5">
       <div>
         <h1 className="text-xl font-semibold">My Profile</h1>
         <p className="mt-1 text-sm text-zinc-500">Manage your personal information.</p>
@@ -101,20 +101,6 @@ export default async function ProfilePage() {
             />
           </Field>
         </div>
-
-        <Field label="Rankings Region Segment">
-          <select name="region" defaultValue={user.region ?? ""} className={inputCls}>
-            <option value="">Not set</option>
-            {Object.entries(REGION_LABEL).map(([k, v]) => (
-              <option key={k} value={k}>
-                {v}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <p className="text-xs text-zinc-400">
-          Gender, date of birth, and region are used for Rankings segment filters.
-        </p>
 
         <button type="submit" className="mt-1 rounded bg-orange-500 px-4 py-2 text-sm font-medium text-white">
           Save

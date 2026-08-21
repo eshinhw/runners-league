@@ -1,0 +1,3 @@
+-- AlterEnum
+ALTER TYPE "PostType" ADD VALUE 'DISCUSSION';
+

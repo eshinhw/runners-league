@@ -1,27 +1,10 @@
-import type { Gender, MarathonMajor, PrismaClient, Region } from "../generated/prisma/client";
+import type { Gender, MarathonMajor, PrismaClient } from "../generated/prisma/client";
 import { MAJORS_ORDER } from "./majors";
 
 export const GENDER_LABEL: Record<Gender, string> = {
   MALE: "Male",
   FEMALE: "Female",
   UNSPECIFIED: "All",
-};
-
-export const REGION_LABEL: Record<Region, string> = {
-  ONTARIO: "Ontario",
-  QUEBEC: "Quebec",
-  BRITISH_COLUMBIA: "British Columbia",
-  ALBERTA: "Alberta",
-  MANITOBA: "Manitoba",
-  SASKATCHEWAN: "Saskatchewan",
-  NOVA_SCOTIA: "Nova Scotia",
-  NEW_BRUNSWICK: "New Brunswick",
-  NEWFOUNDLAND_AND_LABRADOR: "Newfoundland and Labrador",
-  PRINCE_EDWARD_ISLAND: "Prince Edward Island",
-  YUKON: "Yukon",
-  NORTHWEST_TERRITORIES: "Northwest Territories",
-  NUNAVUT: "Nunavut",
-  OTHER: "Other",
 };
 
 // ---- Majors Completed leaderboard: how many of the 7 majors each runner has finished ----

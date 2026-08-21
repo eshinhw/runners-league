@@ -32,7 +32,7 @@ export default async function MyGearPage() {
   });
 
   return (
-    <main className="flex max-w-md flex-col gap-6">
+    <main className="flex max-w-3xl flex-col gap-6">
       <h1 className="text-xl font-semibold">My Gears</h1>
 
       <form action={addGear} className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
