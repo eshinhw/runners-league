@@ -41,7 +41,7 @@ export const GEAR_PRODUCT_CATALOG: Record<CatalogCategory, Record<string, string
   },
   WATCH: {
     Garmin: ["Forerunner 970", "Forerunner 265", "Fenix 8 Pro", "Epix Pro", "Instinct 3", "Enduro 3"],
-    "Apple Watch": ["Ultra 2", "Series 10", "SE"],
+    Apple: ["Ultra 1", "Ultra 2", "Ultra 3", "Series 10", "SE"],
     Coros: ["Pace 4", "Pace 3", "Apex 4", "Apex 2 Pro", "Vertix 2"],
     Polar: ["Vantage V3", "Grit X2", "Pacer Pro"],
     Suunto: ["Race 2", "Vertical 2", "9 Peak Pro"],

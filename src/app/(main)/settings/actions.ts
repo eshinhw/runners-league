@@ -74,6 +74,33 @@ export async function updateGear(gearId: string, formData: FormData) {
   revalidatePath("/settings/gear");
 }
 
+// Toggles a gear item as the favorite within its category. Setting a new
+// favorite clears any previous one for that owner+category — at most one
+// favorite per category, enforced here rather than as a DB constraint since
+// "no favorite yet" is also valid.
+export async function toggleFavoriteGear(formData: FormData) {
+  const userId = await requireUserId();
+  const gearId = String(formData.get("gearId") ?? "");
+
+  const gear = await prisma.gear.findFirst({ where: { id: gearId, ownerId: userId } });
+  if (!gear) throw new Error("Gear not found.");
+
+  if (gear.isFavorite) {
+    await prisma.gear.update({ where: { id: gearId }, data: { isFavorite: false } });
+  } else {
+    await prisma.$transaction([
+      prisma.gear.updateMany({
+        where: { ownerId: userId, category: gear.category, isFavorite: true },
+        data: { isFavorite: false },
+      }),
+      prisma.gear.update({ where: { id: gearId }, data: { isFavorite: true } }),
+    ]);
+  }
+
+  revalidatePath("/settings/gear");
+  revalidatePath("/gear");
+}
+
 export async function retireGear(formData: FormData) {
   const userId = await requireUserId();
   const gearId = String(formData.get("gearId") ?? "");

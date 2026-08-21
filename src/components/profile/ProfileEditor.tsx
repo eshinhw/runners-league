@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { updateProfile } from "@/app/(main)/settings/profile/actions";
 import { useToast } from "@/components/Toast";
 import type { Gender } from "@/generated/prisma/client";
+import { initials } from "@/lib/format";
 import { GENDER_LABEL } from "@/lib/rankings";
 
 const inputCls =
@@ -60,16 +61,25 @@ type ProfileUser = {
   city: string | null;
   weightKg: number | null;
   heightCm: number | null;
+  avatarUrl: string | null;
+  image: string | null;
 };
 
 export function ProfileEditor({ user }: { user: ProfileUser }) {
   const [editing, setEditing] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const showToast = useToast();
 
   const birthParts = birthDateParts(user.birthDate);
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
+  const avatarSrc = avatarPreview ?? user.avatarUrl ?? user.image;
+
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    setAvatarPreview(file ? URL.createObjectURL(file) : null);
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -79,6 +89,7 @@ export function ProfileEditor({ user }: { user: ProfileUser }) {
       try {
         await updateProfile(formData);
         setEditing(false);
+        setAvatarPreview(null);
         showToast("Profile saved");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -90,7 +101,17 @@ export function ProfileEditor({ user }: { user: ProfileUser }) {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-          <Row label="Display ID" value={user.displayId} />
+          <div className="flex items-center gap-3">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-200 text-lg font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+              {avatarSrc ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarSrc} alt="" className="h-full w-full object-cover" />
+              ) : (
+                initials(fullName || user.displayId)
+              )}
+            </div>
+            <Row label="Display ID" value={user.displayId} />
+          </div>
           <Row label="Name" value={fullName || "—"} />
           <Row label="Bio" value={user.bio || "—"} />
           <div className="grid grid-cols-2 gap-3">
@@ -119,6 +140,21 @@ export function ProfileEditor({ user }: { user: ProfileUser }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="flex items-center gap-4">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-200 text-lg font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+          {avatarSrc ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarSrc} alt="" className="h-full w-full object-cover" />
+          ) : (
+            initials(fullName || user.displayId)
+          )}
+        </div>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-zinc-500">Avatar</span>
+          <input name="avatar" type="file" accept="image/*" onChange={handleAvatarChange} className="text-xs" />
+        </label>
+      </div>
+
       <Field label="Display ID">
         <input name="displayId" defaultValue={user.displayId} required className={inputCls} />
       </Field>

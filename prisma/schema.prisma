@@ -47,6 +47,7 @@ model User {
   posts            Post[]
   comments         Comment[]
   likes            Like[]
+  tracks           Track[]
   externalAccounts ExternalAccount[]
   deviceTokens     DeviceToken[]
 
@@ -175,6 +176,9 @@ model Gear {
   photoUrl      String?
   purchaseDate  DateTime?
   retiredAt     DateTime?
+  // At most one favorite per owner+category — enforced in code (setting one
+  // clears any other), not a DB constraint, since "no favorite yet" is valid.
+  isFavorite    Boolean    @default(false)
   totalDistanceM Int       @default(0) // denormalized, updated as activities link in
   notes         String?
   createdAt     DateTime   @default(now())
@@ -359,6 +363,31 @@ enum PostType {
   QUESTION
 }
 
+// ---------- Community Playlist ----------
+//
+// Songs are deduplicated by iTunes track id — sharing a song that's already
+// on the chart just upvotes the existing entry instead of creating a
+// duplicate row. "Verification" means every track is looked up against the
+// iTunes Search API server-side before it's inserted, so only real songs
+// ever make it onto the chart.
+
+model Track {
+  id            String   @id @default(cuid())
+  itunesTrackId String   @unique
+  title         String
+  artist        String
+  albumArtUrl   String?
+  previewUrl    String?
+  itunesUrl     String
+  submittedBy   User     @relation(fields: [submittedById], references: [id])
+  submittedById String
+  createdAt     DateTime @default(now())
+
+  likes Like[]
+
+  @@index([submittedById])
+}
+
 // ---------- Shared engagement primitives ----------
 
 model Comment {
@@ -387,7 +416,10 @@ model Like {
   activityId String?
   post       Post?     @relation(fields: [postId], references: [id])
   postId     String?
+  track      Track?    @relation(fields: [trackId], references: [id])
+  trackId    String?
 
   @@unique([userId, activityId])
   @@unique([userId, postId])
+  @@unique([userId, trackId])
 }

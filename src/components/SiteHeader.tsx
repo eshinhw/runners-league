@@ -6,8 +6,9 @@ const NAV_ITEMS = [
   { href: "/races", label: "Races" },
   { href: "/training", label: "Training" },
   { href: "/rankings", label: "Rankings" },
-  { href: "/community", label: "Community" },
   { href: "/gear", label: "Top Gears" },
+  { href: "/playlist", label: "Runners Playlist" },
+  { href: "/community", label: "Community" },
 ];
 
 export async function SiteHeader() {
@@ -30,7 +31,10 @@ export async function SiteHeader() {
         <UserMenu
           user={
             session?.user
-              ? { displayName: session.user.name ?? "Runner", image: session.user.image ?? null }
+              ? {
+                  displayName: session.user.name ?? "Runner",
+                  image: session.user.avatarUrl ?? session.user.image ?? null,
+                }
               : null
           }
         />

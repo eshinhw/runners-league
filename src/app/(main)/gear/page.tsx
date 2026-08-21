@@ -9,6 +9,8 @@ export const dynamic = "force-dynamic";
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
+type Agg = { category: GearCategory; brand: string; model: string | null; count: number; totalDistanceM: number };
+
 export default async function GearPage() {
   const session = await auth();
   if (!session?.user?.id) {
@@ -20,13 +22,29 @@ export default async function GearPage() {
     );
   }
 
-  const grouped = await prisma.gear.groupBy({
-    by: ["category", "brand", "model"],
-    _count: { _all: true },
-    _sum: { totalDistanceM: true },
+  // Only each runner's starred gear counts — at most one favorite per
+  // owner+category (enforced in toggleFavoriteGear), so no further
+  // de-duplication is needed here. Unstarred gear, even if it's the only
+  // item in its category, doesn't count until the runner favorites it.
+  const favoritedGear = await prisma.gear.findMany({
+    where: { retiredAt: null, isFavorite: true },
+    select: { category: true, brand: true, model: true, totalDistanceM: true },
   });
 
-  const byCategory = new Map<GearCategory, typeof grouped>();
+  const aggMap = new Map<string, Agg>();
+  for (const g of favoritedGear) {
+    const key = `${g.category}:${g.brand}:${g.model ?? ""}`;
+    const existing = aggMap.get(key);
+    if (existing) {
+      existing.count += 1;
+      existing.totalDistanceM += g.totalDistanceM;
+    } else {
+      aggMap.set(key, { category: g.category, brand: g.brand, model: g.model, count: 1, totalDistanceM: g.totalDistanceM });
+    }
+  }
+
+  const grouped = [...aggMap.values()];
+  const byCategory = new Map<GearCategory, Agg[]>();
   for (const g of grouped) {
     const list = byCategory.get(g.category) ?? [];
     list.push(g);
@@ -36,10 +54,7 @@ export default async function GearPage() {
   const sections = GEAR_CATEGORY_ORDER.map((category) => ({
     category,
     items: (byCategory.get(category) ?? [])
-      .sort(
-        (a, b) =>
-          b._count._all - a._count._all || (b._sum.totalDistanceM ?? 0) - (a._sum.totalDistanceM ?? 0),
-      )
+      .sort((a, b) => b.count - a.count || b.totalDistanceM - a.totalDistanceM)
       .slice(0, 3),
   })).filter((s) => s.items.length > 0);
 
@@ -48,7 +63,7 @@ export default async function GearPage() {
       <div>
         <h1 className="text-xl font-semibold">Top Gears</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          The most-used gear across Runners League, by category.
+          The most-used gear across Runners League, by category — based on each runner&apos;s favorite pick.
         </p>
       </div>
 
@@ -66,7 +81,7 @@ export default async function GearPage() {
                 <div className="text-lg">{MEDALS[i]}</div>
                 <div className="mt-1 font-medium">{formatGearName(item.brand, item.model)}</div>
                 <div className="mt-1 text-xs text-zinc-500">
-                  {item._count._all} runner{item._count._all !== 1 ? "s" : ""}
+                  {item.count} runner{item.count !== 1 ? "s" : ""}
                 </div>
               </div>
             ))}

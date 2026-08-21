@@ -7,6 +7,7 @@ declare module "next-auth" {
       id: string;
       username?: string;
       unitSystem: UnitSystem;
+      avatarUrl: string | null;
     } & DefaultSession["user"];
   }
 }

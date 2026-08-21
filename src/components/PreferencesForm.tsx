@@ -8,13 +8,7 @@ import type { Language, UnitSystem } from "@/generated/prisma/client";
 const inputCls =
   "w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
 
-export function PreferencesForm({
-  unitSystem,
-  language,
-}: {
-  unitSystem: UnitSystem;
-  language: Language;
-}) {
+export function PreferencesForm({ unitSystem, language }: { unitSystem: UnitSystem; language: Language }) {
   const [pending, startTransition] = useTransition();
   const showToast = useToast();
 
@@ -34,14 +28,6 @@ export function PreferencesForm({
         <select name="unitSystem" defaultValue={unitSystem} className={inputCls}>
           <option value="METRIC">Metric (km, kg)</option>
           <option value="IMPERIAL">Imperial (mi, lb)</option>
-        </select>
-      </label>
-
-      <label className="flex flex-col gap-1">
-        <span className="text-xs font-medium text-zinc-500">Language</span>
-        <select name="language" defaultValue={language} className={inputCls}>
-          <option value="EN">English</option>
-          <option value="KO">한국어</option>
         </select>
       </label>
 
