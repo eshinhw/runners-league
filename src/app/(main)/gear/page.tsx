@@ -7,8 +7,6 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-const MEDALS = ["🥇", "🥈", "🥉"];
-
 type Agg = { category: GearCategory; brand: string; model: string | null; count: number; totalDistanceM: number };
 
 export default async function GearPage() {
@@ -53,9 +51,9 @@ export default async function GearPage() {
 
   const sections = GEAR_CATEGORY_ORDER.map((category) => ({
     category,
-    items: (byCategory.get(category) ?? [])
-      .sort((a, b) => b.count - a.count || b.totalDistanceM - a.totalDistanceM)
-      .slice(0, 3),
+    items: (byCategory.get(category) ?? []).sort(
+      (a, b) => b.count - a.count || b.totalDistanceM - a.totalDistanceM,
+    ),
   })).filter((s) => s.items.length > 0);
 
   return (
@@ -72,20 +70,24 @@ export default async function GearPage() {
       {sections.map(({ category, items }) => (
         <section key={category} className="flex flex-col gap-3">
           <h2 className="text-lg font-semibold">{GEAR_CATEGORY_LABEL[category]}</h2>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {items.map((item, i) => (
-              <div
-                key={`${item.brand}-${item.model}`}
-                className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
-              >
-                <div className="text-lg">{MEDALS[i]}</div>
-                <div className="mt-1 font-medium">{formatGearName(item.brand, item.model)}</div>
-                <div className="mt-1 text-xs text-zinc-500">
-                  {item.count} runner{item.count !== 1 ? "s" : ""}
-                </div>
-              </div>
-            ))}
-          </div>
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-400 dark:border-zinc-800">
+                <th className="w-10 py-2">#</th>
+                <th className="py-2">Gear</th>
+                <th className="py-2 text-right">Runners</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, i) => (
+                <tr key={`${item.brand}-${item.model}`} className="border-b border-zinc-100 dark:border-zinc-900">
+                  <td className="py-2 font-mono tabular-nums text-zinc-400">{i + 1}</td>
+                  <td className="py-2 font-medium">{formatGearName(item.brand, item.model)}</td>
+                  <td className="py-2 text-right font-mono tabular-nums text-zinc-500">{item.count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </section>
       ))}
     </main>

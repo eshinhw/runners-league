@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { updateProfile } from "@/app/(main)/settings/profile/actions";
+import { Avatar } from "@/components/Avatar";
 import { useToast } from "@/components/Toast";
 import type { Gender } from "@/generated/prisma/client";
 import { initials } from "@/lib/format";
@@ -102,14 +103,12 @@ export function ProfileEditor({ user }: { user: ProfileUser }) {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
           <div className="flex items-center gap-3">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-200 text-lg font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-              {avatarSrc ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={avatarSrc} alt="" className="h-full w-full object-cover" />
-              ) : (
-                initials(fullName || user.displayId)
-              )}
-            </div>
+            <Avatar
+              src={avatarSrc}
+              alt=""
+              fallbackText={initials(fullName || user.displayId)}
+              className="h-16 w-16 shrink-0 text-lg"
+            />
             <Row label="Display ID" value={user.displayId} />
           </div>
           <Row label="Name" value={fullName || "—"} />
@@ -141,14 +140,12 @@ export function ProfileEditor({ user }: { user: ProfileUser }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-200 text-lg font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-          {avatarSrc ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarSrc} alt="" className="h-full w-full object-cover" />
-          ) : (
-            initials(fullName || user.displayId)
-          )}
-        </div>
+        <Avatar
+          src={avatarSrc}
+          alt=""
+          fallbackText={initials(fullName || user.displayId)}
+          className="h-16 w-16 shrink-0 text-lg"
+        />
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-zinc-500">Avatar</span>
           <input name="avatar" type="file" accept="image/*" onChange={handleAvatarChange} className="text-xs" />

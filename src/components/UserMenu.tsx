@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { Avatar } from "@/components/Avatar";
 import { userSignOut } from "@/lib/auth-actions";
 import { initials } from "@/lib/format";
 
@@ -45,14 +46,14 @@ export function UserMenu({ user }: { user: SessionUser | null }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
+        className="block h-8 w-8 shrink-0"
       >
-        {user.image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={user.image} alt={user.displayName} className="h-full w-full object-cover" />
-        ) : (
-          initials(user.displayName)
-        )}
+        <Avatar
+          src={user.image}
+          alt={user.displayName}
+          fallbackText={initials(user.displayName)}
+          className="h-8 w-8 text-xs"
+        />
       </button>
 
       {open && (

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { GearCategory } from "@/generated/prisma/client";
+import { Avatar } from "@/components/Avatar";
 import { GearSlotIcon } from "@/components/GearSlotIcon";
 import { TierBadge } from "@/components/TierBadge";
 import { auth } from "@/lib/auth";
@@ -66,14 +67,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   return (
     <main className="flex max-w-3xl flex-col gap-8">
       <div className="flex items-start gap-4">
-        <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-200 text-xl font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-          {avatarSrc ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarSrc} alt={user.displayId} className="h-full w-full object-cover" />
-          ) : (
-            initials(fullName || user.displayId)
-          )}
-        </div>
+        <Avatar
+          src={avatarSrc}
+          alt={user.displayId}
+          fallbackText={initials(fullName || user.displayId)}
+          className="h-20 w-20 shrink-0 text-xl"
+        />
 
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">

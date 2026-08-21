@@ -48,6 +48,8 @@ next-env.d.ts
 /.windsurf
 skills-lock.json
 
-# user-uploaded run photos (local disk storage — swap for object storage in prod)
+# user-uploaded photos (local disk storage — swap for object storage in prod)
 /public/uploads/runs/*
 !/public/uploads/runs/.gitkeep
+/public/uploads/avatars/*
+/public/uploads/gear/*
