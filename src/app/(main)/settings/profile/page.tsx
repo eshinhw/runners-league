@@ -42,41 +42,52 @@ export default async function ProfilePage() {
       </div>
 
       <form action={updateProfile} className="flex flex-col gap-4">
-        <Field label="Name">
-          <input name="displayName" defaultValue={user.displayName} required className={inputCls} />
+        <Field label="Display ID">
+          <input name="displayId" defaultValue={user.displayId} required className={inputCls} />
         </Field>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="First Name">
+            <input name="firstName" defaultValue={user.firstName} required className={inputCls} />
+          </Field>
+          <Field label="Last Name">
+            <input name="lastName" defaultValue={user.lastName ?? ""} className={inputCls} />
+          </Field>
+        </div>
+
         <Field label="Bio">
           <textarea name="bio" defaultValue={user.bio ?? ""} rows={3} className={inputCls} />
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field label="City">
-            <input name="city" defaultValue={user.city ?? ""} placeholder="e.g. Toronto" className={inputCls} />
+          <Field label="Gender">
+            <select name="gender" defaultValue={user.gender} className={inputCls}>
+              {Object.entries(GENDER_LABEL).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v}
+                </option>
+              ))}
+            </select>
           </Field>
-          <Field label="Country">
-            <input name="country" defaultValue={user.country ?? "Canada"} placeholder="e.g. Canada" className={inputCls} />
+          <Field label="Date of Birth">
+            <input
+              name="birthDate"
+              type="date"
+              defaultValue={toDateInputValue(user.birthDate)}
+              max={new Date().toISOString().slice(0, 10)}
+              className={inputCls}
+            />
           </Field>
         </div>
 
-        <Field label="Gender">
-          <select name="gender" defaultValue={user.gender} className={inputCls}>
-            {Object.entries(GENDER_LABEL).map(([k, v]) => (
-              <option key={k} value={k}>
-                {v}
-              </option>
-            ))}
-          </select>
-        </Field>
-
-        <Field label="Date of Birth">
-          <input
-            name="birthDate"
-            type="date"
-            defaultValue={toDateInputValue(user.birthDate)}
-            max={new Date().toISOString().slice(0, 10)}
-            className={inputCls}
-          />
-        </Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Country">
+            <input name="country" defaultValue={user.country ?? "Canada"} placeholder="e.g. Canada" className={inputCls} />
+          </Field>
+          <Field label="City">
+            <input name="city" defaultValue={user.city ?? ""} placeholder="e.g. Toronto" className={inputCls} />
+          </Field>
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <Field label="Weight (kg)">

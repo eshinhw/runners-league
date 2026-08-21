@@ -1,11 +1,13 @@
 import Link from "next/link";
 import type { MarathonMajor } from "@/generated/prisma/client";
 import { SignInGate } from "@/components/SignInGate";
+import { TierBadge } from "@/components/TierBadge";
 import { auth } from "@/lib/auth";
 import { formatDuration, formatPace } from "@/lib/format";
 import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
 import { prisma } from "@/lib/prisma";
 import { getEditionsWithResults, getMajorEditionLeaderboard, getMajorsCompletedLeaderboard } from "@/lib/rankings";
+import { getTierForCount } from "@/lib/tiers";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +55,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
     <main className="flex flex-col gap-5">
       <div>
         <h1 className="text-xl font-semibold">Rankings</h1>
-        <p className="text-sm text-zinc-500">Built from World Marathon Majors finishes logged in My Runs.</p>
+        <p className="text-sm text-zinc-500">Built from World Marathon Majors finishes logged in My Races.</p>
       </div>
 
       <nav className="flex gap-2 border-b border-zinc-200 pb-px dark:border-zinc-800">
@@ -76,44 +78,48 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-400 dark:border-zinc-800">
-              <th className="w-12 py-2">Rank</th>
+              <th className="w-10 py-2">#</th>
+              <th className="py-2">Tier</th>
               <th className="py-2">Runner</th>
               <th className="py-2">Majors</th>
-              <th className="py-2 text-right">Count</th>
             </tr>
           </thead>
           <tbody>
             {completedRows.length > 0 ? (
-              completedRows.map((row) => (
-                <tr key={row.userId} className="border-b border-zinc-100 dark:border-zinc-900">
-                  <td className="py-2 font-mono tabular-nums">{MEDALS[row.rank - 1] ?? row.rank}</td>
-                  <td className="py-2">
-                    <Link href={`/profile/${row.username}`} className="font-medium hover:underline">
-                      {row.displayName}
-                    </Link>
-                  </td>
-                  <td className="py-2">
-                    <div className="flex flex-wrap gap-1">
-                      {row.majorsCompleted.map((m) => (
-                        <span
-                          key={m}
-                          title={MAJOR_INFO[m].name}
-                          className="rounded-full border border-zinc-300 px-2 py-0.5 text-[11px] font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-300"
-                        >
-                          {MAJOR_INFO[m].city}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="py-2 text-right font-mono tabular-nums">
-                    {row.majorsCompleted.length} / {MAJORS_ORDER.length}
-                  </td>
-                </tr>
-              ))
+              completedRows.map((row) => {
+                const tier = getTierForCount(row.majorsCompleted.length, MAJORS_ORDER.length);
+                return (
+                  <tr key={row.userId} className="border-b border-zinc-100 dark:border-zinc-900">
+                    <td className="py-2 font-mono tabular-nums text-zinc-400">{row.rank}</td>
+                    <td className="py-2">
+                      <TierBadge tier={tier} size={36} />
+                    </td>
+                    <td className="py-2">
+                      <Link href={`/profile/${row.username}`} className="font-medium hover:underline">
+                        {row.displayId}
+                      </Link>
+                    </td>
+                    <td className="py-2">
+                      <div className="flex flex-wrap gap-1">
+                        {row.majorsCompleted.map((m) => (
+                          <span
+                            key={m}
+                            title={MAJOR_INFO[m].name}
+                            className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-2 py-0.5 text-[11px] font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-300"
+                          >
+                            <span>{MAJOR_INFO[m].flag}</span>
+                            {MAJOR_INFO[m].city}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
                 <td colSpan={4} className="py-6 text-center text-sm text-zinc-500">
-                  No majors logged yet — add one in My Runs.
+                  No majors logged yet — add one in My Races.
                 </td>
               </tr>
             )}
@@ -158,7 +164,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
                     <td className="py-2 font-mono tabular-nums">{MEDALS[row.rank - 1] ?? row.rank}</td>
                     <td className="py-2">
                       <Link href={`/profile/${row.username}`} className="font-medium hover:underline">
-                        {row.displayName}
+                        {row.displayId}
                       </Link>
                     </td>
                     <td className="py-2 text-right font-mono tabular-nums">{formatDuration(row.durationSec)}</td>

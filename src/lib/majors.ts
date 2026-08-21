@@ -18,6 +18,7 @@ export const MAJOR_INFO: Record<
     name: string;
     city: string;
     country: string;
+    flag: string; // country flag emoji
     websiteUrl: string;
     distances: RaceDistance[];
     description: string;
@@ -28,6 +29,7 @@ export const MAJOR_INFO: Record<
     name: "Tokyo Marathon",
     city: "Tokyo",
     country: "Japan",
+    flag: "🇯🇵",
     websiteUrl: "https://www.marathon.tokyo/en/",
     distances: ["10K", "Full"],
     description:
@@ -38,6 +40,7 @@ export const MAJOR_INFO: Record<
     name: "Boston Marathon",
     city: "Boston",
     country: "USA",
+    flag: "🇺🇸",
     websiteUrl: "https://www.baa.org/races/boston-marathon",
     distances: ["5K", "Full"],
     description:
@@ -48,6 +51,7 @@ export const MAJOR_INFO: Record<
     name: "London Marathon",
     city: "London",
     country: "UK",
+    flag: "🇬🇧",
     websiteUrl: "https://www.tcslondonmarathon.com/",
     distances: ["5K", "Full"],
     description:
@@ -58,6 +62,7 @@ export const MAJOR_INFO: Record<
     name: "Sydney Marathon",
     city: "Sydney",
     country: "Australia",
+    flag: "🇦🇺",
     websiteUrl: "https://www.sydneymarathon.com/",
     distances: ["5K", "10K", "Half", "Full"],
     description:
@@ -68,6 +73,7 @@ export const MAJOR_INFO: Record<
     name: "Berlin Marathon",
     city: "Berlin",
     country: "Germany",
+    flag: "🇩🇪",
     websiteUrl: "https://www.bmw-berlin-marathon.com/en/",
     distances: ["5K", "Full"],
     description:
@@ -78,6 +84,7 @@ export const MAJOR_INFO: Record<
     name: "Chicago Marathon",
     city: "Chicago",
     country: "USA",
+    flag: "🇺🇸",
     websiteUrl: "https://www.chicagomarathon.com/",
     distances: ["5K", "Full"],
     description:
@@ -88,6 +95,7 @@ export const MAJOR_INFO: Record<
     name: "New York City Marathon",
     city: "New York",
     country: "USA",
+    flag: "🇺🇸",
     websiteUrl: "https://www.nyrr.org/tcsnycmarathon",
     distances: ["5K", "Full"],
     description:

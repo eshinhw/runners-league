@@ -10,12 +10,15 @@ export const dynamic = "force-dynamic";
 const inputCls =
   "w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
 
+const CURRENT_YEAR = new Date().getFullYear();
+const YEARS = Array.from({ length: 16 }, (_, i) => CURRENT_YEAR - i);
+
 export default async function MyRunsPage() {
   const session = await auth();
   if (!session?.user?.id) {
     return (
       <main className="flex flex-col items-center gap-3 py-16 text-center">
-        <p className="text-sm text-zinc-500">Sign in to manage My Runs.</p>
+        <p className="text-sm text-zinc-500">Sign in to manage My Races.</p>
       </main>
     );
   }
@@ -28,7 +31,7 @@ export default async function MyRunsPage() {
   return (
     <main className="flex max-w-3xl flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold">My Runs</h1>
+        <h1 className="text-xl font-semibold">My Races</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Log your World Marathon Majors finishes, with photos. These power your Rankings progress.
         </p>
@@ -38,7 +41,7 @@ export default async function MyRunsPage() {
         <div className="grid grid-cols-2 gap-2">
           <select name="major" required defaultValue="" className={inputCls}>
             <option value="" disabled>
-              Select a major
+              Select a marathon
             </option>
             {MAJORS_ORDER.map((m) => (
               <option key={m} value={m}>
@@ -46,7 +49,13 @@ export default async function MyRunsPage() {
               </option>
             ))}
           </select>
-          <input name="startedAt" type="date" required max={new Date().toISOString().slice(0, 10)} className={inputCls} />
+          <select name="year" required defaultValue={CURRENT_YEAR} className={inputCls}>
+            {YEARS.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
@@ -64,8 +73,22 @@ export default async function MyRunsPage() {
           </span>
           <div className="grid grid-cols-3 gap-2">
             <input name="avgPace" placeholder="Avg pace (m:ss)" className={inputCls} />
-            <input name="avgHeartRate" type="number" min={0} max={250} placeholder="Avg HR (bpm)" className={inputCls} />
-            <input name="avgCadence" type="number" min={0} max={250} placeholder="Avg cadence (spm)" className={inputCls} />
+            <input
+              name="avgHeartRate"
+              type="number"
+              min={0}
+              max={250}
+              placeholder="Avg HR (bpm)"
+              className={inputCls}
+            />
+            <input
+              name="avgCadence"
+              type="number"
+              min={0}
+              max={250}
+              placeholder="Avg cadence (spm)"
+              className={inputCls}
+            />
           </div>
         </div>
 
@@ -87,17 +110,19 @@ export default async function MyRunsPage() {
               <div className="mb-3 flex gap-2 overflow-x-auto">
                 {run.photoUrls.map((url) => (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img key={url} src={url} alt={run.title ?? "run photo"} className="h-24 w-24 shrink-0 rounded object-cover" />
+                  <img
+                    key={url}
+                    src={url}
+                    alt={run.title ?? "run photo"}
+                    className="h-24 w-24 shrink-0 rounded object-cover"
+                  />
                 ))}
               </div>
             )}
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className="font-medium">{run.title}</div>
-                <div className="text-xs text-zinc-500">
-                  {run.startedAt.toISOString().slice(0, 10)}
-                  {run.location ? ` · ${run.location}` : ""}
-                </div>
+                <div className="text-xs text-zinc-500">{run.location ? `${run.location}` : ""}</div>
               </div>
               <RunDeleteButton activityId={run.id} />
             </div>

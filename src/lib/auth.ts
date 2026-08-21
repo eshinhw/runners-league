@@ -26,6 +26,8 @@ function withUsernameBackfill(base: Adapter): Adapter {
     ...base,
     createUser: async (data) => {
       const username = await uniqueUsernameFrom(data.email ?? data.name ?? "runner");
+      const [firstName, ...rest] = (data.name ?? username).trim().split(/\s+/);
+      const lastName = rest.length > 0 ? rest.join(" ") : null;
       const user = await prisma.user.create({
         data: {
           email: data.email,
@@ -33,7 +35,9 @@ function withUsernameBackfill(base: Adapter): Adapter {
           image: data.image,
           emailVerified: data.emailVerified,
           username,
-          displayName: data.name ?? username,
+          displayId: username,
+          firstName: firstName || username,
+          lastName,
           avatarUrl: data.image,
         },
       });

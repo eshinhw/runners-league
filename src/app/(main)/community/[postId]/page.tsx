@@ -23,12 +23,12 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
   const post = await prisma.post.findUnique({
     where: { id: postId },
     include: {
-      author: { select: { username: true, displayName: true } },
+      author: { select: { username: true, displayId: true } },
       likes: session?.user?.id ? { where: { userId: session.user.id }, select: { id: true } } : false,
       _count: { select: { likes: true } },
       comments: {
         orderBy: { createdAt: "asc" },
-        include: { author: { select: { username: true, displayName: true } } },
+        include: { author: { select: { username: true, displayId: true } } },
       },
     },
   });
@@ -53,7 +53,7 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
             <span>{TYPE_LABEL[post.type]}</span>
             <span>·</span>
             <Link href={`/profile/${post.author.username}`} className="hover:underline">
-              {post.author.displayName}
+              {post.author.displayId}
             </Link>
             <span>·</span>
             <span>{formatRelativeTime(post.createdAt)}</span>
@@ -104,7 +104,7 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
             <li key={c.id} className="text-sm">
               <div className="flex items-center gap-2 text-xs text-zinc-400">
                 <Link href={`/profile/${c.author.username}`} className="font-medium text-zinc-600 hover:underline dark:text-zinc-300">
-                  {c.author.displayName}
+                  {c.author.displayId}
                 </Link>
                 <span>·</span>
                 <span>{formatRelativeTime(c.createdAt)}</span>

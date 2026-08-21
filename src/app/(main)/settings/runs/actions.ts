@@ -6,7 +6,7 @@ import path from "node:path";
 import { revalidatePath } from "next/cache";
 import type { MarathonMajor } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
-import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
+import { MAJOR_INFO, MAJORS_CALENDAR, MAJORS_ORDER } from "@/lib/majors";
 import { prisma } from "@/lib/prisma";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "runs");
@@ -51,10 +51,13 @@ export async function addRun(formData: FormData) {
   const major = String(formData.get("major") ?? "") as MarathonMajor;
   if (!MAJORS_ORDER.includes(major)) throw new Error("Please select a major marathon.");
 
-  const startedAtRaw = String(formData.get("startedAt") ?? "");
-  if (!startedAtRaw) throw new Error("Please enter a date.");
-  const startedAt = new Date(startedAtRaw);
-  const title = `${startedAt.getUTCFullYear()} ${MAJOR_INFO[major].name}`;
+  const yearRaw = String(formData.get("year") ?? "");
+  const year = Number(yearRaw);
+  if (!year) throw new Error("Please select a year.");
+
+  const calendarEntry = MAJORS_CALENDAR.find((e) => e.major === major && e.year === year);
+  const startedAt = calendarEntry ? new Date(`${calendarEntry.date}T09:00:00Z`) : new Date(Date.UTC(year, 0, 1, 9));
+  const title = `${year} ${MAJOR_INFO[major].name}`;
 
   const hours = Number(formData.get("hours") ?? 0);
   const minutes = Number(formData.get("minutes") ?? 0);

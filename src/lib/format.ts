@@ -30,6 +30,16 @@ export function formatRelativeTime(date: Date): string {
   return `${diffDay}d ago`;
 }
 
+export function calculateAge(birthDate: Date | null, at = new Date()): number | null {
+  if (!birthDate) return null;
+  let age = at.getFullYear() - birthDate.getFullYear();
+  const hadBirthdayThisYear =
+    at.getMonth() > birthDate.getMonth() ||
+    (at.getMonth() === birthDate.getMonth() && at.getDate() >= birthDate.getDate());
+  if (!hadBirthdayThisYear) age -= 1;
+  return age;
+}
+
 export function initials(name: string): string {
   return name
     .split(" ")

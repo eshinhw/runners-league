@@ -22,8 +22,8 @@ export function TrainingPlanTable({ plan }: { plan: TrainingPlan }) {
               <th className="w-14 py-2">Week</th>
               <th className="w-20 py-2">Phase</th>
               <th className="w-28 py-2 text-right">Weekly km</th>
-              <th className="w-28 py-2 text-right">Long run</th>
-              <th className="py-2">Key workout</th>
+              <th className="w-28 py-2 pr-6 text-right">Long run</th>
+              <th className="py-2 pl-4">Key workout</th>
             </tr>
           </thead>
           <tbody>
@@ -32,8 +32,8 @@ export function TrainingPlanTable({ plan }: { plan: TrainingPlan }) {
                 <td className="py-2 font-mono tabular-nums">{w.week}</td>
                 <td className={`py-2 font-medium ${PHASE_COLOR[w.phase] ?? ""}`}>{w.phase}</td>
                 <td className="py-2 text-right font-mono tabular-nums">{w.weeklyKm} km</td>
-                <td className="py-2 text-right font-mono tabular-nums">{w.longRunKm} km</td>
-                <td className="py-2 text-zinc-500">{w.keyWorkout}</td>
+                <td className="py-2 pr-6 text-right font-mono tabular-nums">{w.longRunKm} km</td>
+                <td className="py-2 pl-4 text-zinc-500">{w.keyWorkout}</td>
               </tr>
             ))}
           </tbody>

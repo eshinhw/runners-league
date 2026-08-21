@@ -4,7 +4,7 @@ import { MAJORS_ORDER } from "./majors";
 export const GENDER_LABEL: Record<Gender, string> = {
   MALE: "Male",
   FEMALE: "Female",
-  UNSPECIFIED: "All",
+  UNSPECIFIED: "Select",
 };
 
 // ---- Majors Completed leaderboard: how many of the 7 majors each runner has finished ----
@@ -13,7 +13,7 @@ export type MajorsCompletedRow = {
   rank: number;
   userId: string;
   username: string;
-  displayName: string;
+  displayId: string;
   majorsCompleted: MarathonMajor[];
   bestTotalDurationSec: number; // sum of each completed major's fastest finish, tie-break only
 };
@@ -25,20 +25,20 @@ export async function getMajorsCompletedLeaderboard(db: PrismaClient, limit = 50
       userId: true,
       major: true,
       durationSec: true,
-      user: { select: { username: true, displayName: true } },
+      user: { select: { username: true, displayId: true } },
     },
   });
 
   const byUser = new Map<
     string,
-    { username: string; displayName: string; bestByMajor: Map<MarathonMajor, number> }
+    { username: string; displayId: string; bestByMajor: Map<MarathonMajor, number> }
   >();
 
   for (const r of results) {
     const major = r.major!;
     let entry = byUser.get(r.userId);
     if (!entry) {
-      entry = { username: r.user.username, displayName: r.user.displayName, bestByMajor: new Map() };
+      entry = { username: r.user.username, displayId: r.user.displayId, bestByMajor: new Map() };
       byUser.set(r.userId, entry);
     }
     const current = entry.bestByMajor.get(major);
@@ -51,7 +51,7 @@ export async function getMajorsCompletedLeaderboard(db: PrismaClient, limit = 50
     .map(([userId, entry]) => ({
       userId,
       username: entry.username,
-      displayName: entry.displayName,
+      displayId: entry.displayId,
       majorsCompleted: MAJORS_ORDER.filter((m) => entry.bestByMajor.has(m)),
       bestTotalDurationSec: [...entry.bestByMajor.values()].reduce((a, b) => a + b, 0),
     }))
@@ -67,7 +67,7 @@ export type MajorEditionRow = {
   rank: number;
   userId: string;
   username: string;
-  displayName: string;
+  displayId: string;
   durationSec: number;
   avgPaceSecPerKm: number | null;
 };
@@ -89,7 +89,7 @@ export async function getMajorEditionLeaderboard(
       durationSec: true,
       avgPaceSecPerKm: true,
       userId: true,
-      user: { select: { username: true, displayName: true } },
+      user: { select: { username: true, displayId: true } },
     },
   });
 
@@ -97,7 +97,7 @@ export async function getMajorEditionLeaderboard(
     rank: i + 1,
     userId: a.userId,
     username: a.user.username,
-    displayName: a.user.displayName,
+    displayId: a.user.displayId,
     durationSec: a.durationSec,
     avgPaceSecPerKm: a.avgPaceSecPerKm,
   }));

@@ -37,24 +37,6 @@ export default async function HomePage() {
             Runners League is a community for runners pursuing the World Major Marathons. Log your finishes, follow the
             race calendar, and see how you compare with fellow runners chasing the same start lines.
           </p>
-
-          {!session?.user ? (
-            <div className="flex flex-col items-center gap-2">
-              <Link
-                href="/login"
-                className="rounded-full bg-orange-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-orange-600"
-              >
-                Log in to get started
-              </Link>
-            </div>
-          ) : (
-            <Link
-              href="/rankings"
-              className="rounded-full bg-orange-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-orange-600"
-            >
-              View Rankings
-            </Link>
-          )}
         </section>
 
         <section className="grid gap-4 sm:grid-cols-3">

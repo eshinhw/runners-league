@@ -74,7 +74,7 @@ export function UserMenu({ user }: { user: SessionUser | null }) {
             className="block px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-900"
             onClick={() => setOpen(false)}
           >
-            My Runs
+            My Races
           </Link>
           <Link
             href="/settings/gear"

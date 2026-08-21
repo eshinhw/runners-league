@@ -33,7 +33,7 @@ export default async function CommunityPage({ searchParams }: { searchParams: Pr
   const posts = await prisma.post.findMany({
     orderBy: tab === "top" ? { likes: { _count: "desc" } } : { createdAt: "desc" },
     include: {
-      author: { select: { username: true, displayName: true } },
+      author: { select: { username: true, displayId: true } },
       likes: session?.user?.id ? { where: { userId: session.user.id }, select: { id: true } } : false,
       _count: { select: { likes: true, comments: true } },
     },
@@ -107,7 +107,7 @@ export default async function CommunityPage({ searchParams }: { searchParams: Pr
               <div className="flex items-center gap-2 text-xs text-zinc-400">
                 <span>{TYPE_LABEL[post.type]}</span>
                 <span>·</span>
-                <span>{post.author.displayName}</span>
+                <span>{post.author.displayId}</span>
                 <span>·</span>
                 <span>{formatRelativeTime(post.createdAt)}</span>
               </div>

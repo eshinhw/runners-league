@@ -16,7 +16,9 @@ model User {
   id          String   @id @default(cuid())
   email       String   @unique
   username    String   @unique
-  displayName String
+  displayId   String   @unique // public handle shown on Rankings/Community instead of the real name
+  firstName   String
+  lastName    String?
   avatarUrl   String?
   bio         String?
   city        String?
@@ -170,6 +172,7 @@ model Gear {
   brand         String
   model         String
   nickname      String?
+  photoUrl      String?
   purchaseDate  DateTime?
   retiredAt     DateTime?
   totalDistanceM Int       @default(0) // denormalized, updated as activities link in
@@ -187,6 +190,7 @@ enum GearCategory {
   SHOE
   WATCH
   APPAREL
+  HAT
   ACCESSORY
   NUTRITION
 }

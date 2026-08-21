@@ -2,19 +2,10 @@ import type { GearCategory } from "@/generated/prisma/client";
 import { SignInGate } from "@/components/SignInGate";
 import { auth } from "@/lib/auth";
 import { formatDistance } from "@/lib/format";
+import { GEAR_CATEGORY_LABEL, GEAR_CATEGORY_ORDER } from "@/lib/gear";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
-
-const CATEGORY_LABEL: Record<GearCategory, string> = {
-  SHOE: "Shoes",
-  WATCH: "Watches",
-  APPAREL: "Apparel",
-  ACCESSORY: "Accessories",
-  NUTRITION: "Nutrition",
-};
-
-const CATEGORY_ORDER: GearCategory[] = ["SHOE", "WATCH", "APPAREL", "ACCESSORY", "NUTRITION"];
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
@@ -42,7 +33,7 @@ export default async function GearPage() {
     byCategory.set(g.category, list);
   }
 
-  const sections = CATEGORY_ORDER.map((category) => ({
+  const sections = GEAR_CATEGORY_ORDER.map((category) => ({
     category,
     items: (byCategory.get(category) ?? [])
       .sort(
@@ -65,7 +56,7 @@ export default async function GearPage() {
 
       {sections.map(({ category, items }) => (
         <section key={category} className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold">{CATEGORY_LABEL[category]}</h2>
+          <h2 className="text-lg font-semibold">{GEAR_CATEGORY_LABEL[category]}</h2>
           <div className="grid gap-3 sm:grid-cols-3">
             {items.map((item, i) => (
               <div

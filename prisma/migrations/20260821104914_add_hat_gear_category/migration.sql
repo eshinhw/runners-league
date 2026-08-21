@@ -1,0 +1,1 @@
+ALTER TYPE "GearCategory" ADD VALUE 'HAT';
