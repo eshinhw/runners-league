@@ -12,7 +12,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 const PURCHASE_YEARS = Array.from({ length: 21 }, (_, i) => CURRENT_YEAR - i);
 
 function isCatalogCategory(category: GearCategory): category is CatalogCategory {
-  return category === "SHOE" || category === "WATCH";
+  return category === "SHOE" || category === "WATCH" || category === "ACCESSORY";
 }
 
 export function AddGearModal() {

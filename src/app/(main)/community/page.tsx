@@ -1,10 +1,10 @@
 import Link from "next/link";
 import type { PostType } from "@/generated/prisma/client";
 import { LikeButton } from "@/components/community/LikeButton";
+import { PostComposer } from "@/components/community/PostComposer";
 import { auth } from "@/lib/auth";
 import { formatRelativeTime } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
-import { createPost } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +21,6 @@ const TYPE_LABEL: Record<PostType, string> = {
   QUESTION: "❓ Q&A",
   TRAINING_PLAN: "🏃 Training Plan",
 };
-
-const inputCls =
-  "w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
 
 export default async function CommunityPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const sp = await searchParams;
@@ -50,24 +47,7 @@ export default async function CommunityPage({ searchParams }: { searchParams: Pr
       </div>
 
       {session?.user?.id ? (
-        <form
-          action={createPost}
-          className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
-        >
-          <input name="title" placeholder="Title" required maxLength={140} className={inputCls} />
-          <textarea name="body" placeholder="What's on your mind?" required rows={3} className={inputCls} />
-          <div className="grid grid-cols-2 gap-2">
-            <select name="type" defaultValue="DISCUSSION" className={inputCls}>
-              <option value="DISCUSSION">💬 Discussion</option>
-              <option value="ARTICLE">📰 Info</option>
-              <option value="QUESTION">❓ Q&amp;A</option>
-            </select>
-            <input name="tags" placeholder="Tags, comma separated (optional)" className={inputCls} />
-          </div>
-          <button type="submit" className="self-start rounded bg-orange-500 px-4 py-2 text-sm font-medium text-white">
-            Post
-          </button>
-        </form>
+        <PostComposer />
       ) : (
         <div className="rounded-lg border border-zinc-200 p-4 text-sm text-zinc-500 dark:border-zinc-800">
           <Link href="/login" className="font-medium text-orange-500 underline">

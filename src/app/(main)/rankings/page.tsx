@@ -45,8 +45,10 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
   const tab: Tab = sp.tab === "edition" ? "edition" : "completed";
 
   const editions = tab === "edition" ? await getEditionsWithResults(prisma) : [];
+  const availableMajors = MAJORS_ORDER.filter((m) => editions.some((e) => e.major === m));
+  const availableYears = [...new Set(editions.map((e) => e.year))].sort((a, b) => b - a);
   const selectedMajor: MarathonMajor = isMajor(sp.major) ? sp.major : (editions[0]?.major ?? "TOKYO");
-  const selectedYear = Number(sp.year) || editions[0]?.year || 2026;
+  const selectedYear = Number(sp.year) || editions[0]?.year || availableYears[0] || 2026;
 
   const completedRows = tab === "completed" ? await getMajorsCompletedLeaderboard(prisma) : [];
   const editionRows = tab === "edition" ? await getMajorEditionLeaderboard(prisma, selectedMajor, selectedYear) : [];
@@ -125,19 +127,21 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
             )}
           </tbody>
         </table>
+      ) : editions.length === 0 ? (
+        <p className="py-6 text-center text-sm text-zinc-500">No race results logged yet — add one in My Races.</p>
       ) : (
         <>
           <form className="flex flex-wrap gap-2 text-sm" action="/rankings" method="get">
             <input type="hidden" name="tab" value="edition" />
             <select name="major" defaultValue={selectedMajor} className="rounded border border-zinc-300 bg-white px-2 py-1 dark:border-zinc-700 dark:bg-zinc-900">
-              {MAJORS_ORDER.map((m) => (
+              {availableMajors.map((m) => (
                 <option key={m} value={m}>
                   {MAJOR_INFO[m].name}
                 </option>
               ))}
             </select>
             <select name="year" defaultValue={String(selectedYear)} className="rounded border border-zinc-300 bg-white px-2 py-1 dark:border-zinc-700 dark:bg-zinc-900">
-              {[2027, 2026, 2025, 2024].map((y) => (
+              {availableYears.map((y) => (
                 <option key={y} value={y}>
                   {y}
                 </option>

@@ -49,7 +49,7 @@ function EditionCard({ edition }: { edition: MajorEdition }) {
           rel="noopener noreferrer"
           className="rounded bg-orange-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-600"
         >
-          Registration
+          Register
         </a>
       </div>
     </article>

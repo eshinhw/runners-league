@@ -1,7 +1,6 @@
 import type { GearCategory } from "@/generated/prisma/client";
 import { SignInGate } from "@/components/SignInGate";
 import { auth } from "@/lib/auth";
-import { formatDistance } from "@/lib/format";
 import { GEAR_CATEGORY_LABEL, GEAR_CATEGORY_ORDER } from "@/lib/gear";
 import { prisma } from "@/lib/prisma";
 
@@ -68,8 +67,7 @@ export default async function GearPage() {
                   {item.brand} {item.model}
                 </div>
                 <div className="mt-1 text-xs text-zinc-500">
-                  {item._count._all} runner{item._count._all !== 1 ? "s" : ""} ·{" "}
-                  {formatDistance(item._sum.totalDistanceM ?? 0)} total
+                  {item._count._all} runner{item._count._all !== 1 ? "s" : ""}
                 </div>
               </div>
             ))}

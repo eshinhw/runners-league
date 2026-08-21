@@ -45,11 +45,9 @@ export function GearSlotIcon({ category, className }: { category: GearCategory; 
     case "ACCESSORY":
       return (
         <svg {...common}>
-          <circle cx={7} cy={12} r={3.3} />
-          <circle cx={17} cy={12} r={3.3} />
-          <line x1={10.3} y1={11} x2={13.7} y2={11} />
-          <line x1={3.7} y1={10} x2={1.5} y2={8} />
-          <line x1={20.3} y1={10} x2={22.5} y2={8} />
+          <path d="M4 14v-1a8 8 0 0 1 16 0v1" />
+          <rect x={2.5} y={13} width={4} height={7} rx={2} />
+          <rect x={17.5} y={13} width={4} height={7} rx={2} />
         </svg>
       );
     case "NUTRITION":
