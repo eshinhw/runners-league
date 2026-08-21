@@ -11,7 +11,7 @@ export function RunDeleteButton({ activityId }: { activityId: string }) {
       type="button"
       disabled={pending}
       onClick={() => {
-        if (window.confirm("Delete this run? This can't be undone.")) {
+        if (window.confirm("Delete this race? This can't be undone.")) {
           startTransition(() => deleteRun(activityId));
         }
       }}

@@ -3,15 +3,13 @@
 import { useState, useTransition } from "react";
 import { addGear } from "@/app/(main)/settings/actions";
 import type { GearCategory } from "@/generated/prisma/client";
-import {
-  GEAR_CATEGORY_LABEL,
-  GEAR_CATEGORY_ORDER,
-  GEAR_PRODUCT_CATALOG,
-  type CatalogCategory,
-} from "@/lib/gear";
+import { GEAR_CATEGORY_LABEL, GEAR_CATEGORY_ORDER, GEAR_PRODUCT_CATALOG, type CatalogCategory } from "@/lib/gear";
 
 const inputCls =
   "w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
+
+const CURRENT_YEAR = new Date().getFullYear();
+const PURCHASE_YEARS = Array.from({ length: 21 }, (_, i) => CURRENT_YEAR - i);
 
 function isCatalogCategory(category: GearCategory): category is CatalogCategory {
   return category === "SHOE" || category === "WATCH";
@@ -150,6 +148,18 @@ export function AddGearModal() {
                   <input name="model" placeholder="Model" required className={inputCls} />
                 </div>
               )}
+
+              <label className="flex flex-col gap-1">
+                <span className="text-xs font-medium text-zinc-500">Purchase year (optional)</span>
+                <select name="purchaseYear" defaultValue="" className={inputCls}>
+                  <option value="">Not set</option>
+                  {PURCHASE_YEARS.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
               <input name="nickname" placeholder="Nickname (optional)" className={inputCls} />
               <label className="flex flex-col gap-1">

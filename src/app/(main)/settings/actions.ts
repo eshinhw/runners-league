@@ -39,11 +39,14 @@ export async function addGear(formData: FormData) {
 
   if (!brand || !model) throw new Error("Please enter a brand and model.");
 
+  const purchaseYearRaw = String(formData.get("purchaseYear") ?? "");
+  const purchaseDate = purchaseYearRaw ? new Date(Date.UTC(Number(purchaseYearRaw), 0, 1)) : null;
+
   const photo = formData.get("photo");
   const photoUrl = await savePhoto(photo instanceof File ? photo : null);
 
   await prisma.gear.create({
-    data: { ownerId: userId, category, brand, model, nickname: nickname || null, photoUrl },
+    data: { ownerId: userId, category, brand, model, nickname: nickname || null, purchaseDate, photoUrl },
   });
 
   revalidatePath("/settings/gear");
@@ -56,6 +59,19 @@ export async function retireGear(formData: FormData) {
   await prisma.gear.updateMany({
     where: { id: gearId, ownerId: userId },
     data: { retiredAt: new Date() },
+  });
+
+  revalidatePath("/settings/gear");
+}
+
+// Only retired gear can be permanently deleted — active gear should be
+// retired first, keeping deletion a deliberate two-step action.
+export async function deleteGear(formData: FormData) {
+  const userId = await requireUserId();
+  const gearId = String(formData.get("gearId") ?? "");
+
+  await prisma.gear.deleteMany({
+    where: { id: gearId, ownerId: userId, retiredAt: { not: null } },
   });
 
   revalidatePath("/settings/gear");

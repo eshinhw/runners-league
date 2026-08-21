@@ -20,7 +20,15 @@ export async function updateProfile(formData: FormData) {
   const country = String(formData.get("country") ?? "").trim();
   const city = String(formData.get("city") ?? "").trim();
   const gender = String(formData.get("gender") ?? "UNSPECIFIED") as Gender;
-  const birthDateRaw = String(formData.get("birthDate") ?? "");
+
+  const birthYearRaw = String(formData.get("birthYear") ?? "");
+  const birthMonthRaw = String(formData.get("birthMonth") ?? "");
+  const birthDayRaw = String(formData.get("birthDay") ?? "");
+  const birthDate =
+    birthYearRaw && birthMonthRaw && birthDayRaw
+      ? new Date(Date.UTC(Number(birthYearRaw), Number(birthMonthRaw) - 1, Number(birthDayRaw)))
+      : null;
+
   const weightKgRaw = String(formData.get("weightKg") ?? "");
   const heightCmRaw = String(formData.get("heightCm") ?? "");
 
@@ -35,7 +43,7 @@ export async function updateProfile(formData: FormData) {
         country: country || null,
         city: city || null,
         gender,
-        birthDate: birthDateRaw ? new Date(birthDateRaw) : null,
+        birthDate,
         weightKg: weightKgRaw ? Number(weightKgRaw) : null,
         heightCm: heightCmRaw ? Number(heightCmRaw) : null,
       },

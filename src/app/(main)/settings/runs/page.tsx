@@ -1,17 +1,10 @@
+import { AddRaceModal } from "@/components/races/AddRaceModal";
 import { RunDeleteButton } from "@/components/RunDeleteButton";
 import { auth } from "@/lib/auth";
 import { formatDistance, formatDuration, formatPace } from "@/lib/format";
-import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
 import { prisma } from "@/lib/prisma";
-import { addRun } from "./actions";
 
 export const dynamic = "force-dynamic";
-
-const inputCls =
-  "w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
-
-const CURRENT_YEAR = new Date().getFullYear();
-const YEARS = Array.from({ length: 16 }, (_, i) => CURRENT_YEAR - i);
 
 export default async function MyRunsPage() {
   const session = await auth();
@@ -29,78 +22,16 @@ export default async function MyRunsPage() {
   });
 
   return (
-    <main className="flex max-w-3xl flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold">My Races</h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          Log your World Marathon Majors finishes, with photos. These power your Rankings progress.
-        </p>
+    <main className="flex flex-col gap-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold">My Races</h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            Your World Marathon Majors finishes. These power your Rankings progress.
+          </p>
+        </div>
+        <AddRaceModal />
       </div>
-
-      <form action={addRun} className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-        <div className="grid grid-cols-2 gap-2">
-          <select name="major" required defaultValue="" className={inputCls}>
-            <option value="" disabled>
-              Select a marathon
-            </option>
-            {MAJORS_ORDER.map((m) => (
-              <option key={m} value={m}>
-                {MAJOR_INFO[m].name}
-              </option>
-            ))}
-          </select>
-          <select name="year" required defaultValue={CURRENT_YEAR} className={inputCls}>
-            {YEARS.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <span className="mb-1 block text-xs font-medium text-zinc-500">Finish Time</span>
-          <div className="grid grid-cols-3 gap-2">
-            <input name="hours" type="number" min={0} max={99} placeholder="hh" className={inputCls} />
-            <input name="minutes" type="number" min={0} max={59} placeholder="mm" className={inputCls} />
-            <input name="seconds" type="number" min={0} max={59} placeholder="ss" className={inputCls} />
-          </div>
-        </div>
-
-        <div>
-          <span className="mb-1 block text-xs font-medium text-zinc-500">
-            Stats (optional — leave blank if you don&apos;t have them)
-          </span>
-          <div className="grid grid-cols-3 gap-2">
-            <input name="avgPace" placeholder="Avg pace (m:ss)" className={inputCls} />
-            <input
-              name="avgHeartRate"
-              type="number"
-              min={0}
-              max={250}
-              placeholder="Avg HR (bpm)"
-              className={inputCls}
-            />
-            <input
-              name="avgCadence"
-              type="number"
-              min={0}
-              max={250}
-              placeholder="Avg cadence (spm)"
-              className={inputCls}
-            />
-          </div>
-        </div>
-
-        <label className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-zinc-500">Photos (medal, bib, finish line, etc.)</span>
-          <input name="photos" type="file" accept="image/*" multiple className="text-xs" />
-        </label>
-
-        <button type="submit" className="mt-1 rounded bg-orange-500 px-3 py-1.5 text-sm font-medium text-white">
-          Add Run
-        </button>
-      </form>
 
       <ul className="flex flex-col gap-3">
         {runs.length === 0 && <p className="text-sm text-zinc-500">No majors logged yet.</p>}
