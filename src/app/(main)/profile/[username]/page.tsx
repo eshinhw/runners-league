@@ -107,8 +107,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             <thead>
               <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-400 dark:border-zinc-800">
                 <th className="py-2">Race</th>
-                <th className="py-2 text-right">Finish Time</th>
-                <th className="py-2 text-right">Pace</th>
+                <th className="py-2 pl-4 text-right">Finish Time</th>
+                <th className="py-2 pl-4 text-right">Pace</th>
               </tr>
             </thead>
             <tbody>
@@ -120,8 +120,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                       {a.verifiedAt && <VerifiedBadge className="h-3.5 w-3.5" />}
                     </span>
                   </td>
-                  <td className="py-2 text-right font-mono tabular-nums">{formatDuration(a.durationSec)}</td>
-                  <td className="py-2 text-right font-mono tabular-nums text-zinc-500">
+                  <td className="py-2 pl-4 text-right font-mono tabular-nums">{formatDuration(a.durationSec)}</td>
+                  <td className="py-2 pl-4 text-right font-mono tabular-nums text-zinc-500">
                     {formatPace(a.avgPaceSecPerKm, unitSystem)}
                   </td>
                 </tr>

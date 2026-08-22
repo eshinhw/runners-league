@@ -160,8 +160,8 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
               <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-400 dark:border-zinc-800">
                 <th className="w-12 py-2">Rank</th>
                 <th className="py-2">Runner</th>
-                <th className="py-2 text-right">Finish Time</th>
-                <th className="py-2 text-right">Pace</th>
+                <th className="py-2 pl-4 text-right">Finish Time</th>
+                <th className="py-2 pl-4 text-right">Pace</th>
               </tr>
             </thead>
             <tbody>
@@ -175,8 +175,8 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
                         {row.allVerified && <VerifiedBadge className="h-3.5 w-3.5" />}
                       </Link>
                     </td>
-                    <td className="py-2 text-right font-mono tabular-nums">{formatDuration(row.durationSec)}</td>
-                    <td className="py-2 text-right font-mono tabular-nums text-zinc-500">
+                    <td className="py-2 pl-4 text-right font-mono tabular-nums">{formatDuration(row.durationSec)}</td>
+                    <td className="py-2 pl-4 text-right font-mono tabular-nums text-zinc-500">
                       {formatPace(row.avgPaceSecPerKm, unitSystem)}
                     </td>
                   </tr>

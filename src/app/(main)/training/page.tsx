@@ -33,12 +33,12 @@ export default async function TrainingPage({ searchParams }: { searchParams: Pro
         </p>
       </div>
 
-      <nav className="flex gap-2 border-b border-zinc-200 pb-px dark:border-zinc-800">
+      <nav className="flex gap-2 overflow-x-auto border-b border-zinc-200 pb-px dark:border-zinc-800">
         {TABS.map((t) => (
           <Link
             key={t.key}
             href={`/training?tab=${t.key}`}
-            className={`px-3 py-2 text-sm font-medium ${
+            className={`shrink-0 whitespace-nowrap px-3 py-2 text-sm font-medium ${
               tab === t.key
                 ? "border-b-2 border-orange-500 text-zinc-900 dark:text-zinc-50"
                 : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50"
