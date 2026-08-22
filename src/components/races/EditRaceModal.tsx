@@ -20,13 +20,6 @@ function secToHms(totalSec: number) {
   };
 }
 
-function secPerKmToPace(secPerKm: number | null) {
-  if (!secPerKm) return "";
-  const min = Math.floor(secPerKm / 60);
-  const sec = Math.round(secPerKm % 60);
-  return `${min}:${sec.toString().padStart(2, "0")}`;
-}
-
 export function EditRaceModal({ run }: { run: Activity }) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -159,12 +152,6 @@ export function EditRaceModal({ run }: { run: Activity }) {
                 </span>
                 <div className="grid grid-cols-3 gap-2">
                   <input
-                    name="avgPace"
-                    placeholder="Avg pace (m:ss)"
-                    defaultValue={secPerKmToPace(run.avgPaceSecPerKm)}
-                    className={inputCls}
-                  />
-                  <input
                     name="avgHeartRate"
                     type="number"
                     min={0}
@@ -180,6 +167,15 @@ export function EditRaceModal({ run }: { run: Activity }) {
                     max={250}
                     placeholder="Avg cadence (spm)"
                     defaultValue={run.avgCadenceSpm ?? ""}
+                    className={inputCls}
+                  />
+                  <input
+                    name="elevationGain"
+                    type="number"
+                    min={0}
+                    max={5000}
+                    placeholder="Elevation gain (m)"
+                    defaultValue={run.elevationGainM ?? ""}
                     className={inputCls}
                   />
                 </div>

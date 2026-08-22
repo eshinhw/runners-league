@@ -79,6 +79,7 @@ export default async function MyRunsPage() {
               <span className="text-zinc-500">{formatPace(run.avgPaceSecPerKm, unitSystem)}</span>
               {run.avgHeartRateBpm && <span className="text-zinc-500">{run.avgHeartRateBpm} bpm</span>}
               {run.avgCadenceSpm && <span className="text-zinc-500">{run.avgCadenceSpm} spm</span>}
+              {run.elevationGainM != null && <span className="text-zinc-500">↗ {run.elevationGainM} m</span>}
             </div>
           </li>
         ))}

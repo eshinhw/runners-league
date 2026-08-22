@@ -107,7 +107,6 @@ export function AddRaceModal() {
                   Stats (optional — leave blank if you don&apos;t have them)
                 </span>
                 <div className="grid grid-cols-3 gap-2">
-                  <input name="avgPace" placeholder="Avg pace (m:ss)" className={inputCls} />
                   <input
                     name="avgHeartRate"
                     type="number"
@@ -122,6 +121,14 @@ export function AddRaceModal() {
                     min={0}
                     max={250}
                     placeholder="Avg cadence (spm)"
+                    className={inputCls}
+                  />
+                  <input
+                    name="elevationGain"
+                    type="number"
+                    min={0}
+                    max={5000}
+                    placeholder="Elevation gain (m)"
                     className={inputCls}
                   />
                 </div>

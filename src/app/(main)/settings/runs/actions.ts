@@ -15,15 +15,6 @@ async function requireUserId(): Promise<string> {
   return session.user.id;
 }
 
-// Parses "M:SS" or "MM:SS" pace input into seconds per km. Returns null for
-// blank/invalid input so callers can fall back to the distance/duration-based
-// average instead.
-function parsePaceToSecPerKm(raw: string): number | null {
-  const match = raw.trim().match(/^(\d+):([0-5]?\d)$/);
-  if (!match) return null;
-  return Number(match[1]) * 60 + Number(match[2]);
-}
-
 export async function addRun(formData: FormData) {
   const userId = await requireUserId();
 
@@ -44,11 +35,11 @@ export async function addRun(formData: FormData) {
   const durationSec = hours * 3600 + minutes * 60 + seconds;
   if (durationSec <= 0) throw new Error("Please enter a finish time.");
 
-  const paceRaw = String(formData.get("avgPace") ?? "");
-  const avgPaceSecPerKm = parsePaceToSecPerKm(paceRaw) ?? Math.round(durationSec / (MARATHON_DISTANCE_M / 1000));
+  const avgPaceSecPerKm = Math.round(durationSec / (MARATHON_DISTANCE_M / 1000));
 
   const heartRateRaw = String(formData.get("avgHeartRate") ?? "");
   const cadenceRaw = String(formData.get("avgCadence") ?? "");
+  const elevationGainRaw = String(formData.get("elevationGain") ?? "");
   const bibNumber = String(formData.get("bibNumber") ?? "").trim();
 
   const photos = formData.getAll("photos").filter((f): f is File => f instanceof File);
@@ -66,6 +57,7 @@ export async function addRun(formData: FormData) {
       avgPaceSecPerKm,
       avgHeartRateBpm: heartRateRaw ? Number(heartRateRaw) : null,
       avgCadenceSpm: cadenceRaw ? Number(cadenceRaw) : null,
+      elevationGainM: elevationGainRaw ? Number(elevationGainRaw) : null,
       bibNumber: bibNumber || null,
       startedAt,
       location: `${MAJOR_INFO[major].city}, ${MAJOR_INFO[major].country}`,
@@ -101,11 +93,11 @@ export async function updateRun(activityId: string, formData: FormData) {
   const durationSec = hours * 3600 + minutes * 60 + seconds;
   if (durationSec <= 0) throw new Error("Please enter a finish time.");
 
-  const paceRaw = String(formData.get("avgPace") ?? "");
-  const avgPaceSecPerKm = parsePaceToSecPerKm(paceRaw) ?? Math.round(durationSec / (MARATHON_DISTANCE_M / 1000));
+  const avgPaceSecPerKm = Math.round(durationSec / (MARATHON_DISTANCE_M / 1000));
 
   const heartRateRaw = String(formData.get("avgHeartRate") ?? "");
   const cadenceRaw = String(formData.get("avgCadence") ?? "");
+  const elevationGainRaw = String(formData.get("elevationGain") ?? "");
   const bibNumber = String(formData.get("bibNumber") ?? "").trim();
 
   const keptPhotoUrls = formData.getAll("keepPhoto").map((v) => String(v));
@@ -122,6 +114,7 @@ export async function updateRun(activityId: string, formData: FormData) {
       avgPaceSecPerKm,
       avgHeartRateBpm: heartRateRaw ? Number(heartRateRaw) : null,
       avgCadenceSpm: cadenceRaw ? Number(cadenceRaw) : null,
+      elevationGainM: elevationGainRaw ? Number(elevationGainRaw) : null,
       bibNumber: bibNumber || null,
       startedAt,
       location: `${MAJOR_INFO[major].city}, ${MAJOR_INFO[major].country}`,
