@@ -25,7 +25,7 @@ export function CustomPlanForm({ unitSystem = "METRIC" }: { unitSystem?: UnitSys
 
     const enteredDistance = Number(formData.get("currentWeeklyDistance"));
     const enteredPaceSecPerUnit = parsePaceToSecPerUnit(String(formData.get("avgPace") ?? ""));
-    const raceDateRaw = String(formData.get("raceDate") ?? "");
+    const weeksToRace = Number(formData.get("weeksToRace"));
 
     if (!enteredDistance || enteredDistance <= 0) {
       setError("Please enter your current weekly distance.");
@@ -35,19 +35,13 @@ export function CustomPlanForm({ unitSystem = "METRIC" }: { unitSystem?: UnitSys
       setError(`Please enter your average pace as m:ss, e.g. 5:45.`);
       return;
     }
-    if (!raceDateRaw) {
-      setError("Please enter your target race date.");
+    if (!weeksToRace || weeksToRace <= 0) {
+      setError("Please enter how many weeks are left until your race.");
       return;
     }
 
     const currentWeeklyKm = unitSystem === "IMPERIAL" ? enteredDistance * KM_PER_MI : enteredDistance;
     const avgPaceSecPerKm = unitSystem === "IMPERIAL" ? enteredPaceSecPerUnit / KM_PER_MI : enteredPaceSecPerUnit;
-
-    const weeksToRace = (new Date(raceDateRaw).getTime() - Date.now()) / (7 * 24 * 3600 * 1000);
-    if (weeksToRace < 0) {
-      setError("Your race date needs to be in the future.");
-      return;
-    }
 
     setResult(generateCustomPlan({ currentWeeklyKm, avgPaceSecPerKm, weeksToRace, unitSystem }));
   }
@@ -76,8 +70,16 @@ export function CustomPlanForm({ unitSystem = "METRIC" }: { unitSystem?: UnitSys
             <input name="avgPace" placeholder="e.g. 5:45" className={inputCls} />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-zinc-500">Target race date</span>
-            <input name="raceDate" type="date" min={new Date().toISOString().slice(0, 10)} className={inputCls} />
+            <span className="text-xs font-medium text-zinc-500">Weeks left to race</span>
+            <input
+              name="weeksToRace"
+              type="number"
+              min={4}
+              max={40}
+              step={1}
+              placeholder="e.g. 16"
+              className={inputCls}
+            />
           </label>
         </div>
         {error && <p className="text-sm text-rose-500">{error}</p>}

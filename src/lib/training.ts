@@ -135,7 +135,7 @@ function formatPaceLabel(secPerKm: number, unitSystem: UnitSystem = "METRIC"): s
 }
 
 export function generateCustomPlan(input: CustomPlanInput): CustomPlanResult {
-  const weeksToRace = Math.max(4, Math.min(24, Math.round(input.weeksToRace)));
+  const weeksToRace = Math.max(4, Math.min(40, Math.round(input.weeksToRace)));
   const currentKm = Math.max(5, input.currentWeeklyKm);
   const unitSystem = input.unitSystem ?? "METRIC";
   const taperWeeks = weeksToRace >= 10 ? 3 : 2;
