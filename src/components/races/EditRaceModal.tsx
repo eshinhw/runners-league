@@ -214,7 +214,7 @@ export function EditRaceModal({ run }: { run: Activity }) {
               )}
 
               <label className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-zinc-500">Add more photos</span>
+                <span className="text-xs font-medium text-zinc-500">Add photos for verification</span>
                 <input name="photos" type="file" accept="image/*" multiple className="text-xs" />
               </label>
 

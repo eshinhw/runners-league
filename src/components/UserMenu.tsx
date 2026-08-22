@@ -9,6 +9,7 @@ import { initials } from "@/lib/format";
 type SessionUser = {
   displayName: string;
   image: string | null;
+  isAdmin?: boolean;
 };
 
 export function UserMenu({ user }: { user: SessionUser | null }) {
@@ -93,6 +94,16 @@ export function UserMenu({ user }: { user: SessionUser | null }) {
           >
             Settings
           </Link>
+          {user.isAdmin && (
+            <Link
+              href="/admin/verify"
+              role="menuitem"
+              className="block px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+              onClick={() => setOpen(false)}
+            >
+              Verify Races
+            </Link>
+          )}
           <form action={userSignOut}>
             <button
               type="submit"

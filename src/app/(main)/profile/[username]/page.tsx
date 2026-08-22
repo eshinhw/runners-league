@@ -3,6 +3,7 @@ import type { GearCategory } from "@/generated/prisma/client";
 import { Avatar } from "@/components/Avatar";
 import { GearSlotIcon } from "@/components/GearSlotIcon";
 import { TierBadge } from "@/components/TierBadge";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { auth } from "@/lib/auth";
 import { calculateAge, formatDuration, formatGearName, formatPace, initials } from "@/lib/format";
 import { GEAR_CATEGORY_LABEL, GEAR_CATEGORY_ORDER } from "@/lib/gear";
@@ -46,6 +47,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const majorsCompleted = new Set(user.activities.map((a) => a.major)).size;
   const tier = getTierForCount(majorsCompleted, MAJORS_ORDER.length);
   const avatarSrc = user.avatarUrl ?? user.image;
+  const allRecordsVerified = user.activities.length > 0 && user.activities.every((a) => a.verifiedAt);
 
   const gearByCategory = new Map<GearCategory, typeof user.gears>();
   for (const g of user.gears) {
@@ -77,6 +79,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold">{user.displayId}</h1>
+            {allRecordsVerified && <VerifiedBadge className="h-5 w-5" title="All race records verified" />}
             <TierBadge tier={tier} size={30} />
           </div>
           {fullName && <p className="text-sm text-zinc-500">{fullName}</p>}
@@ -104,7 +107,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             <thead>
               <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-400 dark:border-zinc-800">
                 <th className="py-2">Race</th>
-                <th className="py-2">Date</th>
                 <th className="py-2 text-right">Finish Time</th>
                 <th className="py-2 text-right">Pace</th>
               </tr>
@@ -113,11 +115,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
               {user.activities.map((a) => (
                 <tr key={a.id} className="border-b border-zinc-100 dark:border-zinc-900">
                   <td className="py-2 font-medium">
-                    {a.major
-                      ? `${a.startedAt.getUTCFullYear()} ${MAJOR_INFO[a.major].name}`
-                      : a.title}
+                    <span className="inline-flex items-center gap-1.5">
+                      {a.major ? `${a.startedAt.getUTCFullYear()} ${MAJOR_INFO[a.major].name}` : a.title}
+                      {a.verifiedAt && <VerifiedBadge className="h-3.5 w-3.5" />}
+                    </span>
                   </td>
-                  <td className="py-2 text-zinc-500">{a.startedAt.toISOString().slice(0, 10)}</td>
                   <td className="py-2 text-right font-mono tabular-nums">{formatDuration(a.durationSec)}</td>
                   <td className="py-2 text-right font-mono tabular-nums text-zinc-500">
                     {formatPace(a.avgPaceSecPerKm, unitSystem)}

@@ -7,6 +7,23 @@ export const GENDER_LABEL: Record<Gender, string> = {
   UNSPECIFIED: "Select",
 };
 
+// A runner's userId shows up here only if every major race record on their
+// account has been admin-verified (and they have at least one).
+export async function getFullyVerifiedUserIds(db: PrismaClient): Promise<Set<string>> {
+  const activities = await db.activity.findMany({
+    where: { major: { not: null } },
+    select: { userId: true, verifiedAt: true },
+  });
+
+  const byUser = new Map<string, boolean>();
+  for (const a of activities) {
+    const allVerifiedSoFar = byUser.get(a.userId) ?? true;
+    byUser.set(a.userId, allVerifiedSoFar && a.verifiedAt !== null);
+  }
+
+  return new Set([...byUser.entries()].filter(([, allVerified]) => allVerified).map(([userId]) => userId));
+}
+
 // ---- Majors Completed leaderboard: how many of the 7 majors each runner has finished ----
 
 export type MajorsCompletedRow = {
@@ -16,18 +33,22 @@ export type MajorsCompletedRow = {
   displayId: string;
   majorsCompleted: MarathonMajor[];
   bestTotalDurationSec: number; // sum of each completed major's fastest finish, tie-break only
+  allVerified: boolean;
 };
 
 export async function getMajorsCompletedLeaderboard(db: PrismaClient, limit = 50): Promise<MajorsCompletedRow[]> {
-  const results = await db.activity.findMany({
-    where: { major: { not: null } },
-    select: {
-      userId: true,
-      major: true,
-      durationSec: true,
-      user: { select: { username: true, displayId: true } },
-    },
-  });
+  const [results, fullyVerified] = await Promise.all([
+    db.activity.findMany({
+      where: { major: { not: null } },
+      select: {
+        userId: true,
+        major: true,
+        durationSec: true,
+        user: { select: { username: true, displayId: true } },
+      },
+    }),
+    getFullyVerifiedUserIds(db),
+  ]);
 
   const byUser = new Map<
     string,
@@ -54,6 +75,7 @@ export async function getMajorsCompletedLeaderboard(db: PrismaClient, limit = 50
       displayId: entry.displayId,
       majorsCompleted: MAJORS_ORDER.filter((m) => entry.bestByMajor.has(m)),
       bestTotalDurationSec: [...entry.bestByMajor.values()].reduce((a, b) => a + b, 0),
+      allVerified: fullyVerified.has(userId),
     }))
     .sort((a, b) => b.majorsCompleted.length - a.majorsCompleted.length || a.bestTotalDurationSec - b.bestTotalDurationSec)
     .slice(0, limit);
@@ -70,6 +92,7 @@ export type MajorEditionRow = {
   displayId: string;
   durationSec: number;
   avgPaceSecPerKm: number | null;
+  allVerified: boolean;
 };
 
 export async function getMajorEditionLeaderboard(
@@ -78,20 +101,23 @@ export async function getMajorEditionLeaderboard(
   year: number,
   limit = 50,
 ): Promise<MajorEditionRow[]> {
-  const activities = await db.activity.findMany({
-    where: {
-      major,
-      startedAt: { gte: new Date(Date.UTC(year, 0, 1)), lt: new Date(Date.UTC(year + 1, 0, 1)) },
-    },
-    orderBy: { durationSec: "asc" },
-    take: limit,
-    select: {
-      durationSec: true,
-      avgPaceSecPerKm: true,
-      userId: true,
-      user: { select: { username: true, displayId: true } },
-    },
-  });
+  const [activities, fullyVerified] = await Promise.all([
+    db.activity.findMany({
+      where: {
+        major,
+        startedAt: { gte: new Date(Date.UTC(year, 0, 1)), lt: new Date(Date.UTC(year + 1, 0, 1)) },
+      },
+      orderBy: { durationSec: "asc" },
+      take: limit,
+      select: {
+        durationSec: true,
+        avgPaceSecPerKm: true,
+        userId: true,
+        user: { select: { username: true, displayId: true } },
+      },
+    }),
+    getFullyVerifiedUserIds(db),
+  ]);
 
   return activities.map((a, i) => ({
     rank: i + 1,
@@ -100,6 +126,7 @@ export async function getMajorEditionLeaderboard(
     displayId: a.user.displayId,
     durationSec: a.durationSec,
     avgPaceSecPerKm: a.avgPaceSecPerKm,
+    allVerified: fullyVerified.has(a.userId),
   }));
 }
 

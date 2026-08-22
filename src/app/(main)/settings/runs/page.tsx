@@ -1,6 +1,7 @@
 import { AddRaceModal } from "@/components/races/AddRaceModal";
 import { EditRaceModal } from "@/components/races/EditRaceModal";
 import { RunDeleteButton } from "@/components/RunDeleteButton";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { auth } from "@/lib/auth";
 import { formatDistance, formatDuration, formatPace } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
@@ -54,8 +55,16 @@ export default async function MyRunsPage() {
             )}
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="font-medium">{run.title}</div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-medium">{run.title}</span>
+                  {run.verifiedAt && <VerifiedBadge className="h-4 w-4" />}
+                </div>
                 <div className="text-xs text-zinc-500">{run.location ? `${run.location}` : ""}</div>
+                {!run.verifiedAt && (
+                  <div className="mt-1 inline-flex items-center gap-1 rounded-full border border-zinc-300 px-2 py-0.5 text-[11px] text-zinc-500 dark:border-zinc-700">
+                    Pending verification
+                  </div>
+                )}
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <EditRaceModal run={run} />

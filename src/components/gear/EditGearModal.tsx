@@ -153,7 +153,7 @@ export function EditGearModal({ gear }: { gear: Gear }) {
                           {b}
                         </option>
                       ))}
-                      <option value={OTHER}>Other (enter manually)</option>
+                      <option value={OTHER}>Other</option>
                     </select>
 
                     {isOtherBrand ? (
@@ -214,7 +214,7 @@ export function EditGearModal({ gear }: { gear: Gear }) {
                         {b}
                       </option>
                     ))}
-                    <option value={OTHER}>Other (enter manually)</option>
+                    <option value={OTHER}></option>
                   </select>
 
                   {isOtherBrand && (

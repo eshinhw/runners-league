@@ -144,7 +144,7 @@ export function AddGearModal() {
                           {b}
                         </option>
                       ))}
-                      <option value={OTHER}>Other (enter manually)</option>
+                      <option value={OTHER}>Other</option>
                     </select>
 
                     {isOtherBrand ? (
@@ -170,9 +170,7 @@ export function AddGearModal() {
                     )}
                   </div>
 
-                  {isOtherBrand && (
-                    <input name="brand" placeholder="Brand name" required className={inputCls} />
-                  )}
+                  {isOtherBrand && <input name="brand" placeholder="Brand name" required className={inputCls} />}
                 </>
               )}
 
@@ -193,12 +191,10 @@ export function AddGearModal() {
                         {b}
                       </option>
                     ))}
-                    <option value={OTHER}>Other (enter manually)</option>
+                    <option value={OTHER}>Other</option>
                   </select>
 
-                  {isOtherBrand && (
-                    <input name="brand" placeholder="Brand name" required className={inputCls} />
-                  )}
+                  {isOtherBrand && <input name="brand" placeholder="Brand name" required className={inputCls} />}
                 </>
               )}
 

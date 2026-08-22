@@ -12,12 +12,7 @@ type Agg = { category: GearCategory; brand: string; model: string | null; count:
 export default async function GearPage() {
   const session = await auth();
   if (!session?.user?.id) {
-    return (
-      <SignInGate
-        title="Top Gears"
-        description="Sign in to see the most-used gear across Runners League."
-      />
-    );
+    return <SignInGate title="Top Gears" description="Sign in to see the most-used gear across Runners League." />;
   }
 
   // Only each runner's starred gear counts — at most one favorite per
@@ -37,7 +32,13 @@ export default async function GearPage() {
       existing.count += 1;
       existing.totalDistanceM += g.totalDistanceM;
     } else {
-      aggMap.set(key, { category: g.category, brand: g.brand, model: g.model, count: 1, totalDistanceM: g.totalDistanceM });
+      aggMap.set(key, {
+        category: g.category,
+        brand: g.brand,
+        model: g.model,
+        count: 1,
+        totalDistanceM: g.totalDistanceM,
+      });
     }
   }
 
@@ -51,9 +52,7 @@ export default async function GearPage() {
 
   const sections = GEAR_CATEGORY_ORDER.map((category) => ({
     category,
-    items: (byCategory.get(category) ?? []).sort(
-      (a, b) => b.count - a.count || b.totalDistanceM - a.totalDistanceM,
-    ),
+    items: (byCategory.get(category) ?? []).sort((a, b) => b.count - a.count || b.totalDistanceM - a.totalDistanceM),
   })).filter((s) => s.items.length > 0);
 
   return (
@@ -74,7 +73,7 @@ export default async function GearPage() {
             <thead>
               <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-400 dark:border-zinc-800">
                 <th className="w-10 py-2">#</th>
-                <th className="py-2">Gear</th>
+                <th className="py-2">Item</th>
                 <th className="py-2 text-right">Runners</th>
               </tr>
             </thead>

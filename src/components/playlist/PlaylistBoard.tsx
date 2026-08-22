@@ -8,6 +8,13 @@ import type { PlaylistTrack } from "@/lib/playlist";
 
 const POLL_MS = 8000;
 
+// No direct YouTube video match without the (paid/API-key-gated) YouTube
+// Data API, so link to a YouTube Music search for the track instead of
+// guessing a specific video — the real song is reliably the top result.
+function youtubeMusicSearchUrl(artist: string, title: string): string {
+  return `https://music.youtube.com/search?q=${encodeURIComponent(`${artist} ${title}`)}`;
+}
+
 function splitChart(tracks: PlaylistTrack[]) {
   const charted = tracks.filter((t) => t.score > 0);
   const unranked = [...tracks.filter((t) => t.score === 0)].sort(
@@ -95,7 +102,7 @@ function TrackRow({
       )}
       <div className="min-w-0 flex-1">
         <a
-          href={track.itunesUrl}
+          href={youtubeMusicSearchUrl(track.artist, track.title)}
           target="_blank"
           rel="noreferrer"
           className="block truncate text-sm font-medium hover:underline"

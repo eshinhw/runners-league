@@ -30,6 +30,8 @@ model User {
   region      Region?
   unitSystem  UnitSystem @default(METRIC)
   language    Language   @default(EN)
+  // Only admins can mark race records as verified — see Activity.verifiedAt.
+  isAdmin     Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -234,6 +236,9 @@ model Activity {
   photoUrls     String[]     @default([]) // user-uploaded evidence photos (bib, medal, finish clock) for manual entries
   avgHeartRateBpm Int? // optional self-reported stat, manual entries only
   avgCadenceSpm   Int? // optional self-reported stat (steps per minute), manual entries only
+  // Set only by an admin reviewing evidence (photos, bib, timing page) — not
+  // self-serve. Null means pending review, regardless of how old the entry is.
+  verifiedAt    DateTime?
   createdAt     DateTime     @default(now())
 
   gearLinks ActivityGear[]

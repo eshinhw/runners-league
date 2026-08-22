@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Footer } from "@/components/Footer";
+import { GoogleIcon } from "@/components/GoogleIcon";
+import { LogoMark } from "@/components/LogoMark";
 import { auth } from "@/lib/auth";
-import { emailSignIn, googleSignIn } from "@/lib/auth-actions";
+import { googleSignIn } from "@/lib/auth-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -10,49 +13,31 @@ export default async function LoginPage() {
   if (session?.user) redirect("/");
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-8 px-6">
-      <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-        <span className="h-5 w-5 rounded bg-orange-500" />
-        Runners League
-      </Link>
+    <div className="flex min-h-screen flex-col">
+      <main className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-12">
+        <Link href="/" className="flex items-center gap-2 font-display font-medium tracking-tight">
+          <LogoMark className="h-6 w-6" />
+          Runners League
+        </Link>
 
-      <div className="flex w-full max-w-sm flex-col items-center gap-5 rounded-xl border border-zinc-200 p-6 dark:border-zinc-800">
-        <div className="text-center">
-          <h1 className="text-lg font-semibold">Log In</h1>
-          <p className="mt-1 text-sm text-zinc-500">Choose how you&apos;d like to continue.</p>
+        <div className="flex w-full max-w-sm flex-col items-center gap-5 rounded-xl border border-zinc-200 p-6 dark:border-zinc-800">
+          <div className="text-center">
+            <h1 className="text-lg font-semibold">Log In</h1>
+            <p className="mt-1 text-sm text-zinc-500">Continue with your Google account.</p>
+          </div>
+
+          <form action={googleSignIn} className="flex justify-center">
+            <button
+              type="submit"
+              className="flex h-10 w-64 items-center justify-center gap-3 rounded-md border border-[#8e918f] bg-[#131314] px-4 text-sm font-medium tracking-wide text-[#e3e3e3] transition-colors hover:bg-[#1c1c1d]"
+            >
+              <GoogleIcon className="h-5 w-5" />
+              Continue with Google
+            </button>
+          </form>
         </div>
-
-        <form action={googleSignIn} className="flex justify-center">
-          <button
-            type="submit"
-            className="flex w-64 items-center justify-center gap-2 rounded-lg border border-zinc-300 py-2 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900"
-          >
-            Continue with Google
-          </button>
-        </form>
-
-        <div className="flex w-64 items-center gap-3 text-xs text-zinc-400">
-          <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
-          or
-          <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
-        </div>
-
-        <form action={emailSignIn} className="flex w-64 flex-col items-center gap-2">
-          <input
-            type="email"
-            name="email"
-            required
-            placeholder="you@example.com"
-            className="w-64 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-          />
-          <button
-            type="submit"
-            className="w-64 rounded-lg bg-orange-500 py-2 text-sm font-medium text-white hover:bg-orange-600"
-          >
-            Send Email Sign-in Link
-          </button>
-        </form>
-      </div>
-    </main>
+      </main>
+      <Footer />
+    </div>
   );
 }

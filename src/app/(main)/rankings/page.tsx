@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { MarathonMajor } from "@/generated/prisma/client";
 import { SignInGate } from "@/components/SignInGate";
 import { TierBadge } from "@/components/TierBadge";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { auth } from "@/lib/auth";
 import { formatDuration, formatPace } from "@/lib/format";
 import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
@@ -98,8 +99,9 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
                       <TierBadge tier={tier} size={36} />
                     </td>
                     <td className="py-2">
-                      <Link href={`/profile/${row.username}`} className="font-medium hover:underline">
+                      <Link href={`/profile/${row.username}`} className="inline-flex items-center gap-1.5 font-medium hover:underline">
                         {row.displayId}
+                        {row.allVerified && <VerifiedBadge className="h-3.5 w-3.5" />}
                       </Link>
                     </td>
                     <td className="py-2">
@@ -168,8 +170,9 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
                   <tr key={row.userId} className="border-b border-zinc-100 dark:border-zinc-900">
                     <td className="py-2 font-mono tabular-nums">{MEDALS[row.rank - 1] ?? row.rank}</td>
                     <td className="py-2">
-                      <Link href={`/profile/${row.username}`} className="font-medium hover:underline">
+                      <Link href={`/profile/${row.username}`} className="inline-flex items-center gap-1.5 font-medium hover:underline">
                         {row.displayId}
+                        {row.allVerified && <VerifiedBadge className="h-3.5 w-3.5" />}
                       </Link>
                     </td>
                     <td className="py-2 text-right font-mono tabular-nums">{formatDuration(row.durationSec)}</td>

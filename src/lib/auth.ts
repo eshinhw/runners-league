@@ -74,6 +74,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.username = (user as { username?: string }).username;
         session.user.unitSystem = (user as { unitSystem?: Session["user"]["unitSystem"] }).unitSystem ?? "METRIC";
         session.user.avatarUrl = (user as { avatarUrl?: string | null }).avatarUrl ?? null;
+        session.user.isAdmin = (user as { isAdmin?: boolean }).isAdmin ?? false;
       }
       return session;
     },
