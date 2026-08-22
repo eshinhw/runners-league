@@ -1,5 +1,5 @@
 import { marked } from "marked";
-import DOMPurify from "isomorphic-dompurify";
+import sanitizeHtml from "sanitize-html";
 
 marked.use({
   breaks: true,
@@ -23,11 +23,15 @@ const ALLOWED_TAGS = [
 // Post/comment bodies are stored as raw Markdown source and rendered to
 // sanitized HTML only at display time — keeps the editor round-trippable
 // and means a sanitizer bug can't corrupt stored content, only a render.
+//
+// Uses sanitize-html (pure string-based) rather than DOMPurify+jsdom —
+// jsdom's dependency chain hits an ESM/CJS interop error when bundled for
+// Vercel's Node.js serverless runtime.
 export function renderMarkdown(raw: string): string {
   const html = marked.parse(raw, { async: false });
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS,
-    ALLOWED_ATTR: ["href", "title", "target", "rel"],
+  return sanitizeHtml(html, {
+    allowedTags: ALLOWED_TAGS,
+    allowedAttributes: { a: ["href", "title", "target", "rel"] },
   });
 }
 
