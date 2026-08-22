@@ -110,6 +110,16 @@ export function EditRaceModal({ run }: { run: Activity }) {
                 </select>
               </div>
 
+              <label className="flex flex-col gap-1">
+                <span className="text-xs font-medium text-zinc-500">Bib number (optional)</span>
+                <input
+                  name="bibNumber"
+                  placeholder="e.g. F1234"
+                  defaultValue={run.bibNumber ?? ""}
+                  className={inputCls}
+                />
+              </label>
+
               <div>
                 <span className="mb-1 block text-xs font-medium text-zinc-500">Finish Time</span>
                 <div className="grid grid-cols-3 gap-2">

@@ -1,14 +1,6 @@
 import type { MarathonMajor } from "@/generated/prisma/client";
 
-export const MAJORS_ORDER: MarathonMajor[] = [
-  "TOKYO",
-  "BOSTON",
-  "LONDON",
-  "SYDNEY",
-  "BERLIN",
-  "CHICAGO",
-  "NEW_YORK",
-];
+export const MAJORS_ORDER: MarathonMajor[] = ["TOKYO", "BOSTON", "LONDON", "SYDNEY", "BERLIN", "CHICAGO", "NEW_YORK"];
 
 export type RaceDistance = "5K" | "10K" | "Half" | "Full" | "Ultra";
 
@@ -63,7 +55,7 @@ export const MAJOR_INFO: Record<
     city: "Sydney",
     country: "Australia",
     flag: "🇦🇺",
-    websiteUrl: "https://www.sydneymarathon.com/",
+    websiteUrl: "https://www.tcssydneymarathon.com",
     distances: ["5K", "10K", "Half", "Full"],
     description:
       "The newest race in the series, crossing the Sydney Harbour Bridge with the Opera House as its finish-line backdrop.",
@@ -134,7 +126,5 @@ export const MAJORS_CALENDAR: MajorEdition[] = [
 ];
 
 export function getMajorsForYear(year: number): MajorEdition[] {
-  return MAJORS_CALENDAR
-    .filter((e) => e.year === year)
-    .sort((a, b) => a.date.localeCompare(b.date));
+  return MAJORS_CALENDAR.filter((e) => e.year === year).sort((a, b) => a.date.localeCompare(b.date));
 }

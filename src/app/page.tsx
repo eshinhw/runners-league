@@ -2,18 +2,33 @@ import { auth } from "@/lib/auth";
 import { Footer } from "@/components/Footer";
 import { MajorArt } from "@/components/MajorArt";
 import { SiteHeader } from "@/components/SiteHeader";
-import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
+import { MAJOR_INFO, MAJORS_CALENDAR, MAJORS_ORDER } from "@/lib/majors";
 
 export const dynamic = "force-dynamic";
+
+// Oxford-comma join, e.g. [2026, 2027] -> "2026 and 2027",
+// ["Tokyo", "Boston", "London"] -> "Tokyo, Boston, and London".
+function joinWithAnd(items: (string | number)[]): string {
+  const strs = items.map(String);
+  if (strs.length <= 1) return strs.join("");
+  if (strs.length === 2) return `${strs[0]} and ${strs[1]}`;
+  return `${strs.slice(0, -1).join(", ")}, and ${strs[strs.length - 1]}`;
+}
+
+// Derived from the actual majors/calendar data so this list — and the years
+// mentioned below — grow on their own as majors or calendar editions are
+// added, instead of needing a manual copy edit each time.
+const MAJOR_NAMES = MAJORS_ORDER.map((m) => MAJOR_INFO[m].name.replace(" Marathon", ""));
+const CALENDAR_YEARS = [...new Set(MAJORS_CALENDAR.map((e) => e.year))].sort((a, b) => a - b);
 
 const FEATURES = [
   {
     title: "Track the Majors",
-    body: "Log your finish at each of the World Marathon Majors — Tokyo, Boston, London, Sydney, Berlin, Chicago, and New York City.",
+    body: `Log your finish at each of the World Marathon Majors — ${joinWithAnd(MAJOR_NAMES)}.`,
   },
   {
     title: "See what's coming",
-    body: "Browse the full 2026 and 2027 Majors calendar in one place, so you always know what's next.",
+    body: `Browse the full ${joinWithAnd(CALENDAR_YEARS)} Majors calendar in one place, so you always know what's next.`,
   },
   {
     title: "Climb the rankings",
@@ -23,6 +38,7 @@ const FEATURES = [
 
 export default async function HomePage() {
   const session = await auth();
+  const currentYear = new Date().getFullYear();
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -52,7 +68,7 @@ export default async function HomePage() {
           <div className="text-center">
             <h2 className="text-lg font-semibold">World Major Marathons</h2>
             <p className="mt-1 text-sm text-zinc-500">
-              The races currently recognized as World Major Marathons, as of 2026.
+              The races currently recognized as World Major Marathons, as of {currentYear}.
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

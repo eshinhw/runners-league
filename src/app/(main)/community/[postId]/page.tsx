@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { PostType } from "@/generated/prisma/client";
 import { LikeButton } from "@/components/community/LikeButton";
+import { SignInGate } from "@/components/SignInGate";
 import { auth } from "@/lib/auth";
 import { formatRelativeTime } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
@@ -19,12 +20,20 @@ const TYPE_LABEL: Record<PostType, string> = {
 export default async function PostPage({ params }: { params: Promise<{ postId: string }> }) {
   const { postId } = await params;
   const session = await auth();
+  if (!session?.user?.id) {
+    return (
+      <SignInGate
+        title="Community"
+        description="Sign in to see discussions, info sharing, and Q&A between runners."
+      />
+    );
+  }
 
   const post = await prisma.post.findUnique({
     where: { id: postId },
     include: {
       author: { select: { username: true, displayId: true } },
-      likes: session?.user?.id ? { where: { userId: session.user.id }, select: { id: true } } : false,
+      likes: { where: { userId: session.user.id }, select: { id: true } },
       _count: { select: { likes: true } },
       comments: {
         orderBy: { createdAt: "asc" },
@@ -42,12 +51,7 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
       </Link>
 
       <article className="flex items-start gap-3">
-        <LikeButton
-          postId={post.id}
-          liked={Array.isArray(post.likes) && post.likes.length > 0}
-          count={post._count.likes}
-          signedIn={!!session?.user?.id}
-        />
+        <LikeButton postId={post.id} liked={post.likes.length > 0} count={post._count.likes} signedIn />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 text-xs text-zinc-400">
             <span>{TYPE_LABEL[post.type]}</span>
@@ -77,27 +81,18 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
           {post.comments.length} comment{post.comments.length !== 1 ? "s" : ""}
         </h2>
 
-        {session?.user?.id ? (
-          <form action={addComment.bind(null, post.id)} className="mb-4 flex flex-col gap-2">
-            <textarea
-              name="body"
-              placeholder="Add a comment..."
-              required
-              rows={2}
-              className="w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            />
-            <button type="submit" className="self-start rounded bg-orange-500 px-4 py-1.5 text-sm font-medium text-white">
-              Comment
-            </button>
-          </form>
-        ) : (
-          <p className="mb-4 text-sm text-zinc-500">
-            <Link href="/login" className="font-medium text-orange-500 underline">
-              Sign in
-            </Link>{" "}
-            to comment.
-          </p>
-        )}
+        <form action={addComment.bind(null, post.id)} className="mb-4 flex flex-col gap-2">
+          <textarea
+            name="body"
+            placeholder="Add a comment..."
+            required
+            rows={2}
+            className="w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          />
+          <button type="submit" className="self-start rounded bg-orange-500 px-4 py-1.5 text-sm font-medium text-white">
+            Comment
+          </button>
+        </form>
 
         <ul className="flex flex-col gap-4">
           {post.comments.map((c) => (

@@ -70,6 +70,7 @@ export async function addRun(formData: FormData) {
 
   const heartRateRaw = String(formData.get("avgHeartRate") ?? "");
   const cadenceRaw = String(formData.get("avgCadence") ?? "");
+  const bibNumber = String(formData.get("bibNumber") ?? "").trim();
 
   const photos = formData.getAll("photos").filter((f): f is File => f instanceof File);
   const photoUrls = await savePhotos(photos);
@@ -86,6 +87,7 @@ export async function addRun(formData: FormData) {
       avgPaceSecPerKm,
       avgHeartRateBpm: heartRateRaw ? Number(heartRateRaw) : null,
       avgCadenceSpm: cadenceRaw ? Number(cadenceRaw) : null,
+      bibNumber: bibNumber || null,
       startedAt,
       location: `${MAJOR_INFO[major].city}, ${MAJOR_INFO[major].country}`,
       photoUrls,
@@ -125,6 +127,7 @@ export async function updateRun(activityId: string, formData: FormData) {
 
   const heartRateRaw = String(formData.get("avgHeartRate") ?? "");
   const cadenceRaw = String(formData.get("avgCadence") ?? "");
+  const bibNumber = String(formData.get("bibNumber") ?? "").trim();
 
   const keptPhotoUrls = formData.getAll("keepPhoto").map((v) => String(v));
   const newPhotos = formData.getAll("photos").filter((f): f is File => f instanceof File);
@@ -140,6 +143,7 @@ export async function updateRun(activityId: string, formData: FormData) {
       avgPaceSecPerKm,
       avgHeartRateBpm: heartRateRaw ? Number(heartRateRaw) : null,
       avgCadenceSpm: cadenceRaw ? Number(cadenceRaw) : null,
+      bibNumber: bibNumber || null,
       startedAt,
       location: `${MAJOR_INFO[major].city}, ${MAJOR_INFO[major].country}`,
       photoUrls,

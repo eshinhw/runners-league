@@ -59,7 +59,9 @@ export default async function MyRunsPage() {
                   <span className="font-medium">{run.title}</span>
                   {run.verifiedAt && <VerifiedBadge className="h-4 w-4" />}
                 </div>
-                <div className="text-xs text-zinc-500">{run.location ? `${run.location}` : ""}</div>
+                <div className="text-xs text-zinc-500">
+                  {[run.location, run.bibNumber ? `Bib #${run.bibNumber}` : null].filter(Boolean).join(" · ")}
+                </div>
                 {!run.verifiedAt && (
                   <div className="mt-1 inline-flex items-center gap-1 rounded-full border border-zinc-300 px-2 py-0.5 text-[11px] text-zinc-500 dark:border-zinc-700">
                     Pending verification

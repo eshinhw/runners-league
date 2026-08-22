@@ -67,7 +67,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   }
 
   return (
-    <main className="flex max-w-3xl flex-col gap-8">
+    <main className="flex flex-col gap-8">
       <div className="flex items-start gap-4">
         <Avatar
           src={avatarSrc}

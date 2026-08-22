@@ -1,4 +1,5 @@
 import { PlaylistBoard } from "@/components/playlist/PlaylistBoard";
+import { SignInGate } from "@/components/SignInGate";
 import { auth } from "@/lib/auth";
 import { getPlaylist } from "@/lib/playlist";
 
@@ -6,7 +7,16 @@ export const dynamic = "force-dynamic";
 
 export default async function PlaylistPage() {
   const session = await auth();
-  const tracks = await getPlaylist(session?.user?.id);
+  if (!session?.user?.id) {
+    return (
+      <SignInGate
+        title="Runners Playlist"
+        description="Sign in to see the songs runners are running to and vote for your favorites."
+      />
+    );
+  }
+
+  const tracks = await getPlaylist(session.user.id);
 
   return (
     <main className="flex flex-col gap-6">
@@ -17,7 +27,7 @@ export default async function PlaylistPage() {
         </p>
       </div>
 
-      <PlaylistBoard initialTracks={tracks} signedIn={!!session?.user?.id} />
+      <PlaylistBoard initialTracks={tracks} signedIn />
     </main>
   );
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { PostType } from "@/generated/prisma/client";
 import { LikeButton } from "@/components/community/LikeButton";
 import { PostComposer } from "@/components/community/PostComposer";
+import { SignInGate } from "@/components/SignInGate";
 import { auth } from "@/lib/auth";
 import { formatRelativeTime } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
@@ -23,15 +24,24 @@ const TYPE_LABEL: Record<PostType, string> = {
 };
 
 export default async function CommunityPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return (
+      <SignInGate
+        title="Community"
+        description="Sign in to see discussions, info sharing, and Q&A between runners."
+      />
+    );
+  }
+
   const sp = await searchParams;
   const tab: Tab = sp.tab === "top" ? "top" : "new";
-  const session = await auth();
 
   const posts = await prisma.post.findMany({
     orderBy: tab === "top" ? { likes: { _count: "desc" } } : { createdAt: "desc" },
     include: {
       author: { select: { username: true, displayId: true } },
-      likes: session?.user?.id ? { where: { userId: session.user.id }, select: { id: true } } : false,
+      likes: { where: { userId: session.user.id }, select: { id: true } },
       _count: { select: { likes: true, comments: true } },
     },
     take: 50,
@@ -46,16 +56,7 @@ export default async function CommunityPage({ searchParams }: { searchParams: Pr
         </p>
       </div>
 
-      {session?.user?.id ? (
-        <PostComposer />
-      ) : (
-        <div className="rounded-lg border border-zinc-200 p-4 text-sm text-zinc-500 dark:border-zinc-800">
-          <Link href="/login" className="font-medium text-orange-500 underline">
-            Sign in
-          </Link>{" "}
-          to start a discussion.
-        </div>
-      )}
+      <PostComposer />
 
       <nav className="flex gap-2 border-b border-zinc-200 pb-px dark:border-zinc-800">
         {TABS.map((t) => (
@@ -77,12 +78,7 @@ export default async function CommunityPage({ searchParams }: { searchParams: Pr
         {posts.length === 0 && <p className="text-sm text-zinc-500">No posts yet — be the first to start one.</p>}
         {posts.map((post) => (
           <article key={post.id} className="flex items-start gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-            <LikeButton
-              postId={post.id}
-              liked={Array.isArray(post.likes) && post.likes.length > 0}
-              count={post._count.likes}
-              signedIn={!!session?.user?.id}
-            />
+            <LikeButton postId={post.id} liked={post.likes.length > 0} count={post._count.likes} signedIn />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 text-xs text-zinc-400">
                 <span>{TYPE_LABEL[post.type]}</span>
