@@ -1,39 +1,18 @@
 "use server";
 
-import crypto from "node:crypto";
-import fs from "node:fs/promises";
-import path from "node:path";
 import { revalidatePath } from "next/cache";
 import type { MarathonMajor } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { MAJOR_INFO, MAJORS_CALENDAR, MAJORS_ORDER } from "@/lib/majors";
 import { prisma } from "@/lib/prisma";
+import { uploadImages } from "@/lib/storage";
 
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "runs");
-const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]);
 const MARATHON_DISTANCE_M = 42195;
 
 async function requireUserId(): Promise<string> {
   const session = await auth();
   if (!session?.user?.id) throw new Error("You need to be signed in.");
   return session.user.id;
-}
-
-async function savePhotos(files: File[]): Promise<string[]> {
-  const valid = files.filter((f) => f.size > 0 && ALLOWED_TYPES.has(f.type));
-  if (valid.length === 0) return [];
-
-  await fs.mkdir(UPLOAD_DIR, { recursive: true });
-
-  const urls: string[] = [];
-  for (const file of valid) {
-    const ext = file.type.split("/")[1] ?? "jpg";
-    const filename = `${crypto.randomUUID()}.${ext}`;
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await fs.writeFile(path.join(UPLOAD_DIR, filename), buffer);
-    urls.push(`/uploads/runs/${filename}`);
-  }
-  return urls;
 }
 
 // Parses "M:SS" or "MM:SS" pace input into seconds per km. Returns null for
@@ -73,7 +52,7 @@ export async function addRun(formData: FormData) {
   const bibNumber = String(formData.get("bibNumber") ?? "").trim();
 
   const photos = formData.getAll("photos").filter((f): f is File => f instanceof File);
-  const photoUrls = await savePhotos(photos);
+  const photoUrls = await uploadImages(photos, "runs");
 
   await prisma.activity.create({
     data: {
@@ -131,7 +110,7 @@ export async function updateRun(activityId: string, formData: FormData) {
 
   const keptPhotoUrls = formData.getAll("keepPhoto").map((v) => String(v));
   const newPhotos = formData.getAll("photos").filter((f): f is File => f instanceof File);
-  const newPhotoUrls = await savePhotos(newPhotos);
+  const newPhotoUrls = await uploadImages(newPhotos, "runs");
   const photoUrls = [...keptPhotoUrls, ...newPhotoUrls];
 
   await prisma.activity.update({

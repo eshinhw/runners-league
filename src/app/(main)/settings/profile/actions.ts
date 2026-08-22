@@ -1,27 +1,10 @@
 "use server";
 
-import crypto from "node:crypto";
-import fs from "node:fs/promises";
-import path from "node:path";
 import { revalidatePath } from "next/cache";
 import type { Gender } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "avatars");
-const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]);
-
-async function saveAvatar(file: File | null): Promise<string | null> {
-  if (!file || file.size === 0 || !ALLOWED_TYPES.has(file.type)) return null;
-
-  await fs.mkdir(UPLOAD_DIR, { recursive: true });
-
-  const ext = file.type.split("/")[1] ?? "jpg";
-  const filename = `${crypto.randomUUID()}.${ext}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(path.join(UPLOAD_DIR, filename), buffer);
-  return `/uploads/avatars/${filename}`;
-}
+import { uploadImage } from "@/lib/storage";
 
 export async function updateProfile(formData: FormData) {
   const session = await auth();
@@ -51,7 +34,7 @@ export async function updateProfile(formData: FormData) {
   const heightCmRaw = String(formData.get("heightCm") ?? "");
 
   const avatarFile = formData.get("avatar");
-  const avatarUrl = await saveAvatar(avatarFile instanceof File ? avatarFile : null);
+  const avatarUrl = await uploadImage(avatarFile instanceof File ? avatarFile : null, "avatars");
 
   try {
     await prisma.user.update({
