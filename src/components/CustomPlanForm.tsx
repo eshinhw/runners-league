@@ -7,7 +7,7 @@ import { distanceUnitLabel, KM_PER_MI } from "@/lib/format";
 import { formatPaceLabel, generateCustomPlan, type CustomPlanResult } from "@/lib/training";
 
 const inputCls =
-  "w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
+  "w-full min-w-0 rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
 
 function parsePaceToSecPerUnit(raw: string): number | null {
   const match = raw.trim().match(/^(\d+):([0-5]?\d)$/);

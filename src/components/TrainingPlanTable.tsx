@@ -23,7 +23,27 @@ export function TrainingPlanTable({
         <h3 className="font-medium">{plan.title}</h3>
         <p className="text-sm text-zinc-500">{plan.subtitle}</p>
       </div>
-      <div className="overflow-x-auto">
+
+      {/* Key workout text is full sentences — too long for a table column on
+          mobile, so stack each week as a card there instead of forcing a
+          horizontal scroll. Table layout takes over from sm: up. */}
+      <div className="flex flex-col gap-2 sm:hidden">
+        {plan.weeks.map((w) => (
+          <div key={w.week} className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">
+                Week {w.week} · <span className={PHASE_COLOR[w.phase] ?? ""}>{w.phase}</span>
+              </span>
+              <span className="font-mono text-sm tabular-nums text-zinc-500">
+                {formatDistanceKm(w.weeklyKm, unitSystem)} · {formatDistanceKm(w.longRunKm, unitSystem)} long
+              </span>
+            </div>
+            <p className="mt-1 text-sm text-zinc-500">{w.keyWorkout}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto sm:block">
         <table className="w-full min-w-[520px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-400 dark:border-zinc-800">
