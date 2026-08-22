@@ -5,6 +5,7 @@ import { updateProfile } from "@/app/(main)/settings/profile/actions";
 import { Avatar } from "@/components/Avatar";
 import { useToast } from "@/components/Toast";
 import type { Gender } from "@/generated/prisma/client";
+import { COUNTRIES } from "@/lib/countries";
 import { initials } from "@/lib/format";
 import { GENDER_LABEL } from "@/lib/rankings";
 
@@ -211,7 +212,17 @@ export function ProfileEditor({ user }: { user: ProfileUser }) {
 
       <div className="grid grid-cols-2 gap-3">
         <Field label="Country">
-          <input name="country" defaultValue={user.country ?? "Canada"} placeholder="e.g. Canada" className={inputCls} />
+          <select name="country" defaultValue={user.country ?? ""} className={inputCls}>
+            <option value="">Select a country</option>
+            {user.country && !COUNTRIES.includes(user.country) && (
+              <option value={user.country}>{user.country}</option>
+            )}
+            {COUNTRIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
         </Field>
         <Field label="City">
           <input name="city" defaultValue={user.city ?? ""} placeholder="e.g. Toronto" className={inputCls} />
