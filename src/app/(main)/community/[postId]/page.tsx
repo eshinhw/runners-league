@@ -5,6 +5,7 @@ import { LikeButton } from "@/components/community/LikeButton";
 import { SignInGate } from "@/components/SignInGate";
 import { auth } from "@/lib/auth";
 import { formatRelativeTime } from "@/lib/format";
+import { renderMarkdown } from "@/lib/markdown";
 import { prisma } from "@/lib/prisma";
 import { addComment } from "../actions";
 
@@ -63,7 +64,10 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
             <span>{formatRelativeTime(post.createdAt)}</span>
           </div>
           <h1 className="mt-1 text-xl font-semibold">{post.title}</h1>
-          <p className="mt-3 whitespace-pre-wrap text-sm text-zinc-600 dark:text-zinc-300">{post.body}</p>
+          <div
+            className="prose prose-sm prose-zinc mt-3 max-w-none dark:prose-invert prose-a:text-orange-600 dark:prose-a:text-orange-400"
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(post.body) }}
+          />
           {post.tags.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {post.tags.map((tag) => (

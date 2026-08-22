@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* Track Red — warm charcoal + synthetic-track red, in place of the generic
    near-black + Tailwind orange-500 the app started with. */

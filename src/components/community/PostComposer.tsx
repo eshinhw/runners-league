@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { createPost } from "@/app/(main)/community/actions";
+import { MarkdownEditor } from "@/components/community/MarkdownEditor";
 import { useToast } from "@/components/Toast";
 
 const inputCls =
@@ -49,7 +50,7 @@ export function PostComposer() {
       className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
     >
       <input name="title" placeholder="Title" required maxLength={140} className={inputCls} />
-      <textarea name="body" placeholder="What's on your mind?" required rows={3} className={inputCls} />
+
       <div className="grid grid-cols-2 gap-2">
         <select name="type" defaultValue="DISCUSSION" className={inputCls}>
           <option value="DISCUSSION">💬 Discussion</option>
@@ -58,6 +59,8 @@ export function PostComposer() {
         </select>
         <input name="tags" placeholder="Tags, comma separated (optional)" className={inputCls} />
       </div>
+
+      <MarkdownEditor name="body" placeholder="What's on your mind?" required rows={3} />
 
       {error && <p className="text-sm text-rose-500">{error}</p>}
 

@@ -5,6 +5,7 @@ import { PostComposer } from "@/components/community/PostComposer";
 import { SignInGate } from "@/components/SignInGate";
 import { auth } from "@/lib/auth";
 import { formatRelativeTime } from "@/lib/format";
+import { stripMarkdown } from "@/lib/markdown";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -90,7 +91,7 @@ export default async function CommunityPage({ searchParams }: { searchParams: Pr
               <Link href={`/community/${post.id}`} className="mt-1 block font-medium hover:underline">
                 {post.title}
               </Link>
-              <p className="mt-1 line-clamp-2 text-sm text-zinc-500">{post.body}</p>
+              <p className="mt-1 line-clamp-2 text-sm text-zinc-500">{stripMarkdown(post.body)}</p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {post.tags.map((tag) => (
                   <span key={tag} className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] text-zinc-500 dark:bg-zinc-900">
