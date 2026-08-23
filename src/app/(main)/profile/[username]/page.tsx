@@ -3,9 +3,10 @@ import type { GearCategory } from "@/generated/prisma/client";
 import { Avatar } from "@/components/Avatar";
 import { GearSlotIcon } from "@/components/GearSlotIcon";
 import { TierBadge } from "@/components/TierBadge";
+import { PaceValue } from "@/components/units/UnitDisplay";
+import { UnitToggle } from "@/components/units/UnitToggle";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
-import { auth } from "@/lib/auth";
-import { calculateAge, formatDuration, formatGearName, formatPace, initials } from "@/lib/format";
+import { calculateAge, formatDuration, formatGearName, initials } from "@/lib/format";
 import { GEAR_CATEGORY_LABEL, GEAR_CATEGORY_ORDER } from "@/lib/gear";
 import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
 import { prisma } from "@/lib/prisma";
@@ -37,9 +38,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   });
 
   if (!user) notFound();
-
-  const viewerSession = await auth();
-  const unitSystem = viewerSession?.user?.unitSystem ?? "METRIC";
 
   const age = calculateAge(user.birthDate);
   const location = [user.city, user.country].filter(Boolean).join(", ");
@@ -103,31 +101,34 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         {user.activities.length === 0 ? (
           <p className="text-sm text-zinc-500">No majors logged yet.</p>
         ) : (
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-400 dark:border-zinc-800">
-                <th className="py-2">Race</th>
-                <th className="py-2 pl-4 text-right">Finish Time</th>
-                <th className="py-2 pl-4 text-right">Pace</th>
-              </tr>
-            </thead>
-            <tbody>
-              {user.activities.map((a) => (
-                <tr key={a.id} className="border-b border-zinc-100 dark:border-zinc-900">
-                  <td className="py-2 font-medium">
-                    <span className="inline-flex items-center gap-1.5">
-                      {a.major ? `${a.startedAt.getUTCFullYear()} ${MAJOR_INFO[a.major].name}` : a.title}
-                      {a.verifiedAt && <VerifiedBadge className="h-3.5 w-3.5" />}
-                    </span>
-                  </td>
-                  <td className="py-2 pl-4 text-right font-mono tabular-nums">{formatDuration(a.durationSec)}</td>
-                  <td className="py-2 pl-4 text-right font-mono tabular-nums text-zinc-500">
-                    {formatPace(a.avgPaceSecPerKm, unitSystem)}
-                  </td>
+          <>
+            <UnitToggle className="self-start" />
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-400 dark:border-zinc-800">
+                  <th className="py-2">Race</th>
+                  <th className="py-2 pl-4 text-right">Finish Time</th>
+                  <th className="py-2 pl-4 text-right">Pace</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {user.activities.map((a) => (
+                  <tr key={a.id} className="border-b border-zinc-100 dark:border-zinc-900">
+                    <td className="py-2 font-medium">
+                      <span className="inline-flex items-center gap-1.5">
+                        {a.major ? `${a.startedAt.getUTCFullYear()} ${MAJOR_INFO[a.major].name}` : a.title}
+                        {a.verifiedAt && <VerifiedBadge className="h-3.5 w-3.5" />}
+                      </span>
+                    </td>
+                    <td className="py-2 pl-4 text-right font-mono tabular-nums">{formatDuration(a.durationSec)}</td>
+                    <td className="py-2 pl-4 text-right font-mono tabular-nums text-zinc-500">
+                      <PaceValue secPerKm={a.avgPaceSecPerKm} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
         )}
       </section>
 

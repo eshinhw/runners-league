@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Oswald, Work_Sans } from "next/font/google";
 import { ToastProvider } from "@/components/Toast";
+import { UnitSystemProvider } from "@/components/units/UnitSystemProvider";
 import "./globals.css";
 
 const workSans = Work_Sans({
@@ -33,7 +34,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${workSans.variable} ${oswald.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ToastProvider>{children}</ToastProvider>
+        <UnitSystemProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </UnitSystemProvider>
       </body>
     </html>
   );

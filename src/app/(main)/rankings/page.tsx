@@ -2,9 +2,11 @@ import Link from "next/link";
 import type { MarathonMajor } from "@/generated/prisma/client";
 import { SignInGate } from "@/components/SignInGate";
 import { TierBadge } from "@/components/TierBadge";
+import { PaceValue } from "@/components/units/UnitDisplay";
+import { UnitToggle } from "@/components/units/UnitToggle";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { auth } from "@/lib/auth";
-import { formatDuration, formatPace } from "@/lib/format";
+import { formatDuration } from "@/lib/format";
 import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
 import { prisma } from "@/lib/prisma";
 import { getEditionsWithResults, getMajorEditionLeaderboard, getMajorsCompletedLeaderboard } from "@/lib/rankings";
@@ -44,7 +46,6 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
 
   const sp = await searchParams;
   const tab: Tab = sp.tab === "edition" ? "edition" : "completed";
-  const unitSystem = session.user.unitSystem;
 
   const editions = tab === "edition" ? await getEditionsWithResults(prisma) : [];
   const availableMajors = MAJORS_ORDER.filter((m) => editions.some((e) => e.major === m));
@@ -155,6 +156,8 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
             </button>
           </form>
 
+          <UnitToggle className="self-start" />
+
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-400 dark:border-zinc-800">
@@ -177,7 +180,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
                     </td>
                     <td className="py-2 pl-4 text-right font-mono tabular-nums">{formatDuration(row.durationSec)}</td>
                     <td className="py-2 pl-4 text-right font-mono tabular-nums text-zinc-500">
-                      {formatPace(row.avgPaceSecPerKm, unitSystem)}
+                      <PaceValue secPerKm={row.avgPaceSecPerKm} />
                     </td>
                   </tr>
                 ))

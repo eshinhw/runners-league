@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { CustomPlanForm } from "@/components/CustomPlanForm";
 import { TrainingPlanTable } from "@/components/TrainingPlanTable";
-import { auth } from "@/lib/auth";
 import { BEGINNER_PLAN, SUB3_PLAN, SUB4_PLAN } from "@/lib/training";
 
 export const dynamic = "force-dynamic";
@@ -20,9 +19,6 @@ export default async function TrainingPage({ searchParams }: { searchParams: Pro
   const tab: Tab = (["beginner", "sub4", "sub3", "custom"] as const).includes(sp.tab as Tab)
     ? (sp.tab as Tab)
     : "beginner";
-
-  const session = await auth();
-  const unitSystem = session?.user?.unitSystem ?? "METRIC";
 
   return (
     <main className="flex flex-col gap-5">
@@ -49,10 +45,10 @@ export default async function TrainingPage({ searchParams }: { searchParams: Pro
         ))}
       </nav>
 
-      {tab === "beginner" && <TrainingPlanTable plan={BEGINNER_PLAN} unitSystem={unitSystem} />}
-      {tab === "sub4" && <TrainingPlanTable plan={SUB4_PLAN} unitSystem={unitSystem} />}
-      {tab === "sub3" && <TrainingPlanTable plan={SUB3_PLAN} unitSystem={unitSystem} />}
-      {tab === "custom" && <CustomPlanForm unitSystem={unitSystem} />}
+      {tab === "beginner" && <TrainingPlanTable plan={BEGINNER_PLAN} />}
+      {tab === "sub4" && <TrainingPlanTable plan={SUB4_PLAN} />}
+      {tab === "sub3" && <TrainingPlanTable plan={SUB3_PLAN} />}
+      {tab === "custom" && <CustomPlanForm />}
     </main>
   );
 }

@@ -1,11 +1,13 @@
-import type { Gear, GearCategory, UnitSystem } from "@/generated/prisma/client";
+import type { Gear, GearCategory } from "@/generated/prisma/client";
 import { AddGearModal } from "@/components/gear/AddGearModal";
 import { EditGearModal } from "@/components/gear/EditGearModal";
 import { ArchiveIcon, FavoriteIcon, RestoreIcon } from "@/components/gear/GearActionIcons";
 import { GearDeleteButton } from "@/components/gear/GearDeleteButton";
 import { GearSlotIcon } from "@/components/GearSlotIcon";
+import { DistanceValue } from "@/components/units/UnitDisplay";
+import { UnitToggle } from "@/components/units/UnitToggle";
 import { auth } from "@/lib/auth";
-import { formatDistance, formatGearName } from "@/lib/format";
+import { formatGearName } from "@/lib/format";
 import { GEAR_CATEGORY_LABEL, GEAR_CATEGORY_ORDER } from "@/lib/gear";
 import { prisma } from "@/lib/prisma";
 import { retireGear, toggleFavoriteGear, unretireGear } from "../actions";
@@ -28,11 +30,8 @@ function FavoriteButton({ gearId, isFavorite }: { gearId: string; isFavorite: bo
   );
 }
 
-function GearRow({ gear, unitSystem }: { gear: Gear; unitSystem: UnitSystem }) {
-  const metaParts = [
-    gear.purchaseDate ? `Purchased ${gear.purchaseDate.getUTCFullYear()}` : null,
-    gear.totalDistanceM > 0 ? formatDistance(gear.totalDistanceM, unitSystem) : null,
-  ].filter((p): p is string => Boolean(p));
+function GearRow({ gear }: { gear: Gear }) {
+  const purchaseLabel = gear.purchaseDate ? `Purchased ${gear.purchaseDate.getUTCFullYear()}` : null;
 
   return (
     <div
@@ -56,7 +55,13 @@ function GearRow({ gear, unitSystem }: { gear: Gear; unitSystem: UnitSystem }) {
         <div className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-200">
           {gear.nickname ?? formatGearName(gear.brand, gear.model)}
         </div>
-        {metaParts.length > 0 && <div className="text-xs text-zinc-500">{metaParts.join(" · ")}</div>}
+        {(purchaseLabel || gear.totalDistanceM > 0) && (
+          <div className="text-xs text-zinc-500">
+            {purchaseLabel}
+            {purchaseLabel && gear.totalDistanceM > 0 && " · "}
+            {gear.totalDistanceM > 0 && <DistanceValue meters={gear.totalDistanceM} />}
+          </div>
+        )}
       </div>
 
       {!gear.retiredAt ? (
@@ -130,6 +135,8 @@ export default async function MyGearPage() {
         <AddGearModal />
       </div>
 
+      {sections.length > 0 && <UnitToggle className="self-start" />}
+
       {sections.length === 0 && <p className="text-sm text-zinc-500">No gear added yet.</p>}
 
       {sections.map(({ category, items }) => (
@@ -139,7 +146,7 @@ export default async function MyGearPage() {
           </h2>
           <div className="flex flex-col gap-2">
             {items.map((g) => (
-              <GearRow key={g.id} gear={g} unitSystem={session.user.unitSystem} />
+              <GearRow key={g.id} gear={g} />
             ))}
           </div>
         </section>

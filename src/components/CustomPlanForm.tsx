@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { TrainingPlanTable } from "@/components/TrainingPlanTable";
-import type { UnitSystem } from "@/generated/prisma/client";
+import { UnitToggle } from "@/components/units/UnitToggle";
+import { useUnitSystem } from "@/components/units/UnitSystemProvider";
 import { distanceUnitLabel, KM_PER_MI } from "@/lib/format";
 import { formatPaceLabel, generateCustomPlan, type CustomPlanResult } from "@/lib/training";
 
@@ -15,7 +16,8 @@ function parsePaceToSecPerUnit(raw: string): number | null {
   return Number(match[1]) * 60 + Number(match[2]);
 }
 
-export function CustomPlanForm({ unitSystem = "METRIC" }: { unitSystem?: UnitSystem }) {
+export function CustomPlanForm() {
+  const { unitSystem } = useUnitSystem();
   const [result, setResult] = useState<CustomPlanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const unit = distanceUnitLabel(unitSystem);
@@ -49,9 +51,12 @@ export function CustomPlanForm({ unitSystem = "METRIC" }: { unitSystem?: UnitSys
   return (
     <div className="flex flex-col gap-6">
       <form action={handleSubmit} className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-        <p className="text-sm text-zinc-500">
-          Tell us where you're starting from and we'll build a plan tailored to your timeline.
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-sm text-zinc-500">
+            Tell us where you're starting from and we'll build a plan tailored to your timeline.
+          </p>
+          <UnitToggle className="shrink-0" />
+        </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <label className="flex flex-col gap-1">
             <span className="text-xs font-medium text-zinc-500">Current weekly distance ({unit})</span>
@@ -112,7 +117,7 @@ export function CustomPlanForm({ unitSystem = "METRIC" }: { unitSystem?: UnitSys
             </ul>
           )}
 
-          <TrainingPlanTable plan={result.plan} unitSystem={unitSystem} />
+          <TrainingPlanTable plan={result.plan} />
         </div>
       )}
     </div>

@@ -1,9 +1,11 @@
 import { AddRaceModal } from "@/components/races/AddRaceModal";
 import { EditRaceModal } from "@/components/races/EditRaceModal";
 import { RunDeleteButton } from "@/components/RunDeleteButton";
+import { DistanceValue, PaceValue } from "@/components/units/UnitDisplay";
+import { UnitToggle } from "@/components/units/UnitToggle";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { auth } from "@/lib/auth";
-import { formatDistance, formatDuration, formatPace } from "@/lib/format";
+import { formatDuration } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -22,8 +24,6 @@ export default async function MyRunsPage() {
     where: { userId: session.user.id, source: "MANUAL", major: { not: null } },
     orderBy: { startedAt: "desc" },
   });
-  const unitSystem = session.user.unitSystem;
-
   return (
     <main className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -35,6 +35,8 @@ export default async function MyRunsPage() {
         </div>
         <AddRaceModal />
       </div>
+
+      <UnitToggle className="self-start" />
 
       <ul className="flex flex-col gap-3">
         {runs.length === 0 && <p className="text-sm text-zinc-500">No majors logged yet.</p>}
@@ -82,9 +84,13 @@ export default async function MyRunsPage() {
               </div>
             </div>
             <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 font-mono text-sm tabular-nums">
-              <span>{formatDistance(run.distanceM, unitSystem)}</span>
+              <span>
+                <DistanceValue meters={run.distanceM} />
+              </span>
               <span>{formatDuration(run.durationSec)}</span>
-              <span className="text-zinc-500">{formatPace(run.avgPaceSecPerKm, unitSystem)}</span>
+              <span className="text-zinc-500">
+                <PaceValue secPerKm={run.avgPaceSecPerKm} />
+              </span>
               {run.avgHeartRateBpm && <span className="text-zinc-500">{run.avgHeartRateBpm} bpm</span>}
               {run.avgCadenceSpm && <span className="text-zinc-500">{run.avgCadenceSpm} spm</span>}
               {run.elevationGainM != null && <span className="text-zinc-500">↗ {run.elevationGainM} m</span>}

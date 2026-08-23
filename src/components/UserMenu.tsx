@@ -86,14 +86,6 @@ export function UserMenu({ user }: { user: SessionUser | null }) {
           >
             My Gears
           </Link>
-          <Link
-            href="/settings/preferences"
-            role="menuitem"
-            className="block px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-900"
-            onClick={() => setOpen(false)}
-          >
-            Settings
-          </Link>
           {user.isAdmin && (
             <Link
               href="/admin/verify"
