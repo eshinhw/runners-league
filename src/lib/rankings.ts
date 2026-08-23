@@ -50,10 +50,7 @@ export async function getMajorsCompletedLeaderboard(db: PrismaClient, limit = 50
     getFullyVerifiedUserIds(db),
   ]);
 
-  const byUser = new Map<
-    string,
-    { username: string; displayId: string; bestByMajor: Map<MarathonMajor, number> }
-  >();
+  const byUser = new Map<string, { username: string; displayId: string; bestByMajor: Map<MarathonMajor, number> }>();
 
   for (const r of results) {
     const major = r.major!;
@@ -77,7 +74,9 @@ export async function getMajorsCompletedLeaderboard(db: PrismaClient, limit = 50
       bestTotalDurationSec: [...entry.bestByMajor.values()].reduce((a, b) => a + b, 0),
       allVerified: fullyVerified.has(userId),
     }))
-    .sort((a, b) => b.majorsCompleted.length - a.majorsCompleted.length || a.bestTotalDurationSec - b.bestTotalDurationSec)
+    .sort(
+      (a, b) => b.majorsCompleted.length - a.majorsCompleted.length || a.bestTotalDurationSec - b.bestTotalDurationSec,
+    )
     .slice(0, limit);
 
   return rows.map((r, i) => ({ rank: i + 1, ...r }));
@@ -142,5 +141,7 @@ export async function getEditionsWithResults(db: PrismaClient): Promise<{ major:
     const key = `${a.major}-${year}`;
     if (!seen.has(key)) seen.set(key, { major: a.major!, year });
   }
-  return [...seen.values()].sort((a, b) => b.year - a.year || MAJORS_ORDER.indexOf(a.major) - MAJORS_ORDER.indexOf(b.major));
+  return [...seen.values()].sort(
+    (a, b) => b.year - a.year || MAJORS_ORDER.indexOf(a.major) - MAJORS_ORDER.indexOf(b.major),
+  );
 }

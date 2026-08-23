@@ -10,14 +10,7 @@ export const GEAR_CATEGORY_LABEL: Record<GearCategory, string> = {
 };
 
 // Curated top-level list shown in the app — 6 broad categories.
-export const GEAR_CATEGORY_ORDER: GearCategory[] = [
-  "SHOE",
-  "WATCH",
-  "HEADPHONES",
-  "APPAREL",
-  "ACCESSORY",
-  "NUTRITION",
-];
+export const GEAR_CATEGORY_ORDER: GearCategory[] = ["SHOE", "WATCH", "HEADPHONES", "APPAREL", "ACCESSORY", "NUTRITION"];
 
 // Categories that get a cascading Brand -> Model picker instead of free-text
 // brand/model inputs.
@@ -860,13 +853,159 @@ export const GEAR_PRODUCT_CATALOG: Record<CatalogCategory, Record<string, string
     ],
   },
   HEADPHONES: {
-    Shokz: ["OpenRun Pro 2", "OpenRun", "OpenFit", "OpenSwim Pro"],
-    Bose: ["Ultra Open Earbuds", "QuietComfort Ultra Earbuds", "Sport Earbuds"],
-    Beats: ["Powerbeats Pro 2", "Fit Pro", "Powerbeats Pro"],
-    Apple: ["AirPods Pro 2", "AirPods 4"],
-    Jabra: ["Elite 10", "Elite 8 Active"],
-    JBL: ["Endurance Peak 3", "Reflect Aero"],
-    Soundcore: ["AeroFit Pro", "Sport X10"],
+    Shokz: [
+      // Bone Conduction
+      "OpenRun",
+      "OpenRun Pro",
+      "OpenRun Pro 2",
+
+      // Swimming
+      "OpenSwim",
+      "OpenSwim Pro",
+
+      // Budget / Entry
+      "OpenMove",
+    ],
+    Bose: [
+      // Open-ear / Running
+      "Ultra Open Earbuds",
+
+      // Sport earbuds
+      "Sport Open Earbuds",
+
+      // In-ear sports / workout
+      "QuietComfort Ultra Earbuds",
+      "QuietComfort Ultra Earbuds (2nd Gen)",
+      "QuietComfort Earbuds",
+      "QuietComfort Earbuds (2nd Gen)",
+    ],
+    Beats: [
+      // Workout / Running
+      "Powerbeats Fit",
+      "Powerbeats Pro 2",
+
+      // Previous generation
+      "Beats Fit Pro",
+      "Powerbeats Pro",
+    ],
+    Apple: [
+      // Premium / Sports
+      "AirPods Pro 1",
+      "AirPods Pro 2",
+      "AirPods Pro 3",
+
+      // Open-ear / Everyday
+      "AirPods 2",
+      "AirPods 3",
+      "AirPods 4",
+      "AirPods 4 with Active Noise Cancellation",
+    ],
+    Jabra: [
+      // Sport
+      "Elite 8 Active",
+      "Elite 8 Active Gen 2",
+
+      // Premium / General-purpose
+      "Elite 10",
+      "Elite 10 Gen 2",
+    ],
+    JBL: [
+      // Sport / Running
+      "Endurance Peak 3",
+      "Endurance Peak 4",
+      "Endurance Race",
+      "Endurance Race 2",
+      "Reflect Aero TWS",
+      "Reflect Flow Pro",
+
+      // Open-ear / Sports
+      "Soundgear Sense",
+      "Soundgear Clips",
+
+      // Older Sport Models
+      "Endurance Run 2",
+      "Endurance Run 2 Wireless",
+      "Endurance Peak II",
+    ],
+    Soundcore: [
+      // Sport / Secure-fit
+      "Sport X10",
+      "Sport X20",
+
+      // Open-ear
+      "AeroFit",
+      "AeroFit Pro",
+      "AeroFit 2",
+      "AeroFit 2 Pro",
+
+      // Open-ear Clip
+      "C30i",
+      "C40i",
+
+      // General-purpose
+      "Liberty 4 NC",
+      "Liberty 5",
+    ],
+    Sony: [
+      // Sport / Secure-fit
+      "LinkBuds Fit",
+
+      // Open-ear
+      "LinkBuds Open",
+      "LinkBuds Clip",
+
+      // Running-focused
+      "Float Run",
+
+      // Sports / In-ear
+      "WF-C700N",
+
+      // Premium True Wireless
+      "WF-1000XM5",
+      "WF-1000XM6",
+    ],
+    Sennheiser: [
+      // Sport / Running
+      "Sport True Wireless",
+
+      // Premium True Wireless
+      "Momentum True Wireless 4",
+      "Momentum True Wireless 5",
+
+      // Open-ear
+      "Accentum Open",
+
+      // General-purpose True Wireless
+      "Accentum True Wireless",
+    ],
+    JLab: [
+      // Sport / Running
+      "Epic Sport ANC 3",
+      "JBuds Sport ANC 4",
+      "GO Sport+",
+
+      // Open-ear Sport
+      "Epic Open Sport",
+      "JBuds Open Sport",
+
+      // Open-ear Lifestyle
+      "Flex Open",
+    ],
+    Samsung: [
+      // Premium
+      "Galaxy Buds4 Pro",
+
+      // Open-type / Awareness
+      "Galaxy Buds4",
+
+      // Value
+      "Galaxy Buds3 FE",
+
+      // Previous generation
+      "Galaxy Buds3 Pro",
+      "Galaxy Buds3",
+      "Galaxy Buds2 Pro",
+    ],
   },
 };
 
@@ -888,29 +1027,129 @@ export const OTHER_BRAND = "__other__";
 
 export const GEAR_BRAND_LIST: Record<BrandOnlyCategory, string[]> = {
   APPAREL: [
+    // Major Sports Brands
     "Nike",
     "Adidas",
-    "lululemon",
-    "On",
-    "Brooks",
     "Under Armour",
+    "ASICS",
+    "Puma",
+    "New Balance",
+    "Brooks",
+    "Saucony",
+    "Hoka",
+    "On",
+    "Mizuno",
+    "Reebok",
+    "Lululemon",
+    "Champion",
+    "Athleta",
+
+    // Dedicated Running
     "Tracksmith",
-    "Ciele Athletics",
+    "Janji",
+    "Saysky",
+    "Soar",
+    "Satisfy",
+    "Bandit",
+    "District Vision",
     "Path Projects",
-    "Bandit Running",
-    "Smartwool",
+    "Rabbit",
+    "Oiselle",
+    "Ciele",
+    "Craft",
+    "Odlo",
+    "Nnormal",
+    "Norda",
+    "T8",
+    "Iffley Road",
+    "Fusion",
+    "Kiprun",
+    "Naked Running",
+
+    // Trail / Ultra
+    "Salomon",
+    "Arc'teryx",
+    "Patagonia",
+    "The North Face",
+    "Black Diamond",
+    "Mountain Hardwear",
+    "Rab",
+    "Outdoor Research",
+    "Dynafit",
+    "La Sportiva",
+    "Compressport",
+    "Raidlight",
+    "Ultimate Direction",
+    "Inov-8",
+    "Montane",
+
+    // Compression / Performance
     "2XU",
+    "CEP",
+    "CW-X",
+    "Skins",
+    "Zensah",
+    "OS1st",
   ],
   NUTRITION: [
+    // Major Endurance Nutrition
     "GU Energy",
     "Maurten",
     "Precision Fuel & Hydration",
-    "Science in Sport (SiS)",
-    "Skratch Labs",
-    "Honey Stinger",
     "Neversecond",
-    "UCAN",
+    "Science in Sport",
+    "Skratch Labs",
     "Tailwind Nutrition",
+    "Honey Stinger",
+    "Huma",
+    "Spring Energy",
+    "Näak",
     "Clif",
+    "Hammer Nutrition",
+    "Amacx",
+    "UCAN",
+    "TORQ",
+    "High5",
+    "PowerBar",
+    "Enervit",
+    "Styrkr",
+
+    // Hydration / Electrolytes
+    "LMNT",
+    "Nuun",
+    "SaltStick",
+    "Liquid I.V.",
+    "Gatorade",
+    "DripDrop",
+    "Hydrant",
+    "Osmo Nutrition",
+    "Flow Formulas",
+    "PILLAR Performance",
+
+    // Specialty / Real Food
+    "Untapped",
+    "Muir Energy",
+    "Cadence",
+    "Carbs Fuel",
+    "Brix",
+    "Picky Bars",
+    "Bonk Breaker",
+    "Trail Butter",
+    "RXBAR",
+
+    // Canadian Brands
+    "Zone Hydration",
+    "Kaha Nutrition",
+    "Nomio",
+    "Next Level",
+    "Grynd",
+    "Testo Sport",
+    "Sève Endurance",
+    "Stay Wyld",
+    "Suna",
+    "THN Labs",
+    "Rock On",
+    "Fix Fuel",
+    "Ranch IV Provisions",
   ],
 };
