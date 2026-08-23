@@ -413,7 +413,7 @@ model Comment {
 
   activity   Activity? @relation(fields: [activityId], references: [id])
   activityId String?
-  post       Post?     @relation(fields: [postId], references: [id])
+  post       Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId     String?
 
   @@index([activityId])
@@ -428,7 +428,7 @@ model Like {
 
   activity   Activity? @relation(fields: [activityId], references: [id])
   activityId String?
-  post       Post?     @relation(fields: [postId], references: [id])
+  post       Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId     String?
   track      Track?    @relation(fields: [trackId], references: [id])
   trackId    String?

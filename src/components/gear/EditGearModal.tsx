@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { updateGear } from "@/app/(main)/settings/actions";
+import { EditIcon } from "@/components/ActionIcons";
 import { useToast } from "@/components/Toast";
 import type { Gear, GearCategory } from "@/generated/prisma/client";
 import {
@@ -86,8 +87,14 @@ export function EditGearModal({ gear }: { gear: Gear }) {
 
   return (
     <>
-      <button type="button" onClick={openModal} className="text-xs text-zinc-500 underline">
-        Edit
+      <button
+        type="button"
+        onClick={openModal}
+        aria-label="Edit"
+        title="Edit"
+        className="inline-flex h-4 w-4 shrink-0 items-center justify-center text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+      >
+        <EditIcon className="h-4 w-4" />
       </button>
 
       {open && (

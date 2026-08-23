@@ -38,6 +38,44 @@ export async function createPost(formData: FormData) {
   revalidatePath("/community");
 }
 
+export async function updatePost(postId: string, formData: FormData) {
+  const userId = await requireUserId();
+
+  const existing = await prisma.post.findFirst({ where: { id: postId, authorId: userId } });
+  if (!existing) throw new Error("Post not found.");
+
+  const title = String(formData.get("title") ?? "").trim();
+  const body = String(formData.get("body") ?? "").trim();
+  const typeRaw = String(formData.get("type") ?? "DISCUSSION") as PostType;
+  const type = VALID_TYPES.includes(typeRaw) ? typeRaw : "DISCUSSION";
+  const tagsRaw = String(formData.get("tags") ?? "");
+
+  if (!title) throw new Error("Please enter a title.");
+  if (!body) throw new Error("Please enter a body.");
+
+  const tags = tagsRaw
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .slice(0, 5);
+
+  await prisma.post.update({
+    where: { id: postId },
+    data: { title, body, type, tags },
+  });
+
+  revalidatePath("/community");
+  revalidatePath(`/community/${postId}`);
+}
+
+export async function deletePost(postId: string) {
+  const userId = await requireUserId();
+
+  await prisma.post.deleteMany({ where: { id: postId, authorId: userId } });
+
+  revalidatePath("/community");
+}
+
 export async function addComment(postId: string, formData: FormData) {
   const userId = await requireUserId();
 

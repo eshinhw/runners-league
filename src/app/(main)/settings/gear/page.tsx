@@ -1,6 +1,7 @@
 import type { Gear, GearCategory, UnitSystem } from "@/generated/prisma/client";
 import { AddGearModal } from "@/components/gear/AddGearModal";
 import { EditGearModal } from "@/components/gear/EditGearModal";
+import { ArchiveIcon, FavoriteIcon, RestoreIcon } from "@/components/gear/GearActionIcons";
 import { GearDeleteButton } from "@/components/gear/GearDeleteButton";
 import { GearSlotIcon } from "@/components/GearSlotIcon";
 import { auth } from "@/lib/auth";
@@ -11,31 +12,17 @@ import { retireGear, toggleFavoriteGear, unretireGear } from "../actions";
 
 export const dynamic = "force-dynamic";
 
-function StarIcon({ filled, className }: { filled: boolean; className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 20 20"
-      fill={filled ? "currentColor" : "none"}
-      stroke="currentColor"
-      strokeWidth={filled ? 0 : 1.5}
-      className={className}
-    >
-      <path d="M10 1.5l2.59 5.25 5.79.84-4.19 4.08.99 5.77L10 14.98l-5.18 2.46.99-5.77L1.62 7.59l5.79-.84L10 1.5z" />
-    </svg>
-  );
-}
-
 function FavoriteButton({ gearId, isFavorite }: { gearId: string; isFavorite: boolean }) {
   return (
-    <form action={toggleFavoriteGear}>
+    <form action={toggleFavoriteGear} className="flex items-center">
       <input type="hidden" name="gearId" value={gearId} />
       <button
         type="submit"
         aria-label={isFavorite ? "Unfavorite" : "Mark as favorite"}
         title={isFavorite ? "Unfavorite" : "Mark as favorite"}
-        className={`shrink-0 ${isFavorite ? "text-amber-400" : "text-zinc-400 hover:text-amber-400"}`}
+        className={`inline-flex h-4 w-4 shrink-0 items-center justify-center ${isFavorite ? "text-amber-400" : "text-zinc-400 hover:text-amber-400"}`}
       >
-        <StarIcon filled={isFavorite} className="h-5 w-5" />
+        <FavoriteIcon filled={isFavorite} className="h-4 w-4" />
       </button>
     </form>
   );
@@ -76,21 +63,30 @@ function GearRow({ gear, unitSystem }: { gear: Gear; unitSystem: UnitSystem }) {
         <div className="flex shrink-0 items-center gap-3">
           <FavoriteButton gearId={gear.id} isFavorite={gear.isFavorite} />
           <EditGearModal gear={gear} />
-          <form action={retireGear}>
+          <form action={retireGear} className="flex items-center">
             <input type="hidden" name="gearId" value={gear.id} />
-            <button type="submit" className="text-xs text-zinc-500 underline">
-              Remove
+            <button
+              type="submit"
+              aria-label="Archive"
+              title="Archive"
+              className="inline-flex h-4 w-4 items-center justify-center text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+            >
+              <ArchiveIcon className="h-4 w-4" />
             </button>
           </form>
         </div>
       ) : (
         <div className="flex shrink-0 items-center gap-3">
-          <EditGearModal gear={gear} />
-          <span className="text-xs text-zinc-400">Removed</span>
-          <form action={unretireGear}>
+          <span className="text-xs text-zinc-400">Archived</span>
+          <form action={unretireGear} className="flex items-center">
             <input type="hidden" name="gearId" value={gear.id} />
-            <button type="submit" className="text-xs text-zinc-500 underline">
-              Restore
+            <button
+              type="submit"
+              aria-label="Restore"
+              title="Restore"
+              className="inline-flex h-4 w-4 items-center justify-center text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+            >
+              <RestoreIcon className="h-4 w-4" />
             </button>
           </form>
           <GearDeleteButton gearId={gear.id} />

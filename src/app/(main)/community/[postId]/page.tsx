@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { PostType } from "@/generated/prisma/client";
 import { LikeButton } from "@/components/community/LikeButton";
+import { PostDeleteButton } from "@/components/community/PostDeleteButton";
+import { PostEditModal } from "@/components/community/PostEditModal";
 import { SignInGate } from "@/components/SignInGate";
 import { auth } from "@/lib/auth";
 import { formatRelativeTime } from "@/lib/format";
@@ -54,14 +56,22 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
       <article className="flex items-start gap-3">
         <LikeButton postId={post.id} liked={post.likes.length > 0} count={post._count.likes} signedIn />
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 text-xs text-zinc-400">
-            <span>{TYPE_LABEL[post.type]}</span>
-            <span>·</span>
-            <Link href={`/profile/${post.author.username}`} className="hover:underline">
-              {post.author.displayId}
-            </Link>
-            <span>·</span>
-            <span>{formatRelativeTime(post.createdAt)}</span>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-xs text-zinc-400">
+              <span>{TYPE_LABEL[post.type]}</span>
+              <span>·</span>
+              <Link href={`/profile/${post.author.username}`} className="hover:underline">
+                {post.author.displayId}
+              </Link>
+              <span>·</span>
+              <span>{formatRelativeTime(post.createdAt)}</span>
+            </div>
+            {post.authorId === session.user.id && (
+              <div className="flex shrink-0 items-center gap-3">
+                <PostEditModal post={post} />
+                <PostDeleteButton postId={post.id} />
+              </div>
+            )}
           </div>
           <h1 className="mt-1 text-xl font-semibold">{post.title}</h1>
           <div
