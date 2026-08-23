@@ -10,7 +10,8 @@ const inputCls =
   "w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
 
 const CURRENT_YEAR = new Date().getFullYear();
-const YEARS = Array.from({ length: 16 }, (_, i) => CURRENT_YEAR - i);
+const START_YEAR = 2020;
+const YEARS = Array.from({ length: CURRENT_YEAR - START_YEAR + 1 }, (_, i) => CURRENT_YEAR - i);
 
 function secToHms(totalSec: number) {
   return {
@@ -103,16 +104,6 @@ export function EditRaceModal({ run }: { run: Activity }) {
                 </select>
               </div>
 
-              <label className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-zinc-500">Bib number (optional)</span>
-                <input
-                  name="bibNumber"
-                  placeholder="e.g. F1234"
-                  defaultValue={run.bibNumber ?? ""}
-                  className={inputCls}
-                />
-              </label>
-
               <div>
                 <span className="mb-1 block text-xs font-medium text-zinc-500">Finish Time</span>
                 <div className="grid grid-cols-3 gap-2">
@@ -178,6 +169,34 @@ export function EditRaceModal({ run }: { run: Activity }) {
                     defaultValue={run.elevationGainM ?? ""}
                     className={inputCls}
                   />
+                </div>
+              </div>
+
+              <div>
+                <span className="mb-1 block text-xs font-medium text-zinc-500">
+                  For verification purposes (optional — skip if you don&apos;t want this race verified)
+                </span>
+                <div className="flex flex-col gap-2">
+                  <input
+                    name="bibNumber"
+                    placeholder="Bib number"
+                    defaultValue={run.bibNumber ?? ""}
+                    className={inputCls}
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      name="officialFirstName"
+                      placeholder="Official first name"
+                      defaultValue={run.officialFirstName ?? ""}
+                      className={inputCls}
+                    />
+                    <input
+                      name="officialLastName"
+                      placeholder="Official last name"
+                      defaultValue={run.officialLastName ?? ""}
+                      className={inputCls}
+                    />
+                  </div>
                 </div>
               </div>
 

@@ -239,6 +239,8 @@ model Activity {
   routeGeoJson  Json?
   location      String? // free-text race/run location, e.g. "Boston, MA" — distinct from the user's home city
   bibNumber     String? // race bib number, self-reported — text since some races use alphanumeric bibs
+  officialFirstName String? // legal name as it appears on official results/bib — for verification only
+  officialLastName  String?
   photoUrls     String[]     @default([]) // user-uploaded evidence photos (bib, medal, finish clock) for manual entries
   avgHeartRateBpm Int? // optional self-reported stat, manual entries only
   avgCadenceSpm   Int? // optional self-reported stat (steps per minute), manual entries only

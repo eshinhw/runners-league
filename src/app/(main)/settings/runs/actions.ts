@@ -3,9 +3,34 @@
 import { revalidatePath } from "next/cache";
 import type { MarathonMajor } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
+import { sendVerificationRequestEmail } from "@/lib/email";
 import { MAJOR_INFO, MAJORS_CALENDAR, MAJORS_ORDER } from "@/lib/majors";
 import { prisma } from "@/lib/prisma";
 import { uploadImages } from "@/lib/storage";
+
+// Fires the admin verification-request email when a runner filled in a bib
+// number and their official name. Never lets an email hiccup fail the race
+// save — verification is a nice-to-have on top of the write, not a
+// precondition for it.
+async function notifyVerificationRequest(input: {
+  major: MarathonMajor;
+  year: number;
+  bibNumber: string;
+  officialFirstName: string;
+  officialLastName: string;
+}) {
+  if (!input.bibNumber || !input.officialFirstName || !input.officialLastName) return;
+  try {
+    await sendVerificationRequestEmail({
+      majorName: MAJOR_INFO[input.major].name,
+      year: input.year,
+      bibNumber: input.bibNumber,
+      officialName: `${input.officialFirstName} ${input.officialLastName}`,
+    });
+  } catch (err) {
+    console.error("Failed to send verification request email:", err);
+  }
+}
 
 const MARATHON_DISTANCE_M = 42195;
 
@@ -41,6 +66,8 @@ export async function addRun(formData: FormData) {
   const cadenceRaw = String(formData.get("avgCadence") ?? "");
   const elevationGainRaw = String(formData.get("elevationGain") ?? "");
   const bibNumber = String(formData.get("bibNumber") ?? "").trim();
+  const officialFirstName = String(formData.get("officialFirstName") ?? "").trim();
+  const officialLastName = String(formData.get("officialLastName") ?? "").trim();
 
   const photos = formData.getAll("photos").filter((f): f is File => f instanceof File);
   const photoUrls = await uploadImages(photos, "runs");
@@ -59,11 +86,15 @@ export async function addRun(formData: FormData) {
       avgCadenceSpm: cadenceRaw ? Number(cadenceRaw) : null,
       elevationGainM: elevationGainRaw ? Number(elevationGainRaw) : null,
       bibNumber: bibNumber || null,
+      officialFirstName: officialFirstName || null,
+      officialLastName: officialLastName || null,
       startedAt,
       location: `${MAJOR_INFO[major].city}, ${MAJOR_INFO[major].country}`,
       photoUrls,
     },
   });
+
+  await notifyVerificationRequest({ major, year, bibNumber, officialFirstName, officialLastName });
 
   revalidatePath("/settings/runs");
 }
@@ -99,6 +130,8 @@ export async function updateRun(activityId: string, formData: FormData) {
   const cadenceRaw = String(formData.get("avgCadence") ?? "");
   const elevationGainRaw = String(formData.get("elevationGain") ?? "");
   const bibNumber = String(formData.get("bibNumber") ?? "").trim();
+  const officialFirstName = String(formData.get("officialFirstName") ?? "").trim();
+  const officialLastName = String(formData.get("officialLastName") ?? "").trim();
 
   const keptPhotoUrls = formData.getAll("keepPhoto").map((v) => String(v));
   const newPhotos = formData.getAll("photos").filter((f): f is File => f instanceof File);
@@ -116,11 +149,15 @@ export async function updateRun(activityId: string, formData: FormData) {
       avgCadenceSpm: cadenceRaw ? Number(cadenceRaw) : null,
       elevationGainM: elevationGainRaw ? Number(elevationGainRaw) : null,
       bibNumber: bibNumber || null,
+      officialFirstName: officialFirstName || null,
+      officialLastName: officialLastName || null,
       startedAt,
       location: `${MAJOR_INFO[major].city}, ${MAJOR_INFO[major].country}`,
       photoUrls,
     },
   });
+
+  await notifyVerificationRequest({ major, year, bibNumber, officialFirstName, officialLastName });
 
   revalidatePath("/settings/runs");
 }
