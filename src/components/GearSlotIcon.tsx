@@ -34,20 +34,22 @@ export function GearSlotIcon({ category, className }: { category: GearCategory; 
           <path d="M8.5 4 4 7l2 3 2-1.2V20h8V8.8L18 10l2-3-4.5-3-1.5 1.5h-4Z" />
         </svg>
       );
-    case "HAT":
-      return (
-        <svg {...common}>
-          <path d="M4.5 14a7.5 6 0 0 1 15 0" />
-          <line x1={2} y1={14} x2={22} y2={14} />
-          <path d="M12 8V6" />
-        </svg>
-      );
-    case "ACCESSORY":
+    case "HEADPHONES":
       return (
         <svg {...common}>
           <path d="M4 14v-1a8 8 0 0 1 16 0v1" />
           <rect x={2.5} y={13} width={4} height={7} rx={2} />
           <rect x={17.5} y={13} width={4} height={7} rx={2} />
+        </svg>
+      );
+    case "ACCESSORY":
+      return (
+        <svg {...common}>
+          <circle cx={7} cy={13} r={3} />
+          <circle cx={17} cy={13} r={3} />
+          <path d="M10 13h4" />
+          <path d="M4 11 5.5 8h2" />
+          <path d="M20 11 18.5 8h-2" />
         </svg>
       );
     case "NUTRITION":

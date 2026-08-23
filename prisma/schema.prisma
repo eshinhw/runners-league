@@ -196,9 +196,9 @@ enum GearCategory {
   SHOE
   WATCH
   APPAREL
-  HAT
   ACCESSORY
   NUTRITION
+  HEADPHONES
 }
 
 model GearReview {
