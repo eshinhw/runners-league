@@ -1,12 +1,12 @@
 import type { MarathonMajor } from "@/generated/prisma/client";
+import { MAJOR_INFO } from "@/lib/majors";
 
-// Every card shares the same dusk-sky gradient and silhouette tone so the
-// set reads as one cohesive family — only the landmark shape changes. Kept
-// low-contrast (muted stops, softened ink) so the art sits quietly behind
-// the card's text instead of competing with it.
-const SKY_TOP = "#3a3458";
-const SKY_BOTTOM = "#b96a45";
-const INK = "#211f2e";
+// Each card's sky uses that race's own signature accent gradient (already
+// defined per major in MAJOR_INFO) so the set reads as one family by
+// composition — same layout, same silhouette treatment — while still being
+// visually distinct card to card. Ink stays fixed and dark so the landmark
+// silhouette stays legible against every accent pair.
+const INK = "#1b1626";
 
 const GROUND_Y = 172;
 
@@ -31,7 +31,7 @@ function fillerBuildings(seed: string): { x: number; width: number; height: numb
   return buildings;
 }
 
-function Landmark({ major }: { major: MarathonMajor }) {
+function Landmark({ major, skyBottom }: { major: MarathonMajor; skyBottom: string }) {
   switch (major) {
     case "TOKYO":
       // Tokyo Tower: a tapering lattice spire.
@@ -64,7 +64,7 @@ function Landmark({ major }: { major: MarathonMajor }) {
         <g fill={INK}>
           <polygon points="132,172 132,55 138,50 162,50 168,55 168,172" />
           <polygon points="140,50 160,50 150,16" />
-          <circle cx={150} cy={88} r={9} fill="none" stroke={SKY_BOTTOM} strokeWidth={2} />
+          <circle cx={150} cy={88} r={9} fill="none" stroke={skyBottom} strokeWidth={2} />
         </g>
       );
     case "CAPE_TOWN":
@@ -125,6 +125,7 @@ function Landmark({ major }: { major: MarathonMajor }) {
 export function MajorArt({ major, className }: { major: MarathonMajor; className?: string }) {
   const buildings = fillerBuildings(major);
   const gradId = `sky-${major}`;
+  const [skyTop, skyBottom] = MAJOR_INFO[major].accent;
 
   return (
     <svg
@@ -136,8 +137,8 @@ export function MajorArt({ major, className }: { major: MarathonMajor; className
     >
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={SKY_TOP} />
-          <stop offset="100%" stopColor={SKY_BOTTOM} />
+          <stop offset="0%" stopColor={skyTop} />
+          <stop offset="100%" stopColor={skyBottom} />
         </linearGradient>
       </defs>
       <rect width={300} height={200} fill={`url(#${gradId})`} />
@@ -148,7 +149,7 @@ export function MajorArt({ major, className }: { major: MarathonMajor; className
         {buildings.map((b, i) => (
           <rect key={i} x={b.x} y={GROUND_Y - b.height} width={b.width} height={b.height} />
         ))}
-        <Landmark major={major} />
+        <Landmark major={major} skyBottom={skyBottom} />
       </g>
     </svg>
   );
