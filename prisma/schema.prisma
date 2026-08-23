@@ -173,8 +173,6 @@ model Gear {
   owner         User       @relation(fields: [ownerId], references: [id])
   ownerId       String
   category      GearCategory
-  subcategory   String? // only meaningful for ACCESSORY (e.g. "Sunglasses", "Headlamp") — free text rather
-                        // than an enum since it's conditional on category, not a first-class taxonomy
   brand         String
   model         String? // some categories (Apparel, Nutrition) are brand-only, no specific model
   nickname      String?
@@ -199,9 +197,13 @@ enum GearCategory {
   SHOE
   WATCH
   APPAREL
-  ACCESSORY
   NUTRITION
   HEADPHONES
+  RUNNING_BELT
+  HYDRATION_VEST
+  SUNGLASSES
+  HEADLAMP
+  GLOVES
 }
 
 model GearReview {

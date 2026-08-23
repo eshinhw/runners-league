@@ -5,9 +5,6 @@ import { updateGear } from "@/app/(main)/settings/actions";
 import { useToast } from "@/components/Toast";
 import type { Gear, GearCategory } from "@/generated/prisma/client";
 import {
-  ACCESSORY_BRAND_CATALOG,
-  ACCESSORY_SUBCATEGORIES,
-  type AccessorySubcategory,
   GEAR_BRAND_LIST,
   GEAR_CATEGORY_LABEL,
   GEAR_CATEGORY_ORDER,
@@ -16,10 +13,6 @@ import {
   isCatalogCategory,
   OTHER_BRAND as OTHER,
 } from "@/lib/gear";
-
-function isAccessorySubcategory(value: string | null): value is AccessorySubcategory {
-  return !!value && (ACCESSORY_SUBCATEGORIES as readonly string[]).includes(value);
-}
 
 const inputCls =
   "w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
@@ -36,10 +29,6 @@ function initialBrandChoice(gear: Gear): string {
   }
   const brandOnlyList = isBrandOnlyCategory(gear.category) ? GEAR_BRAND_LIST[gear.category] : null;
   if (brandOnlyList) return brandOnlyList.includes(gear.brand) ? gear.brand : OTHER;
-  if (gear.category === "ACCESSORY" && isAccessorySubcategory(gear.subcategory)) {
-    const brands = ACCESSORY_BRAND_CATALOG[gear.subcategory];
-    return brands.includes(gear.brand) ? gear.brand : OTHER;
-  }
   return OTHER;
 }
 
@@ -47,24 +36,20 @@ export function EditGearModal({ gear }: { gear: Gear }) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [category, setCategory] = useState<GearCategory>(gear.category);
-  const [subcategory, setSubcategory] = useState<AccessorySubcategory | "">("");
   const [brandChoice, setBrandChoice] = useState("");
   const [model, setModel] = useState("");
   const [error, setError] = useState<string | null>(null);
   const showToast = useToast();
 
-  const isAccessory = category === "ACCESSORY";
   const catalog = isCatalogCategory(category) ? GEAR_PRODUCT_CATALOG[category] : null;
   const brandOnlyList = isBrandOnlyCategory(category) ? GEAR_BRAND_LIST[category] : null;
   const brandOptions = catalog ? Object.keys(catalog) : (brandOnlyList ?? []);
-  const accessoryBrandOptions = isAccessory && subcategory ? (ACCESSORY_BRAND_CATALOG[subcategory] ?? []) : [];
   const modelOptions = catalog && brandChoice && brandChoice !== OTHER ? (catalog[brandChoice] ?? []) : [];
   const isOtherBrand = brandChoice === OTHER;
 
   function openModal() {
     const initBrand = initialBrandChoice(gear);
     setCategory(gear.category);
-    setSubcategory(isAccessorySubcategory(gear.subcategory) ? gear.subcategory : "");
     setBrandChoice(initBrand);
     setModel(initBrand === OTHER ? "" : (gear.model ?? ""));
     setError(null);
@@ -77,14 +62,7 @@ export function EditGearModal({ gear }: { gear: Gear }) {
 
     const formData = new FormData(e.currentTarget);
 
-    if (isAccessory) {
-      const subcategoryVal = String(formData.get("subcategory") ?? "").trim();
-      if (!subcategoryVal) {
-        setError("Please select a type.");
-        return;
-      }
-    }
-    if (catalog || brandOnlyList || isAccessory) {
+    if (catalog || brandOnlyList) {
       const brandVal = String(formData.get("brand") ?? "").trim();
       if (!brandVal) {
         setError("Please select or enter a brand.");
@@ -142,7 +120,6 @@ export function EditGearModal({ gear }: { gear: Gear }) {
                 value={category}
                 onChange={(e) => {
                   setCategory(e.target.value as GearCategory);
-                  setSubcategory("");
                   setBrandChoice("");
                   setModel("");
                 }}
@@ -252,60 +229,7 @@ export function EditGearModal({ gear }: { gear: Gear }) {
                 </>
               )}
 
-              {isAccessory && (
-                <>
-                  <select
-                    name="subcategory"
-                    required
-                    value={subcategory}
-                    onChange={(e) => {
-                      setSubcategory(e.target.value as AccessorySubcategory);
-                      setBrandChoice("");
-                    }}
-                    className={inputCls}
-                  >
-                    <option value="" disabled>
-                      Select type
-                    </option>
-                    {ACCESSORY_SUBCATEGORIES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-
-                  <select
-                    name={isOtherBrand ? undefined : "brand"}
-                    required={!isOtherBrand}
-                    value={brandChoice}
-                    onChange={(e) => setBrandChoice(e.target.value)}
-                    disabled={!subcategory}
-                    className={inputCls}
-                  >
-                    <option value="" disabled>
-                      {subcategory ? "Select brand" : "Pick a type first"}
-                    </option>
-                    {accessoryBrandOptions.map((b) => (
-                      <option key={b} value={b}>
-                        {b}
-                      </option>
-                    ))}
-                    <option value={OTHER}>Other</option>
-                  </select>
-
-                  {isOtherBrand && (
-                    <input
-                      name="brand"
-                      placeholder="Brand name"
-                      required
-                      defaultValue={gear.brand}
-                      className={inputCls}
-                    />
-                  )}
-                </>
-              )}
-
-              {!catalog && !brandOnlyList && !isAccessory && (
+              {!catalog && !brandOnlyList && (
                 <div className="grid grid-cols-2 gap-2">
                   <input name="brand" placeholder="Brand" required defaultValue={gear.brand} className={inputCls} />
                   <input

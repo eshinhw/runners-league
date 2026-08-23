@@ -70,7 +70,7 @@ export default async function GearPage() {
 
       {sections.map(({ category, items }) => (
         <section key={category} className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold">Most Favorite {GEAR_CATEGORY_LABEL[category]}</h2>
+          <h2 className="text-lg font-semibold">{GEAR_CATEGORY_LABEL[category]}</h2>
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-400 dark:border-zinc-800">

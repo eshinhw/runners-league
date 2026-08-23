@@ -5,9 +5,6 @@ import { addGear } from "@/app/(main)/settings/actions";
 import { useToast } from "@/components/Toast";
 import type { GearCategory } from "@/generated/prisma/client";
 import {
-  ACCESSORY_BRAND_CATALOG,
-  ACCESSORY_SUBCATEGORIES,
-  type AccessorySubcategory,
   GEAR_BRAND_LIST,
   GEAR_CATEGORY_LABEL,
   GEAR_CATEGORY_ORDER,
@@ -27,23 +24,19 @@ export function AddGearModal() {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [category, setCategory] = useState<GearCategory>("SHOE");
-  const [subcategory, setSubcategory] = useState<AccessorySubcategory | "">("");
   const [brandChoice, setBrandChoice] = useState("");
   const [model, setModel] = useState("");
   const [error, setError] = useState<string | null>(null);
   const showToast = useToast();
 
-  const isAccessory = category === "ACCESSORY";
   const catalog = isCatalogCategory(category) ? GEAR_PRODUCT_CATALOG[category] : null;
   const brandOnlyList = isBrandOnlyCategory(category) ? GEAR_BRAND_LIST[category] : null;
   const brandOptions = catalog ? Object.keys(catalog) : (brandOnlyList ?? []);
-  const accessoryBrandOptions = isAccessory && subcategory ? (ACCESSORY_BRAND_CATALOG[subcategory] ?? []) : [];
   const modelOptions = catalog && brandChoice && brandChoice !== OTHER ? (catalog[brandChoice] ?? []) : [];
   const isOtherBrand = brandChoice === OTHER;
 
   function resetForm() {
     setCategory("SHOE");
-    setSubcategory("");
     setBrandChoice("");
     setModel("");
     setError(null);
@@ -55,14 +48,7 @@ export function AddGearModal() {
 
     const formData = new FormData(e.currentTarget);
 
-    if (isAccessory) {
-      const subcategoryVal = String(formData.get("subcategory") ?? "").trim();
-      if (!subcategoryVal) {
-        setError("Please select a type.");
-        return;
-      }
-    }
-    if (catalog || brandOnlyList || isAccessory) {
+    if (catalog || brandOnlyList) {
       const brandVal = String(formData.get("brand") ?? "").trim();
       if (!brandVal) {
         setError("Please select or enter a brand.");
@@ -125,7 +111,6 @@ export function AddGearModal() {
                 value={category}
                 onChange={(e) => {
                   setCategory(e.target.value as GearCategory);
-                  setSubcategory("");
                   setBrandChoice("");
                   setModel("");
                 }}
@@ -213,52 +198,7 @@ export function AddGearModal() {
                 </>
               )}
 
-              {isAccessory && (
-                <>
-                  <select
-                    name="subcategory"
-                    required
-                    value={subcategory}
-                    onChange={(e) => {
-                      setSubcategory(e.target.value as AccessorySubcategory);
-                      setBrandChoice("");
-                    }}
-                    className={inputCls}
-                  >
-                    <option value="" disabled>
-                      Select type
-                    </option>
-                    {ACCESSORY_SUBCATEGORIES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-
-                  <select
-                    name={isOtherBrand ? undefined : "brand"}
-                    required={!isOtherBrand}
-                    value={brandChoice}
-                    onChange={(e) => setBrandChoice(e.target.value)}
-                    disabled={!subcategory}
-                    className={inputCls}
-                  >
-                    <option value="" disabled>
-                      {subcategory ? "Select brand" : "Pick a type first"}
-                    </option>
-                    {accessoryBrandOptions.map((b) => (
-                      <option key={b} value={b}>
-                        {b}
-                      </option>
-                    ))}
-                    <option value={OTHER}>Other</option>
-                  </select>
-
-                  {isOtherBrand && <input name="brand" placeholder="Brand name" required className={inputCls} />}
-                </>
-              )}
-
-              {!catalog && !brandOnlyList && !isAccessory && (
+              {!catalog && !brandOnlyList && (
                 <div className="grid grid-cols-2 gap-2">
                   <input name="brand" placeholder="Brand" required className={inputCls} />
                   <input name="model" placeholder="Model" required className={inputCls} />

@@ -16,7 +16,6 @@ export async function addGear(formData: FormData) {
   const userId = await requireUserId();
 
   const category = String(formData.get("category") ?? "") as GearCategory;
-  const subcategory = String(formData.get("subcategory") ?? "").trim();
   const brand = String(formData.get("brand") ?? "").trim();
   const model = String(formData.get("model") ?? "").trim();
   const nickname = String(formData.get("nickname") ?? "").trim();
@@ -30,16 +29,7 @@ export async function addGear(formData: FormData) {
   const photoUrl = await uploadImage(photo instanceof File ? photo : null, "gear");
 
   await prisma.gear.create({
-    data: {
-      ownerId: userId,
-      category,
-      subcategory: subcategory || null,
-      brand,
-      model: model || null,
-      nickname: nickname || null,
-      purchaseDate,
-      photoUrl,
-    },
+    data: { ownerId: userId, category, brand, model: model || null, nickname: nickname || null, purchaseDate, photoUrl },
   });
 
   revalidatePath("/settings/gear");
@@ -52,7 +42,6 @@ export async function updateGear(gearId: string, formData: FormData) {
   if (!existing) throw new Error("Gear not found.");
 
   const category = String(formData.get("category") ?? "") as GearCategory;
-  const subcategory = String(formData.get("subcategory") ?? "").trim();
   const brand = String(formData.get("brand") ?? "").trim();
   const model = String(formData.get("model") ?? "").trim();
   if (!brand) throw new Error("Please enter a brand.");
@@ -62,7 +51,7 @@ export async function updateGear(gearId: string, formData: FormData) {
 
   await prisma.gear.update({
     where: { id: gearId },
-    data: { category, subcategory: subcategory || null, brand, model: model || null, purchaseDate },
+    data: { category, brand, model: model || null, purchaseDate },
   });
 
   revalidatePath("/settings/gear");

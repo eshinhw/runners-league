@@ -5,44 +5,34 @@ export const GEAR_CATEGORY_LABEL: Record<GearCategory, string> = {
   WATCH: "Watch",
   HEADPHONES: "Headphones",
   APPAREL: "Apparel",
-  ACCESSORY: "Accessories",
+  RUNNING_BELT: "Running Belt",
+  HYDRATION_VEST: "Hydration Vest",
+  SUNGLASSES: "Sunglasses",
+  HEADLAMP: "Headlamp",
+  GLOVES: "Gloves",
   NUTRITION: "Nutrition",
 };
 
-// Curated top-level list shown in the app — 6 broad categories.
-export const GEAR_CATEGORY_ORDER: GearCategory[] = ["SHOE", "WATCH", "HEADPHONES", "APPAREL", "ACCESSORY", "NUTRITION"];
+// Curated top-level list shown in the app. The former single "Accessories"
+// bucket was split into its own top-level category per type — that way each
+// type gets its own favorite (favorites are one-per-category) and its own
+// Top Gears leaderboard, instead of competing for one shared slot.
+export const GEAR_CATEGORY_ORDER: GearCategory[] = [
+  "SHOE",
+  "WATCH",
+  "HEADPHONES",
+  "APPAREL",
+  "RUNNING_BELT",
+  "HYDRATION_VEST",
+  "SUNGLASSES",
+  "HEADLAMP",
+  "GLOVES",
+  "NUTRITION",
+];
 
 // Categories that get a cascading Brand -> Model picker instead of free-text
 // brand/model inputs.
 export type CatalogCategory = "SHOE" | "WATCH" | "HEADPHONES";
-
-// ACCESSORY gets its own cascade: Sub-category -> Brand (no model level —
-// these are representative brands, not exhaustive product catalogs).
-export const ACCESSORY_SUBCATEGORIES = [
-  "Running Belt",
-  "Hydration Vest",
-  "Sunglasses",
-  "Headlamp",
-  "Gloves",
-] as const;
-
-export type AccessorySubcategory = (typeof ACCESSORY_SUBCATEGORIES)[number];
-
-export const ACCESSORY_BRAND_CATALOG: Record<AccessorySubcategory, string[]> = {
-  "Running Belt": ["FlipBelt", "SPIbelt", "Nathan", "UltrAspire", "Naked Running Band", "Amphipod"],
-  "Hydration Vest": [
-    "Salomon",
-    "Nathan",
-    "UltrAspire",
-    "CamelBak",
-    "Ultimate Direction",
-    "Naked Running Band",
-    "Raidlight",
-  ],
-  Sunglasses: ["Oakley", "Goodr", "ROKA", "District Vision", "Smith", "Tifosi", "Rudy Project", "Julbo", "100%"],
-  Headlamp: ["Petzl", "Black Diamond", "Nathan", "UltrAspire", "Kogalla", "NITECORE", "BioLite", "Ledlenser"],
-  Gloves: ["Nike", "Under Armour", "The North Face", "Salomon", "Brooks", "Craft", "Manzella", "180s", "Mizuno"],
-};
 
 export const GEAR_PRODUCT_CATALOG: Record<CatalogCategory, Record<string, string[]>> = {
   SHOE: {
@@ -1039,14 +1029,31 @@ export const GEAR_PRODUCT_CATALOG: Record<CatalogCategory, Record<string, string
 
 // Categories that only offer a Brand picker — no specific model, since these
 // products aren't meaningfully tracked by model the way shoes/watches are.
-export type BrandOnlyCategory = "APPAREL" | "NUTRITION";
+export type BrandOnlyCategory =
+  | "APPAREL"
+  | "NUTRITION"
+  | "RUNNING_BELT"
+  | "HYDRATION_VEST"
+  | "SUNGLASSES"
+  | "HEADLAMP"
+  | "GLOVES";
+
+const BRAND_ONLY_CATEGORIES: readonly BrandOnlyCategory[] = [
+  "APPAREL",
+  "NUTRITION",
+  "RUNNING_BELT",
+  "HYDRATION_VEST",
+  "SUNGLASSES",
+  "HEADLAMP",
+  "GLOVES",
+];
 
 export function isCatalogCategory(category: GearCategory): category is CatalogCategory {
   return category === "SHOE" || category === "WATCH" || category === "HEADPHONES";
 }
 
 export function isBrandOnlyCategory(category: GearCategory): category is BrandOnlyCategory {
-  return category === "APPAREL" || category === "NUTRITION";
+  return (BRAND_ONLY_CATEGORIES as readonly GearCategory[]).includes(category);
 }
 
 // Sentinel used by Add/Edit Gear forms to switch a brand/model picker to
@@ -1054,6 +1061,19 @@ export function isBrandOnlyCategory(category: GearCategory): category is BrandOn
 export const OTHER_BRAND = "__other__";
 
 export const GEAR_BRAND_LIST: Record<BrandOnlyCategory, string[]> = {
+  RUNNING_BELT: ["FlipBelt", "SPIbelt", "Nathan", "UltrAspire", "Naked Running Band", "Amphipod"],
+  HYDRATION_VEST: [
+    "Salomon",
+    "Nathan",
+    "UltrAspire",
+    "CamelBak",
+    "Ultimate Direction",
+    "Naked Running Band",
+    "Raidlight",
+  ],
+  SUNGLASSES: ["Oakley", "Goodr", "ROKA", "District Vision", "Smith", "Tifosi", "Rudy Project", "Julbo", "100%"],
+  HEADLAMP: ["Petzl", "Black Diamond", "Nathan", "UltrAspire", "Kogalla", "NITECORE", "BioLite", "Ledlenser"],
+  GLOVES: ["Nike", "Under Armour", "The North Face", "Salomon", "Brooks", "Craft", "Manzella", "180s", "Mizuno"],
   APPAREL: [
     // Major Sports Brands
     "Nike",
