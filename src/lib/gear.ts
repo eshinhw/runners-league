@@ -32,7 +32,7 @@ export const GEAR_CATEGORY_ORDER: GearCategory[] = [
 
 // Categories that get a cascading Brand -> Model picker instead of free-text
 // brand/model inputs.
-export type CatalogCategory = "SHOE" | "WATCH" | "HEADPHONES";
+export type CatalogCategory = "SHOE" | "WATCH" | "HEADPHONES" | "RUNNING_BELT" | "HYDRATION_VEST" | "SUNGLASSES";
 
 export const GEAR_PRODUCT_CATALOG: Record<CatalogCategory, Record<string, string[]>> = {
   SHOE: {
@@ -1025,31 +1025,53 @@ export const GEAR_PRODUCT_CATALOG: Record<CatalogCategory, Record<string, string
       "Galaxy Buds2 Pro",
     ],
   },
+  RUNNING_BELT: {
+    FlipBelt: ["Classic", "Zipper", "Bounce-Free", "Plus Size", "Insulated", "DUO"],
+    SPIbelt: ["Original", "Large Pocket", "Race Belt (No Pockets)", "Hydration Belt", "Kids"],
+    Nathan: ["Zipster Adjustable", "Zipster Lite", "Zipster Convertible", "Peak Waist Pack", "Crossover 2.0"],
+    UltrAspire: ["Aura", "Aura 2.0", "Bolt", "Neutron", "Zoom Pak", "Fitted Race Belt"],
+    "Naked Running Band": ["Running Band", "Running Band 2.0", "Race Belt"],
+    Amphipod: ["AirFlow Microstretch", "AirFlow Lite", "RunLite 4-Pocket", "MicroStretch Belt"],
+  },
+  HYDRATION_VEST: {
+    Salomon: ["ADV Skin 12", "ADV Skin 5", "ADV Skin 8", "Sense Pro 10", "Sense Pro 5", "XT 10", "Agile 2"],
+    Nathan: ["VaporAiress 2.0", "VaporHowe 2.0", "Pinnacle 12L", "Trail Mix Plus", "Crossover 10L", "QuickStart 4L"],
+    UltrAspire: ["Momentum", "Zygos", "Alpha 3.0", "Epic", "Titan"],
+    CamelBak: ["Octane 10", "Zephyr Vest", "Ultra Pro Vest", "Chase Vest", "Circuit Vest", "Hydrobak"],
+    "Ultimate Direction": ["Mountain Vest 6.0", "Ultra Vest 6.0", "Adventure Vest 5.0", "FastPack 25", "Race Vest 5.0"],
+    "Naked Running Band": ["Running Vest", "Bandolier", "Bandolier 2.0"],
+    Raidlight: ["Activ Vest 6L", "Ultra Vest 5L", "Responsiv Vest 12L", "Olmo Vest 12L", "Freetrail Vest"],
+  },
+  SUNGLASSES: {
+    Oakley: ["Sutro", "Sutro Lite", "Radar EV Path", "Encoder", "Flak 2.0 XL", "Sphaera", "Hydra"],
+    Goodr: ["OG", "BFG", "VRG", "Wrap G"],
+    ROKA: ["CP-1x", "SR-1x", "Matador Air", "Rory", "Phantom"],
+    "District Vision": ["Junya", "Kaishu", "Nagata Speed Blade"],
+    Smith: ["Attack MAG", "Wildcat", "Pace", "Bobcat", "Reverb"],
+    Tifosi: ["Sledge", "Rail", "Vogel", "Swank", "Alliant"],
+    "Rudy Project": ["Cutline", "Propulse", "Spinshield", "Deltabeat", "Astropulse"],
+    Julbo: ["Aerospeed", "Ultimate", "Rush", "Density", "Frenzy"],
+    "100%": ["Speedcraft", "S2", "Westcraft", "Norvik", "Hypercraft"],
+  },
 };
 
 // Categories that only offer a Brand picker — no specific model, since these
 // products aren't meaningfully tracked by model the way shoes/watches are.
-export type BrandOnlyCategory =
-  | "APPAREL"
-  | "NUTRITION"
-  | "RUNNING_BELT"
-  | "HYDRATION_VEST"
-  | "SUNGLASSES"
-  | "HEADLAMP"
-  | "GLOVES";
+export type BrandOnlyCategory = "APPAREL" | "NUTRITION" | "HEADLAMP" | "GLOVES";
 
-const BRAND_ONLY_CATEGORIES: readonly BrandOnlyCategory[] = [
-  "APPAREL",
-  "NUTRITION",
+const BRAND_ONLY_CATEGORIES: readonly BrandOnlyCategory[] = ["APPAREL", "NUTRITION", "HEADLAMP", "GLOVES"];
+
+const CATALOG_CATEGORIES: readonly CatalogCategory[] = [
+  "SHOE",
+  "WATCH",
+  "HEADPHONES",
   "RUNNING_BELT",
   "HYDRATION_VEST",
   "SUNGLASSES",
-  "HEADLAMP",
-  "GLOVES",
 ];
 
 export function isCatalogCategory(category: GearCategory): category is CatalogCategory {
-  return category === "SHOE" || category === "WATCH" || category === "HEADPHONES";
+  return (CATALOG_CATEGORIES as readonly GearCategory[]).includes(category);
 }
 
 export function isBrandOnlyCategory(category: GearCategory): category is BrandOnlyCategory {
@@ -1061,17 +1083,6 @@ export function isBrandOnlyCategory(category: GearCategory): category is BrandOn
 export const OTHER_BRAND = "__other__";
 
 export const GEAR_BRAND_LIST: Record<BrandOnlyCategory, string[]> = {
-  RUNNING_BELT: ["FlipBelt", "SPIbelt", "Nathan", "UltrAspire", "Naked Running Band", "Amphipod"],
-  HYDRATION_VEST: [
-    "Salomon",
-    "Nathan",
-    "UltrAspire",
-    "CamelBak",
-    "Ultimate Direction",
-    "Naked Running Band",
-    "Raidlight",
-  ],
-  SUNGLASSES: ["Oakley", "Goodr", "ROKA", "District Vision", "Smith", "Tifosi", "Rudy Project", "Julbo", "100%"],
   HEADLAMP: ["Petzl", "Black Diamond", "Nathan", "UltrAspire", "Kogalla", "NITECORE", "BioLite", "Ledlenser"],
   GLOVES: ["Nike", "Under Armour", "The North Face", "Salomon", "Brooks", "Craft", "Manzella", "180s", "Mizuno"],
   APPAREL: [
