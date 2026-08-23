@@ -25,7 +25,7 @@ export async function getFullyVerifiedUserIds(db: PrismaClient): Promise<Set<str
   return new Set([...byUser.entries()].filter(([, allVerified]) => allVerified).map(([userId]) => userId));
 }
 
-// ---- Majors Completed leaderboard: how many of the 7 majors each runner has finished ----
+// ---- Majors Completed leaderboard: how many majors each runner has finished ----
 
 export type MajorsCompletedRow = {
   rank: number;

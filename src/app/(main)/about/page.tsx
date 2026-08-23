@@ -1,6 +1,13 @@
+import { joinWithAnd } from "@/lib/format";
+import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
+import { getTiers } from "@/lib/tiers";
+
 export const metadata = {
   title: "About — Runners League",
 };
+
+const MAJOR_NAMES = MAJORS_ORDER.map((m) => MAJOR_INFO[m].name.replace(" Marathon", ""));
+const TOP_TIER_NAME = getTiers(MAJORS_ORDER.length).at(-1)!.name;
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -29,10 +36,9 @@ export default function AboutPage() {
 
       <Section title="Majors &amp; Rankings">
         <p>
-          Log your finishes from Tokyo, Boston, London, Berlin, Chicago, New York, and Sydney in My Races, and
-          they automatically feed the Rankings page — both a majors-completed leaderboard and per-race results.
-          Complete more majors and your tier badge grows with you, from your first finish all the way to Seven
-          Star Finisher.
+          Log your finishes from {joinWithAnd(MAJOR_NAMES)} in My Races, and they automatically feed the Rankings
+          page — both a majors-completed leaderboard and per-race results. Complete more majors and your tier
+          badge grows with you, from your first finish all the way to {TOP_TIER_NAME}.
         </p>
       </Section>
 
@@ -62,7 +68,7 @@ export default function AboutPage() {
       <Section title="Who&apos;s behind this">
         <p>
           Runners League is an independent, community-run project built by runners, for runners. It&apos;s not
-          affiliated with World Marathon Majors, Abbott, or any of the six major marathons it tracks.
+          affiliated with World Marathon Majors, Abbott, or any of the individual majors it tracks.
         </p>
       </Section>
     </main>

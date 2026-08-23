@@ -66,6 +66,7 @@ async function main() {
     CHICAGO: { 2025: "2025-10-12", 2026: "2026-10-11" },
     NEW_YORK: { 2024: "2024-11-03", 2025: "2025-11-02", 2026: "2026-11-01" },
     SYDNEY: {},
+    CAPE_TOWN: {},
   };
 
   const majorResults: { user: typeof eddie; major: MarathonMajor; year: number; durationSec: number }[] = [

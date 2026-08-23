@@ -70,7 +70,7 @@ export default function RacesPage() {
         const editions = getMajorsForYear(year);
         return (
           <section key={year} className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold">{year} World Major Marathons</h2>
+            <h2 className="text-lg font-semibold">{year} World Marathon Majors</h2>
             <div className="flex flex-col gap-3">
               {editions.map((edition) => (
                 <EditionCard key={`${edition.major}-${edition.year}`} edition={edition} />

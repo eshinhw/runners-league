@@ -2,6 +2,15 @@ import type { UnitSystem } from "@/generated/prisma/client";
 
 export const KM_PER_MI = 1.609344;
 
+// Oxford-comma join, e.g. [2026, 2027] -> "2026 and 2027",
+// ["Tokyo", "Boston", "London"] -> "Tokyo, Boston, and London".
+export function joinWithAnd(items: (string | number)[]): string {
+  const strs = items.map(String);
+  if (strs.length <= 1) return strs.join("");
+  if (strs.length === 2) return `${strs[0]} and ${strs[1]}`;
+  return `${strs.slice(0, -1).join(", ")}, and ${strs[strs.length - 1]}`;
+}
+
 export function distanceUnitLabel(unitSystem: UnitSystem = "METRIC"): string {
   return unitSystem === "IMPERIAL" ? "mi" : "km";
 }

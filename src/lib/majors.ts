@@ -1,6 +1,15 @@
 import type { MarathonMajor } from "@/generated/prisma/client";
 
-export const MAJORS_ORDER: MarathonMajor[] = ["TOKYO", "BOSTON", "LONDON", "SYDNEY", "BERLIN", "CHICAGO", "NEW_YORK"];
+export const MAJORS_ORDER: MarathonMajor[] = [
+  "TOKYO",
+  "BOSTON",
+  "LONDON",
+  "CAPE_TOWN",
+  "SYDNEY",
+  "BERLIN",
+  "CHICAGO",
+  "NEW_YORK",
+];
 
 export type RaceDistance = "5K" | "10K" | "Half" | "Full" | "Ultra";
 
@@ -49,6 +58,17 @@ export const MAJOR_INFO: Record<
     description:
       "A flat, fast course along the Thames, drawing one of the largest fields in the series and finishing near Buckingham Palace.",
     accent: ["#0f766e", "#0ea5e9"],
+  },
+  CAPE_TOWN: {
+    name: "Cape Town Marathon",
+    city: "Cape Town",
+    country: "South Africa",
+    flag: "🇿🇦",
+    websiteUrl: "https://capetownmarathon.com/",
+    distances: ["5K", "10K", "Full"],
+    description:
+      "Africa's first Major, starting and finishing at Cape Town Stadium in the shadow of Table Mountain along the Atlantic coastline.",
+    accent: ["#155e75", "#c2410c"],
   },
   SYDNEY: {
     name: "Sydney Marathon",
@@ -106,7 +126,8 @@ export type MajorEdition = {
 // World Marathon Majors calendar. 2026 dates are all officially confirmed.
 // 2027 dates are mixed — Tokyo is confirmed (20th anniversary edition); the
 // rest are estimates based on each race's historical scheduling pattern, or
-// TBA where no announcement exists yet.
+// TBA where no announcement exists yet. Cape Town joins the series as its
+// 8th Major starting in 2027 (no 2026 entry — it wasn't a Major yet then).
 export const MAJORS_CALENDAR: MajorEdition[] = [
   { major: "TOKYO", year: 2026, date: "2026-03-01", confirmed: true },
   { major: "BOSTON", year: 2026, date: "2026-04-20", confirmed: true },
@@ -119,6 +140,7 @@ export const MAJORS_CALENDAR: MajorEdition[] = [
   { major: "TOKYO", year: 2027, date: "2027-03-07", confirmed: true },
   { major: "BOSTON", year: 2027, date: "2027-04-19", confirmed: false },
   { major: "LONDON", year: 2027, date: "2027-04-25", confirmed: false },
+  { major: "CAPE_TOWN", year: 2027, date: "2027-05-23", confirmed: true },
   { major: "SYDNEY", year: 2027, date: "2027-08-29", confirmed: false },
   { major: "BERLIN", year: 2027, date: "2027-09-26", confirmed: false },
   { major: "CHICAGO", year: 2027, date: "2027-10-10", confirmed: false },

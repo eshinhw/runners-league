@@ -67,6 +67,9 @@ function Landmark({ major }: { major: MarathonMajor }) {
           <circle cx={150} cy={88} r={9} fill="none" stroke={SKY_BOTTOM} strokeWidth={2} />
         </g>
       );
+    case "CAPE_TOWN":
+      // Table Mountain: broad flat-topped massif behind the city.
+      return <polygon fill={INK} points="60,172 78,96 90,82 210,82 222,96 240,172" />;
     case "SYDNEY":
       // Opera House shells in front of the Harbour Bridge arc.
       return (

@@ -270,6 +270,7 @@ enum MarathonMajor {
   CHICAGO
   NEW_YORK
   SYDNEY
+  CAPE_TOWN
 }
 
 enum ActivitySource {
