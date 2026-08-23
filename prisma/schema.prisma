@@ -102,6 +102,7 @@ model VerificationToken {
 enum Gender {
   MALE
   FEMALE
+  NON_BINARY
   UNSPECIFIED
 }
 

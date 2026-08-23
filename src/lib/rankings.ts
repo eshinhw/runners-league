@@ -4,7 +4,8 @@ import { MAJORS_ORDER } from "./majors";
 export const GENDER_LABEL: Record<Gender, string> = {
   MALE: "Male",
   FEMALE: "Female",
-  UNSPECIFIED: "Select",
+  NON_BINARY: "Non-binary",
+  UNSPECIFIED: "Prefer not to say",
 };
 
 // A runner's userId shows up here only if every major race record on their
