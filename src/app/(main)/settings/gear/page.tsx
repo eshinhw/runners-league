@@ -43,6 +43,7 @@ function FavoriteButton({ gearId, isFavorite }: { gearId: string; isFavorite: bo
 
 function GearRow({ gear, unitSystem }: { gear: Gear; unitSystem: UnitSystem }) {
   const metaParts = [
+    gear.subcategory,
     gear.purchaseDate ? `Purchased ${gear.purchaseDate.getUTCFullYear()}` : null,
     gear.totalDistanceM > 0 ? formatDistance(gear.totalDistanceM, unitSystem) : null,
   ].filter((p): p is string => Boolean(p));
@@ -60,6 +61,7 @@ function GearRow({ gear, unitSystem }: { gear: Gear; unitSystem: UnitSystem }) {
         ) : (
           <GearSlotIcon
             category={gear.category}
+            subcategory={gear.subcategory}
             className={`h-6 w-6 ${gear.retiredAt ? "text-zinc-400" : "text-amber-500"}`}
           />
         )}

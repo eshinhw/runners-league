@@ -5,7 +5,7 @@ export const GEAR_CATEGORY_LABEL: Record<GearCategory, string> = {
   WATCH: "Watch",
   HEADPHONES: "Headphones",
   APPAREL: "Apparel",
-  ACCESSORY: "Accessory",
+  ACCESSORY: "Accessories",
   NUTRITION: "Nutrition",
 };
 
@@ -15,6 +15,34 @@ export const GEAR_CATEGORY_ORDER: GearCategory[] = ["SHOE", "WATCH", "HEADPHONES
 // Categories that get a cascading Brand -> Model picker instead of free-text
 // brand/model inputs.
 export type CatalogCategory = "SHOE" | "WATCH" | "HEADPHONES";
+
+// ACCESSORY gets its own cascade: Sub-category -> Brand (no model level —
+// these are representative brands, not exhaustive product catalogs).
+export const ACCESSORY_SUBCATEGORIES = [
+  "Running Belt",
+  "Hydration Vest",
+  "Sunglasses",
+  "Headlamp",
+  "Gloves",
+] as const;
+
+export type AccessorySubcategory = (typeof ACCESSORY_SUBCATEGORIES)[number];
+
+export const ACCESSORY_BRAND_CATALOG: Record<AccessorySubcategory, string[]> = {
+  "Running Belt": ["FlipBelt", "SPIbelt", "Nathan", "UltrAspire", "Naked Running Band", "Amphipod"],
+  "Hydration Vest": [
+    "Salomon",
+    "Nathan",
+    "UltrAspire",
+    "CamelBak",
+    "Ultimate Direction",
+    "Naked Running Band",
+    "Raidlight",
+  ],
+  Sunglasses: ["Oakley", "Goodr", "ROKA", "District Vision", "Smith", "Tifosi", "Rudy Project", "Julbo", "100%"],
+  Headlamp: ["Petzl", "Black Diamond", "Nathan", "UltrAspire", "Kogalla", "NITECORE", "BioLite", "Ledlenser"],
+  Gloves: ["Nike", "Under Armour", "The North Face", "Salomon", "Brooks", "Craft", "Manzella", "180s", "Mizuno"],
+};
 
 export const GEAR_PRODUCT_CATALOG: Record<CatalogCategory, Record<string, string[]>> = {
   SHOE: {

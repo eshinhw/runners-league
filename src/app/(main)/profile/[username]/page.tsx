@@ -152,6 +152,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                   ) : (
                     <GearSlotIcon
                       category={category}
+                      subcategory={item?.subcategory}
                       className={`h-6 w-6 ${filled ? "text-amber-500" : "text-zinc-400"}`}
                     />
                   )}

@@ -1,6 +1,68 @@
+import type { SVGProps } from "react";
 import type { GearCategory } from "@/generated/prisma/client";
+import type { AccessorySubcategory } from "@/lib/gear";
 
-export function GearSlotIcon({ category, className }: { category: GearCategory; className?: string }) {
+function AccessoryIcon({
+  subcategory,
+  common,
+}: {
+  subcategory?: string | null;
+  common: SVGProps<SVGSVGElement>;
+}) {
+  switch (subcategory as AccessorySubcategory | undefined) {
+    case "Running Belt":
+      return (
+        <svg {...common}>
+          <path d="M2 12h5M17 12h5" />
+          <rect x={7} y={9} width={10} height={6} rx={1.5} />
+          <line x1={12} y1={9} x2={12} y2={15} />
+        </svg>
+      );
+    case "Hydration Vest":
+      return (
+        <svg {...common}>
+          <path d="M9 4 6 6.5V20a1 1 0 0 0 1 1h3V9M15 4l3 2.5V20a1 1 0 0 1-1 1h-3V9" />
+          <path d="M9 4h6l-.5 3a2.5 2.5 0 0 1-5 0Z" />
+        </svg>
+      );
+    case "Headlamp":
+      return (
+        <svg {...common}>
+          <path d="M4.5 11a7.5 6 0 0 1 15 0" />
+          <circle cx={12} cy={11} r={2.2} />
+          <line x1={12} y1={5} x2={12} y2={6.5} />
+        </svg>
+      );
+    case "Gloves":
+      return (
+        <svg {...common}>
+          <rect x={7} y={9} width={9} height={11} rx={4} />
+          <path d="M7 13a3 3 0 0 0-3 3v1a3 3 0 0 0 3 3" />
+        </svg>
+      );
+    case "Sunglasses":
+    default:
+      return (
+        <svg {...common}>
+          <circle cx={7} cy={13} r={3} />
+          <circle cx={17} cy={13} r={3} />
+          <path d="M10 13h4" />
+          <path d="M4 11 5.5 8h2" />
+          <path d="M20 11 18.5 8h-2" />
+        </svg>
+      );
+  }
+}
+
+export function GearSlotIcon({
+  category,
+  subcategory,
+  className,
+}: {
+  category: GearCategory;
+  subcategory?: string | null;
+  className?: string;
+}) {
   const common = {
     viewBox: "0 0 24 24",
     fill: "none",
@@ -43,15 +105,7 @@ export function GearSlotIcon({ category, className }: { category: GearCategory; 
         </svg>
       );
     case "ACCESSORY":
-      return (
-        <svg {...common}>
-          <circle cx={7} cy={13} r={3} />
-          <circle cx={17} cy={13} r={3} />
-          <path d="M10 13h4" />
-          <path d="M4 11 5.5 8h2" />
-          <path d="M20 11 18.5 8h-2" />
-        </svg>
-      );
+      return <AccessoryIcon subcategory={subcategory} common={common} />;
     case "NUTRITION":
       return (
         <svg {...common}>
