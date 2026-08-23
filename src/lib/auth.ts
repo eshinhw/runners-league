@@ -22,6 +22,36 @@ async function uniqueUsernameFrom(seed: string): Promise<string> {
   return candidate;
 }
 
+// The `database` session strategy rotates the session token on nearly every
+// request. Prisma's delete/update throw "record not found" if a stale
+// cookie's session row is already gone (expired cleanup, or a race between
+// two concurrent requests rotating the same token) — treat that as a no-op
+// instead of a hard 500.
+function isRecordNotFound(err: unknown): boolean {
+  return typeof err === "object" && err !== null && (err as { code?: string }).code === "P2025";
+}
+
+function withResilientSessions(base: Adapter): Adapter {
+  return {
+    ...base,
+    deleteSession: async (sessionToken) => {
+      try {
+        await base.deleteSession!(sessionToken);
+      } catch (err) {
+        if (!isRecordNotFound(err)) throw err;
+      }
+    },
+    updateSession: async (data) => {
+      try {
+        return await base.updateSession!(data);
+      } catch (err) {
+        if (isRecordNotFound(err)) return null;
+        throw err;
+      }
+    },
+  };
+}
+
 function withUsernameBackfill(base: Adapter): Adapter {
   return {
     ...base,
@@ -48,7 +78,7 @@ function withUsernameBackfill(base: Adapter): Adapter {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: withUsernameBackfill(PrismaAdapter(prisma)),
+  adapter: withResilientSessions(withUsernameBackfill(PrismaAdapter(prisma))),
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
