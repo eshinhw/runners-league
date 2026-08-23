@@ -41,7 +41,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const age = calculateAge(user.birthDate);
   const location = [user.city, user.country].filter(Boolean).join(", ");
-  const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
   const majorsCompleted = new Set(user.activities.map((a) => a.major)).size;
   const tier = getTierForCount(majorsCompleted, MAJORS_ORDER.length);
   const avatarSrc = user.avatarUrl ?? user.image;
@@ -70,7 +69,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         <Avatar
           src={avatarSrc}
           alt={user.displayId}
-          fallbackText={initials(fullName || user.displayId)}
+          fallbackText={initials(user.displayId)}
           className="h-20 w-20 shrink-0 text-xl"
         />
 
@@ -80,8 +79,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             {allRecordsVerified && <VerifiedBadge className="h-5 w-5" title="All race records verified" />}
             <TierBadge tier={tier} size={30} />
           </div>
-          {fullName && <p className="text-sm text-zinc-500">{fullName}</p>}
-
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-zinc-500">
             {age !== null && <span>{age} yo</span>}
             {location && (
