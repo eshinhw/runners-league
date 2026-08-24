@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { updateRun } from "@/app/(main)/settings/runs/actions";
+import { EditIcon } from "@/components/ActionIcons";
 import { useToast } from "@/components/Toast";
 import type { Activity } from "@/generated/prisma/client";
 import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
@@ -55,9 +56,11 @@ export function EditRaceModal({ run }: { run: Activity }) {
           setError(null);
           setOpen(true);
         }}
-        className="text-xs text-zinc-500 underline"
+        aria-label="Edit"
+        title="Edit"
+        className="inline-flex h-4 w-4 shrink-0 items-center justify-center text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
       >
-        Edit
+        <EditIcon className="h-4 w-4" />
       </button>
 
       {open && (

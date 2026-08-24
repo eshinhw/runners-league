@@ -39,6 +39,12 @@ export async function updateProfile(formData: FormData): Promise<{ error: string
   const weightKgRaw = String(formData.get("weightKg") ?? "");
   const heightCmRaw = String(formData.get("heightCm") ?? "");
 
+  const contactEmail = String(formData.get("contactEmail") ?? "").trim();
+  if (contactEmail && !/^\S+@\S+\.\S+$/.test(contactEmail)) {
+    return { error: "Please enter a valid contact email." };
+  }
+  const contactVisible = formData.get("contactVisible") === "on";
+
   const avatarFile = formData.get("avatar");
   let avatarUrl: string | null;
   try {
@@ -62,6 +68,8 @@ export async function updateProfile(formData: FormData): Promise<{ error: string
         birthDate,
         weightKg: weightKgRaw ? Number(weightKgRaw) : null,
         heightCm: heightCmRaw ? Number(heightCmRaw) : null,
+        contactEmail: contactEmail || null,
+        contactVisible,
         ...(avatarUrl ? { avatarUrl } : {}),
       },
     });

@@ -65,6 +65,8 @@ type ProfileUser = {
   heightCm: number | null;
   avatarUrl: string | null;
   image: string | null;
+  contactEmail: string | null;
+  contactVisible: boolean;
 };
 
 export function ProfileEditor({ user }: { user: ProfileUser }) {
@@ -125,6 +127,21 @@ export function ProfileEditor({ user }: { user: ProfileUser }) {
           <div className="grid grid-cols-2 gap-3">
             <Row label="Weight" value={user.weightKg ? `${user.weightKg} kg` : "—"} />
             <Row label="Height" value={user.heightCm ? `${user.heightCm} cm` : "—"} />
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-medium text-zinc-500">Contact Info</span>
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                  user.contactVisible
+                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    : "bg-zinc-100 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400"
+                }`}
+              >
+                {user.contactVisible ? "Public" : "Private"}
+              </span>
+            </div>
+            <span className="text-sm text-zinc-700 dark:text-zinc-200">{user.contactEmail || "—"}</span>
           </div>
         </div>
         <button
@@ -251,6 +268,28 @@ export function ProfileEditor({ user }: { user: ProfileUser }) {
             className={inputCls}
           />
         </Field>
+      </div>
+
+      <div className="flex flex-col gap-3 rounded border border-zinc-200 p-3 dark:border-zinc-800">
+        <span className="text-xs font-medium text-zinc-500">Contact Info</span>
+        <Field label="Email">
+          <input
+            name="contactEmail"
+            type="email"
+            defaultValue={user.contactEmail ?? ""}
+            placeholder="you@example.com"
+            className={inputCls}
+          />
+        </Field>
+        <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
+          <input
+            name="contactVisible"
+            type="checkbox"
+            defaultChecked={user.contactVisible}
+            className="h-4 w-4 rounded border-zinc-300 dark:border-zinc-700"
+          />
+          Show Contact Info on my public profile
+        </label>
       </div>
 
       {error && <p className="text-sm text-rose-500">{error}</p>}

@@ -72,13 +72,13 @@ export default async function MyRunsPage() {
                     .filter(Boolean)
                     .join(" · ")}
                 </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-3">
                 {!run.verifiedAt && (
-                  <div className="mt-1 inline-flex items-center gap-1 rounded-full border border-zinc-300 px-2 py-0.5 text-[11px] text-zinc-500 dark:border-zinc-700">
+                  <div className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-2 py-0.5 text-[11px] text-zinc-500 dark:border-zinc-700">
                     Pending verification
                   </div>
                 )}
-              </div>
-              <div className="flex shrink-0 items-center gap-3">
                 <EditRaceModal run={run} />
                 <RunDeleteButton activityId={run.id} />
               </div>

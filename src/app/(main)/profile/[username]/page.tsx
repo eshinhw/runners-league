@@ -23,6 +23,15 @@ function PinIcon({ className }: { className?: string }) {
   );
 }
 
+function MailIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className={className}>
+      <rect x={3} y={5} width={18} height={14} rx={2} />
+      <path d="m4 7 8 6 8-6" />
+    </svg>
+  );
+}
+
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
 
@@ -90,6 +99,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           </div>
 
           {user.bio && <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{user.bio}</p>}
+
+          {user.contactVisible && user.contactEmail && (
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-zinc-500">
+              <a href={`mailto:${user.contactEmail}`} className="inline-flex items-center gap-1 hover:underline">
+                <MailIcon className="h-3.5 w-3.5" />
+                {user.contactEmail}
+              </a>
+            </div>
+          )}
         </div>
       </div>
 
