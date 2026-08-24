@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toggleTrackVote } from "@/app/(main)/playlist/actions";
 import { SubmitTrackModal } from "@/components/playlist/SubmitTrackModal";
+import { RunnerLink } from "@/components/RunnerLink";
 import type { PlaylistTrack } from "@/lib/playlist";
 
 const POLL_MS = 8000;
@@ -110,7 +111,7 @@ function TrackRow({
           {track.title}
         </a>
         <div className="truncate text-xs text-zinc-500">
-          {track.artist} · shared by {track.submittedBy}
+          {track.artist} · shared by <RunnerLink username={track.submittedByUsername}>{track.submittedBy}</RunnerLink>
         </div>
       </div>
       <VoteButton score={track.score} voted={track.voted} signedIn={signedIn} pending={pending} onVote={onVote} />

@@ -36,7 +36,7 @@ export default async function MyRunsPage() {
         <AddRaceModal />
       </div>
 
-      <UnitToggle className="self-start" />
+      {runs.length > 0 && <UnitToggle className="self-start" />}
 
       <ul className="flex flex-col gap-3">
         {runs.length === 0 && <p className="text-sm text-zinc-500">No majors logged yet.</p>}

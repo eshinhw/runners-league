@@ -10,13 +10,14 @@ export type PlaylistTrack = {
   score: number;
   voted: boolean;
   submittedBy: string;
+  submittedByUsername: string;
   createdAt: string;
 };
 
 export async function getPlaylist(viewerId: string | undefined): Promise<PlaylistTrack[]> {
   const tracks = await prisma.track.findMany({
     include: {
-      submittedBy: { select: { displayId: true } },
+      submittedBy: { select: { displayId: true, username: true } },
       likes: viewerId ? { where: { userId: viewerId }, select: { id: true } } : false,
       _count: { select: { likes: true } },
     },
@@ -33,6 +34,7 @@ export async function getPlaylist(viewerId: string | undefined): Promise<Playlis
     score: t._count.likes,
     voted: Array.isArray(t.likes) && t.likes.length > 0,
     submittedBy: t.submittedBy.displayId,
+    submittedByUsername: t.submittedBy.username,
     createdAt: t.createdAt.toISOString(),
   }));
 }

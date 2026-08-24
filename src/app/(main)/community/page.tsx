@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { PostType } from "@/generated/prisma/client";
 import { LikeButton } from "@/components/community/LikeButton";
 import { PostComposer } from "@/components/community/PostComposer";
+import { RunnerLink } from "@/components/RunnerLink";
 import { SignInGate } from "@/components/SignInGate";
 import { auth } from "@/lib/auth";
 import { formatRelativeTime } from "@/lib/format";
@@ -84,7 +85,7 @@ export default async function CommunityPage({ searchParams }: { searchParams: Pr
               <div className="flex items-center gap-2 text-xs text-zinc-400">
                 <span>{TYPE_LABEL[post.type]}</span>
                 <span>·</span>
-                <span>{post.author.displayId}</span>
+                <RunnerLink username={post.author.username}>{post.author.displayId}</RunnerLink>
                 <span>·</span>
                 <span>{formatRelativeTime(post.createdAt)}</span>
               </div>

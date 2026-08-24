@@ -70,6 +70,13 @@ export function formatGearName(brand: string, model: string | null): string {
   return model ? `${brand} ${model}` : brand;
 }
 
+// No per-product URL exists (or would stay maintainable across hundreds of
+// catalog entries), so "order this" resolves to a Google Shopping search for
+// the brand/model instead of one exact SKU page.
+export function shopSearchUrl(brand: string, model: string | null): string {
+  return `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(formatGearName(brand, model))}`;
+}
+
 export function initials(name: string): string {
   return name
     .split(" ")

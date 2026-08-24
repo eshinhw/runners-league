@@ -31,3 +31,15 @@ export function DeleteIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+// External-link glyph — used where a link leaves the site (e.g. a shop
+// search on another site) so the destination is signaled before the click.
+export function ExternalLinkIcon({ className }: IconProps) {
+  return (
+    <svg {...common} className={className}>
+      <path d="M8.5 4.5H5a1 1 0 0 0-1 1V15a1 1 0 0 0 1 1h9.5a1 1 0 0 0 1-1v-3.5" />
+      <path d="M11.5 3.5H16.5V8.5" />
+      <path d="M16.2 3.8 9.5 10.5" />
+    </svg>
+  );
+}

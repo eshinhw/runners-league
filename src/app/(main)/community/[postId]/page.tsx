@@ -4,6 +4,7 @@ import type { PostType } from "@/generated/prisma/client";
 import { LikeButton } from "@/components/community/LikeButton";
 import { PostDeleteButton } from "@/components/community/PostDeleteButton";
 import { PostEditModal } from "@/components/community/PostEditModal";
+import { RunnerLink } from "@/components/RunnerLink";
 import { SignInGate } from "@/components/SignInGate";
 import { auth } from "@/lib/auth";
 import { formatRelativeTime } from "@/lib/format";
@@ -60,9 +61,7 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
             <div className="flex items-center gap-2 text-xs text-zinc-400">
               <span>{TYPE_LABEL[post.type]}</span>
               <span>·</span>
-              <Link href={`/profile/${post.author.username}`} className="hover:underline">
-                {post.author.displayId}
-              </Link>
+              <RunnerLink username={post.author.username}>{post.author.displayId}</RunnerLink>
               <span>·</span>
               <span>{formatRelativeTime(post.createdAt)}</span>
             </div>
@@ -112,9 +111,9 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
           {post.comments.map((c) => (
             <li key={c.id} className="text-sm">
               <div className="flex items-center gap-2 text-xs text-zinc-400">
-                <Link href={`/profile/${c.author.username}`} className="font-medium text-zinc-600 hover:underline dark:text-zinc-300">
+                <RunnerLink username={c.author.username} className="font-medium text-zinc-600 dark:text-zinc-300">
                   {c.author.displayId}
-                </Link>
+                </RunnerLink>
                 <span>·</span>
                 <span>{formatRelativeTime(c.createdAt)}</span>
               </div>
