@@ -88,14 +88,14 @@ export function ProfileEditor({ user }: { user: ProfileUser }) {
     setError(null);
     const formData = new FormData(e.currentTarget);
     startTransition(async () => {
-      try {
-        await updateProfile(formData);
-        setEditing(false);
-        setAvatarPreview(null);
-        showToast("Profile saved");
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong.");
+      const result = await updateProfile(formData);
+      if ("error" in result) {
+        setError(result.error);
+        return;
       }
+      setEditing(false);
+      setAvatarPreview(null);
+      showToast("Profile saved");
     });
   }
 

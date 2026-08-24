@@ -6,15 +6,21 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uploadImage } from "@/lib/storage";
 
-export async function updateProfile(formData: FormData) {
+// Server Actions redact thrown error messages in production — the client
+// only ever sees a generic digest-only error, no matter where inside the
+// action the throw happens. Expected, user-facing failures (validation,
+// upload problems, taken display IDs) are returned as values instead so
+// the caller can show the real message; only genuinely unexpected errors
+// (e.g. a DB outage) are left to throw and hit the nearest error boundary.
+export async function updateProfile(formData: FormData): Promise<{ error: string } | { success: true }> {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("You need to be signed in.");
+  if (!session?.user?.id) return { error: "You need to be signed in." };
 
   const displayId = String(formData.get("displayId") ?? "").trim();
-  if (!displayId) throw new Error("Please enter a Display ID.");
+  if (!displayId) return { error: "Please enter a Display ID." };
 
   const firstName = String(formData.get("firstName") ?? "").trim();
-  if (!firstName) throw new Error("Please enter your first name.");
+  if (!firstName) return { error: "Please enter your first name." };
 
   const lastName = String(formData.get("lastName") ?? "").trim();
   const bio = String(formData.get("bio") ?? "").trim();
@@ -34,7 +40,13 @@ export async function updateProfile(formData: FormData) {
   const heightCmRaw = String(formData.get("heightCm") ?? "");
 
   const avatarFile = formData.get("avatar");
-  const avatarUrl = await uploadImage(avatarFile instanceof File ? avatarFile : null, "avatars");
+  let avatarUrl: string | null;
+  try {
+    avatarUrl = await uploadImage(avatarFile instanceof File ? avatarFile : null, "avatars");
+  } catch (err) {
+    console.error("Avatar upload failed:", err);
+    return { error: err instanceof Error ? err.message : "Couldn't upload that image. Please try again." };
+  }
 
   try {
     await prisma.user.update({
@@ -55,11 +67,12 @@ export async function updateProfile(formData: FormData) {
     });
   } catch (err) {
     if (err && typeof err === "object" && "code" in err && err.code === "P2002") {
-      throw new Error("That Display ID is already taken.");
+      return { error: "That Display ID is already taken." };
     }
     throw err;
   }
 
   revalidatePath("/settings/profile");
   if (session.user.username) revalidatePath(`/profile/${session.user.username}`);
+  return { success: true };
 }
