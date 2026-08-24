@@ -33,6 +33,7 @@ export type MajorsCompletedRow = {
   username: string;
   displayId: string;
   majorsCompleted: MarathonMajor[];
+  latestYearByMajor: Partial<Record<MarathonMajor, number>>; // most recent finish year per major, for the "'25" badge suffix
   bestTotalDurationSec: number; // sum of each completed major's fastest finish, tie-break only
   allVerified: boolean;
 };
@@ -45,24 +46,33 @@ export async function getMajorsCompletedLeaderboard(db: PrismaClient, limit = 50
         userId: true,
         major: true,
         durationSec: true,
+        startedAt: true,
         user: { select: { username: true, displayId: true } },
       },
     }),
     getFullyVerifiedUserIds(db),
   ]);
 
-  const byUser = new Map<string, { username: string; displayId: string; bestByMajor: Map<MarathonMajor, number> }>();
+  const byUser = new Map<
+    string,
+    { username: string; displayId: string; bestByMajor: Map<MarathonMajor, number>; latestYearByMajor: Map<MarathonMajor, number> }
+  >();
 
   for (const r of results) {
     const major = r.major!;
     let entry = byUser.get(r.userId);
     if (!entry) {
-      entry = { username: r.user.username, displayId: r.user.displayId, bestByMajor: new Map() };
+      entry = { username: r.user.username, displayId: r.user.displayId, bestByMajor: new Map(), latestYearByMajor: new Map() };
       byUser.set(r.userId, entry);
     }
     const current = entry.bestByMajor.get(major);
     if (current === undefined || r.durationSec < current) {
       entry.bestByMajor.set(major, r.durationSec);
+    }
+    const year = r.startedAt.getUTCFullYear();
+    const currentLatest = entry.latestYearByMajor.get(major);
+    if (currentLatest === undefined || year > currentLatest) {
+      entry.latestYearByMajor.set(major, year);
     }
   }
 
@@ -72,6 +82,7 @@ export async function getMajorsCompletedLeaderboard(db: PrismaClient, limit = 50
       username: entry.username,
       displayId: entry.displayId,
       majorsCompleted: MAJORS_ORDER.filter((m) => entry.bestByMajor.has(m)),
+      latestYearByMajor: Object.fromEntries(entry.latestYearByMajor) as Partial<Record<MarathonMajor, number>>,
       bestTotalDurationSec: [...entry.bestByMajor.values()].reduce((a, b) => a + b, 0),
       allVerified: fullyVerified.has(userId),
     }))

@@ -40,16 +40,20 @@ export function CompletedTable({ rows }: { rows: MajorsCompletedRow[] }) {
                   </td>
                   <td className="py-2">
                     <div className="flex flex-wrap gap-1">
-                      {row.majorsCompleted.map((m) => (
-                        <span
-                          key={m}
-                          title={MAJOR_INFO[m].name}
-                          className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-2 py-0.5 text-[11px] font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-300"
-                        >
-                          <span>{MAJOR_INFO[m].flag}</span>
-                          {MAJOR_INFO[m].city}
-                        </span>
-                      ))}
+                      {row.majorsCompleted.map((m) => {
+                        const year = row.latestYearByMajor[m];
+                        return (
+                          <span
+                            key={m}
+                            title={MAJOR_INFO[m].name}
+                            className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-2 py-0.5 text-[11px] font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-300"
+                          >
+                            <span>{MAJOR_INFO[m].flag}</span>
+                            {MAJOR_INFO[m].city}
+                            {year !== undefined && ` '${String(year).slice(-2)}`}
+                          </span>
+                        );
+                      })}
                     </div>
                   </td>
                 </tr>
