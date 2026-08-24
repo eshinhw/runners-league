@@ -5,6 +5,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { deleteTrack, toggleTrackVote } from "@/app/(main)/playlist/actions";
 import { SubmitTrackModal } from "@/components/playlist/SubmitTrackModal";
 import { DeleteIcon } from "@/components/ActionIcons";
+import { PaginationControls, usePagination } from "@/components/Pagination";
 import { RunnerLink } from "@/components/RunnerLink";
 import type { PlaylistTrack } from "@/lib/playlist";
 
@@ -242,6 +243,8 @@ export function PlaylistBoard({
   }
 
   const { charted, unranked } = splitChart(tracks);
+  const chartedPg = usePagination(charted);
+  const unrankedPg = usePagination(unranked);
 
   return (
     <div className="flex flex-col gap-6">
@@ -260,11 +263,11 @@ export function PlaylistBoard({
           {charted.length === 0 && (
             <p className="text-sm text-zinc-500">No upvotes yet — be the first to vote for a song below.</p>
           )}
-          {charted.map((track, i) => (
+          {chartedPg.pageItems.map((track, i) => (
             <TrackRow
               key={track.id}
               track={track}
-              rank={i + 1}
+              rank={(chartedPg.page - 1) * chartedPg.pageSize + i + 1}
               delta={movement.get(track.id) ?? 0}
               signedIn={signedIn}
               pending={pendingId === track.id}
@@ -276,12 +279,20 @@ export function PlaylistBoard({
               }}
             />
           ))}
+          <PaginationControls
+            page={chartedPg.page}
+            pageSize={chartedPg.pageSize}
+            totalPages={chartedPg.totalPages}
+            total={chartedPg.total}
+            onPageChange={chartedPg.setPage}
+            onPageSizeChange={chartedPg.setPageSize}
+          />
         </div>
 
         {unranked.length > 0 && (
           <div className="flex flex-col gap-2">
             <h2 className="text-sm font-medium uppercase tracking-wide text-zinc-400">New Submissions</h2>
-            {unranked.map((track) => (
+            {unrankedPg.pageItems.map((track) => (
               <TrackRow
                 key={track.id}
                 track={track}
@@ -297,6 +308,14 @@ export function PlaylistBoard({
                 }}
               />
             ))}
+            <PaginationControls
+              page={unrankedPg.page}
+              pageSize={unrankedPg.pageSize}
+              totalPages={unrankedPg.totalPages}
+              total={unrankedPg.total}
+              onPageChange={unrankedPg.setPage}
+              onPageSizeChange={unrankedPg.setPageSize}
+            />
           </div>
         )}
       </div>
