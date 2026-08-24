@@ -3,6 +3,8 @@ import NextAuth from "next-auth";
 import type { Adapter } from "next-auth/adapters";
 import Google from "next-auth/providers/google";
 import Nodemailer from "next-auth/providers/nodemailer";
+import { createTransport } from "nodemailer";
+import { verificationEmailHtml, verificationEmailText } from "@/lib/authEmail";
 import { prisma } from "@/lib/prisma";
 
 async function uniqueUsernameFrom(seed: string): Promise<string> {
@@ -89,6 +91,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // EMAIL_SERVER is configured; sending simply errors at runtime until it is.
       server: process.env.EMAIL_SERVER || "smtp://user:pass@localhost:1025",
       from: process.env.EMAIL_FROM || "Runners League <noreply@runnersleague.org>",
+      // Branded HTML/text instead of Auth.js's generic default template —
+      // mirrors the default provider's own transport/error-handling, just
+      // with our own email content (src/lib/authEmail.ts).
+      async sendVerificationRequest({ identifier, url, provider }) {
+        const { host } = new URL(url);
+        const transport = createTransport(provider.server);
+        const result = await transport.sendMail({
+          to: identifier,
+          from: provider.from,
+          subject: `Sign in to ${host}`,
+          text: verificationEmailText({ url, host }),
+          html: verificationEmailHtml({ url, host }),
+        });
+        const failed = [...(result.rejected ?? []), ...(result.pending ?? [])].filter(Boolean);
+        if (failed.length > 0) throw new Error(`Email (${failed.join(", ")}) could not be sent`);
+      },
     }),
   ],
   session: { strategy: "database" },
