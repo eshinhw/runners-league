@@ -96,13 +96,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // with our own email content (src/lib/authEmail.ts).
       async sendVerificationRequest({ identifier, url, provider }) {
         const { host } = new URL(url);
+        // Only an existing user has a profile to show — a brand-new
+        // account isn't created until they click the link, so this is
+        // null for first-time sign-ins and the template falls back
+        // gracefully.
+        const existingUser = await prisma.user.findUnique({
+          where: { email: identifier },
+          select: { avatarUrl: true, image: true, displayId: true },
+        });
+        const emailParams = {
+          url,
+          host,
+          avatarUrl: existingUser?.avatarUrl ?? existingUser?.image,
+          displayName: existingUser?.displayId,
+        };
         const transport = createTransport(provider.server);
         const result = await transport.sendMail({
           to: identifier,
           from: provider.from,
           subject: `Sign in to ${host}`,
-          text: verificationEmailText({ url, host }),
-          html: verificationEmailHtml({ url, host }),
+          text: verificationEmailText(emailParams),
+          html: verificationEmailHtml(emailParams),
         });
         const failed = [...(result.rejected ?? []), ...(result.pending ?? [])].filter(Boolean);
         if (failed.length > 0) throw new Error(`Email (${failed.join(", ")}) could not be sent`);

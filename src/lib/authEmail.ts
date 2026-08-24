@@ -19,7 +19,27 @@ function logoBarsHtml(): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0" style="display:inline-table;vertical-align:middle;"><tr>${bar("#b49a76", 10)}${bar("#8f7960", 15)}${bar(ACCENT, 20)}</tr></table>`;
 }
 
-export function verificationEmailHtml({ url, host }: { url: string; host: string }): string {
+type VerificationEmailParams = {
+  url: string;
+  host: string;
+  // Only known for an existing user signing back in — a brand-new account
+  // doesn't exist yet at send time (createUser runs after they click the
+  // link), so both are omitted and the email falls back to the plain
+  // wordmark greeting.
+  avatarUrl?: string | null;
+  displayName?: string | null;
+};
+
+export function verificationEmailHtml({ url, host, avatarUrl, displayName }: VerificationEmailParams): string {
+  const avatarHtml = avatarUrl
+    ? `<tr>
+         <td align="center" style="padding-bottom:16px;">
+           <img src="${avatarUrl}" alt="" width="64" height="64" style="width:64px;height:64px;border-radius:50%;object-fit:cover;display:block;" />
+         </td>
+       </tr>`
+    : "";
+  const heading = displayName ? `Welcome back, ${displayName}` : "Sign in to Runners League";
+
   return `
 <!doctype html>
 <html>
@@ -34,9 +54,10 @@ export function verificationEmailHtml({ url, host }: { url: string; host: string
                 <span style="display:inline-block;vertical-align:middle;margin-left:8px;font-size:16px;font-weight:600;color:${INK};">Runners League</span>
               </td>
             </tr>
+            ${avatarHtml}
             <tr>
               <td align="center">
-                <h1 style="margin:0 0 8px;font-size:20px;font-weight:600;color:${INK};">Sign in to Runners League</h1>
+                <h1 style="margin:0 0 8px;font-size:20px;font-weight:600;color:${INK};">${heading}</h1>
                 <p style="margin:0 0 24px;font-size:14px;line-height:1.5;color:${MUTED};">
                   Click the button below to finish signing in on <strong style="color:${INK};">${host}</strong>. This link expires in 24 hours and can only be used once.
                 </p>
@@ -64,6 +85,7 @@ export function verificationEmailHtml({ url, host }: { url: string; host: string
 </html>`;
 }
 
-export function verificationEmailText({ url, host }: { url: string; host: string }): string {
-  return `Sign in to Runners League\n\nUse the link below to finish signing in on ${host}. It expires in 24 hours and can only be used once.\n\n${url}\n\nDidn't request this? You can safely ignore this email.`;
+export function verificationEmailText({ url, host, displayName }: VerificationEmailParams): string {
+  const heading = displayName ? `Welcome back, ${displayName}` : "Sign in to Runners League";
+  return `${heading}\n\nUse the link below to finish signing in on ${host}. It expires in 24 hours and can only be used once.\n\n${url}\n\nDidn't request this? You can safely ignore this email.`;
 }
