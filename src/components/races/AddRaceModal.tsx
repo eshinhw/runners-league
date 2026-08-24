@@ -9,7 +9,7 @@ const inputCls =
   "w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
 
 const CURRENT_YEAR = new Date().getFullYear();
-const START_YEAR = 2020;
+const START_YEAR = 2025;
 const YEARS = Array.from({ length: CURRENT_YEAR - START_YEAR + 1 }, (_, i) => CURRENT_YEAR - i);
 
 export function AddRaceModal() {
