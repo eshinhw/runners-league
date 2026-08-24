@@ -28,7 +28,7 @@ export async function sendVerificationRequestEmail(input: {
 
   await transport.sendMail({
     to: ADMIN_EMAIL,
-    from: process.env.EMAIL_FROM || "Runners League <noreply@runnersleague.app>",
+    from: process.env.EMAIL_FROM || "Runners League <noreply@runnersleague.org>",
     subject,
     text,
   });

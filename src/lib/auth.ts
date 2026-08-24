@@ -88,7 +88,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // Falls back to an unreachable placeholder so builds don't fail before
       // EMAIL_SERVER is configured; sending simply errors at runtime until it is.
       server: process.env.EMAIL_SERVER || "smtp://user:pass@localhost:1025",
-      from: process.env.EMAIL_FROM || "Runners League <noreply@runnersleague.app>",
+      from: process.env.EMAIL_FROM || "Runners League <noreply@runnersleague.org>",
     }),
   ],
   session: { strategy: "database" },
