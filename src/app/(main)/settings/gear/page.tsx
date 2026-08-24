@@ -4,8 +4,6 @@ import { EditGearModal } from "@/components/gear/EditGearModal";
 import { ArchiveIcon, FavoriteIcon, RestoreIcon } from "@/components/gear/GearActionIcons";
 import { GearDeleteButton } from "@/components/gear/GearDeleteButton";
 import { GearSlotIcon } from "@/components/GearSlotIcon";
-import { DistanceValue } from "@/components/units/UnitDisplay";
-import { UnitToggle } from "@/components/units/UnitToggle";
 import { auth } from "@/lib/auth";
 import { formatGearName } from "@/lib/format";
 import { GEAR_CATEGORY_LABEL, GEAR_CATEGORY_ORDER } from "@/lib/gear";
@@ -55,13 +53,7 @@ function GearRow({ gear }: { gear: Gear }) {
         <div className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-200">
           {gear.nickname ?? formatGearName(gear.brand, gear.model)}
         </div>
-        {(purchaseLabel || gear.totalDistanceM > 0) && (
-          <div className="text-xs text-zinc-500">
-            {purchaseLabel}
-            {purchaseLabel && gear.totalDistanceM > 0 && " · "}
-            {gear.totalDistanceM > 0 && <DistanceValue meters={gear.totalDistanceM} />}
-          </div>
-        )}
+        {purchaseLabel && <div className="text-xs text-zinc-500">{purchaseLabel}</div>}
       </div>
 
       {!gear.retiredAt ? (
@@ -134,8 +126,6 @@ export default async function MyGearPage() {
         <h1 className="text-xl font-semibold">My Gears</h1>
         <AddGearModal />
       </div>
-
-      {sections.length > 0 && <UnitToggle className="self-start" />}
 
       {sections.length === 0 && <p className="text-sm text-zinc-500">No gear added yet.</p>}
 

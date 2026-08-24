@@ -174,22 +174,21 @@ enum ExternalProvider {
 // ---------- Gear Locker ----------
 
 model Gear {
-  id             String       @id @default(cuid())
-  owner          User         @relation(fields: [ownerId], references: [id])
-  ownerId        String
-  category       GearCategory
-  brand          String
-  model          String? // some categories (Apparel, Nutrition) are brand-only, no specific model
-  nickname       String?
-  photoUrl       String?
-  purchaseDate   DateTime?
-  retiredAt      DateTime?
+  id           String       @id @default(cuid())
+  owner        User         @relation(fields: [ownerId], references: [id])
+  ownerId      String
+  category     GearCategory
+  brand        String
+  model        String? // some categories (Apparel, Nutrition) are brand-only, no specific model
+  nickname     String?
+  photoUrl     String?
+  purchaseDate DateTime?
+  retiredAt    DateTime?
   // At most one favorite per owner+category — enforced in code (setting one
   // clears any other), not a DB constraint, since "no favorite yet" is valid.
-  isFavorite     Boolean      @default(false)
-  totalDistanceM Int          @default(0) // denormalized, updated as activities link in
-  notes          String?
-  createdAt      DateTime     @default(now())
+  isFavorite   Boolean      @default(false)
+  notes        String?
+  createdAt    DateTime     @default(now())
 
   activityLinks ActivityGear[]
   reviews       GearReview[]

@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-type Agg = { category: GearCategory; brand: string; model: string | null; count: number; totalDistanceM: number };
+type Agg = { category: GearCategory; brand: string; model: string | null; count: number };
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
@@ -23,21 +23,17 @@ export default async function GearPage() {
   // profile, not a gate on the community stats here.
   const allGear = await prisma.gear.findMany({
     where: { retiredAt: null },
-    select: { ownerId: true, category: true, brand: true, model: true, totalDistanceM: true },
+    select: { ownerId: true, category: true, brand: true, model: true },
   });
 
   // Collapse to one row per owner+item first, so a runner who logged the
   // same brand/model more than once (e.g. replaced a worn-out pair with an
-  // identical one) still counts once on the "Runners" leaderboard, with
-  // both entries' mileage combined.
-  const perOwnerItem = new Map<string, { category: GearCategory; brand: string; model: string | null; totalDistanceM: number }>();
+  // identical one) still counts once on the "Runners" leaderboard.
+  const perOwnerItem = new Map<string, { category: GearCategory; brand: string; model: string | null }>();
   for (const g of allGear) {
     const key = `${g.ownerId}:${g.category}:${g.brand}:${g.model ?? ""}`;
-    const existing = perOwnerItem.get(key);
-    if (existing) {
-      existing.totalDistanceM += g.totalDistanceM;
-    } else {
-      perOwnerItem.set(key, { category: g.category, brand: g.brand, model: g.model, totalDistanceM: g.totalDistanceM });
+    if (!perOwnerItem.has(key)) {
+      perOwnerItem.set(key, { category: g.category, brand: g.brand, model: g.model });
     }
   }
 
@@ -47,15 +43,8 @@ export default async function GearPage() {
     const existing = aggMap.get(key);
     if (existing) {
       existing.count += 1;
-      existing.totalDistanceM += g.totalDistanceM;
     } else {
-      aggMap.set(key, {
-        category: g.category,
-        brand: g.brand,
-        model: g.model,
-        count: 1,
-        totalDistanceM: g.totalDistanceM,
-      });
+      aggMap.set(key, { category: g.category, brand: g.brand, model: g.model, count: 1 });
     }
   }
 
@@ -69,7 +58,7 @@ export default async function GearPage() {
 
   const sections = GEAR_CATEGORY_ORDER.map((category) => ({
     category,
-    items: (byCategory.get(category) ?? []).sort((a, b) => b.count - a.count || b.totalDistanceM - a.totalDistanceM),
+    items: (byCategory.get(category) ?? []).sort((a, b) => b.count - a.count),
   })).filter((s) => s.items.length > 0);
 
   return (

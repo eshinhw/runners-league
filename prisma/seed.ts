@@ -51,10 +51,10 @@ async function main() {
   });
 
   const [eddieShoe, eddieWatch, jennyShoe, markShoe] = await Promise.all([
-    prisma.gear.create({ data: { ownerId: eddie.id, category: "SHOE", brand: "Nike", model: "Vaporfly 3", nickname: "Race Day", purchaseDate: new Date("2026-03-01"), totalDistanceM: 312_000 } }),
-    prisma.gear.create({ data: { ownerId: eddie.id, category: "WATCH", brand: "Garmin", model: "Forerunner 965", purchaseDate: new Date("2025-11-15"), totalDistanceM: 1_204_000 } }),
-    prisma.gear.create({ data: { ownerId: jenny.id, category: "SHOE", brand: "Hoka", model: "Speedgoat 5", nickname: "Trail beast", purchaseDate: new Date("2026-01-10"), totalDistanceM: 452_000 } }),
-    prisma.gear.create({ data: { ownerId: mark.id, category: "SHOE", brand: "Asics", model: "Magic Speed 4", purchaseDate: new Date("2026-05-20"), totalDistanceM: 91_000 } }),
+    prisma.gear.create({ data: { ownerId: eddie.id, category: "SHOE", brand: "Nike", model: "Vaporfly 3", nickname: "Race Day", purchaseDate: new Date("2026-03-01") } }),
+    prisma.gear.create({ data: { ownerId: eddie.id, category: "WATCH", brand: "Garmin", model: "Forerunner 965", purchaseDate: new Date("2025-11-15") } }),
+    prisma.gear.create({ data: { ownerId: jenny.id, category: "SHOE", brand: "Hoka", model: "Speedgoat 5", nickname: "Trail beast", purchaseDate: new Date("2026-01-10") } }),
+    prisma.gear.create({ data: { ownerId: mark.id, category: "SHOE", brand: "Asics", model: "Magic Speed 4", purchaseDate: new Date("2026-05-20") } }),
   ]);
 
   // ---- World Marathon Majors results, powering Rankings ----
