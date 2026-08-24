@@ -1,5 +1,6 @@
 "use client";
 
+import type { GearCategory } from "@/generated/prisma/client";
 import { ExternalLinkIcon } from "@/components/ActionIcons";
 import { PaginationControls, usePagination } from "@/components/Pagination";
 import { formatGearName, shopSearchUrl } from "@/lib/format";
@@ -8,7 +9,7 @@ export type TopGearRow = { brand: string; model: string | null; count: number };
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
-export function TopGearsCategoryTable({ items }: { items: TopGearRow[] }) {
+export function TopGearsCategoryTable({ items, category }: { items: TopGearRow[]; category: GearCategory }) {
   const { page, pageSize, totalPages, pageItems, total, setPage, setPageSize } = usePagination(items);
 
   return (
@@ -32,7 +33,7 @@ export function TopGearsCategoryTable({ items }: { items: TopGearRow[] }) {
               <td className="py-2 text-right font-mono tabular-nums text-zinc-500">{item.count}</td>
               <td className="py-2 text-right">
                 <a
-                  href={shopSearchUrl(item.brand, item.model)}
+                  href={shopSearchUrl(item.brand, item.model, category)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 font-medium text-orange-500 hover:underline"

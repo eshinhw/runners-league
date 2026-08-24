@@ -95,7 +95,7 @@ export default async function GearPage({ searchParams }: { searchParams: Promise
           {selected && (
             <section className="flex flex-col gap-3">
               <h2 className="text-lg font-semibold">{GEAR_CATEGORY_LABEL[selected.category]}</h2>
-              <TopGearsCategoryTable items={selected.items} />
+              <TopGearsCategoryTable items={selected.items} category={selected.category} />
             </section>
           )}
         </>

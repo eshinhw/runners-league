@@ -1,4 +1,4 @@
-import type { UnitSystem } from "@/generated/prisma/client";
+import type { GearCategory, UnitSystem } from "@/generated/prisma/client";
 
 export const KM_PER_MI = 1.609344;
 
@@ -70,11 +70,24 @@ export function formatGearName(brand: string, model: string | null): string {
   return model ? `${brand} ${model}` : brand;
 }
 
+// Brand-only categories whose brands are shared with other gear types (Nike,
+// Under Armour, Salomon, Brooks all make shoes too), so a bare brand-name
+// search returns the wrong department. Appending a search-friendly noun
+// steers the query back to the intended product. Not needed for NUTRITION —
+// those brands (GU Energy, Maurten, ...) aren't ambiguous on their own.
+const SHOP_SEARCH_HINT: Partial<Record<GearCategory, string>> = {
+  APPAREL: "running apparel",
+  HEADLAMP: "running headlamp",
+  GLOVES: "running gloves",
+};
+
 // No per-product URL exists (or would stay maintainable across hundreds of
 // catalog entries), so "order this" resolves to a Google Shopping search for
 // the brand/model instead of one exact SKU page.
-export function shopSearchUrl(brand: string, model: string | null): string {
-  return `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(formatGearName(brand, model))}`;
+export function shopSearchUrl(brand: string, model: string | null, category: GearCategory): string {
+  const hint = SHOP_SEARCH_HINT[category];
+  const query = model ? formatGearName(brand, model) : hint ? `${brand} ${hint}` : brand;
+  return `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(query)}`;
 }
 
 export function initials(name: string): string {
