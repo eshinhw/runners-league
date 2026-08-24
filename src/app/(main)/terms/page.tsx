@@ -90,7 +90,13 @@ export default function TermsPage() {
       </Section>
 
       <Section title="9. Contact">
-        <p>Questions about these terms? Reach out at hello@runnersleague.app.</p>
+        <p>
+          Questions about these terms? Reach out at support@runnersleague.org, or see the{" "}
+          <a href="/contact" className="font-medium text-orange-500 hover:underline">
+            Contact
+          </a>{" "}
+          page.
+        </p>
       </Section>
     </main>
   );
