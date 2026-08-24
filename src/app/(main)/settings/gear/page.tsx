@@ -123,7 +123,13 @@ export default async function MyGearPage() {
   return (
     <main className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">My Gears</h1>
+        <div>
+          <h1 className="text-xl font-semibold">My Gears</h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            Star one item per category — it shows as your Favorite Gear on your public profile, visible to other
+            runners.
+          </p>
+        </div>
         <AddGearModal />
       </div>
 

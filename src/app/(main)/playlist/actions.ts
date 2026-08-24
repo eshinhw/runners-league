@@ -57,6 +57,29 @@ export async function submitTrack(itunesTrackId: string): Promise<{ alreadyShare
   return { alreadyShared };
 }
 
+export async function deleteTrack(trackId: string) {
+  const userId = await requireUserId();
+
+  const track = await prisma.track.findUnique({
+    where: { id: trackId },
+    select: { submittedById: true, likes: { select: { userId: true } } },
+  });
+  if (!track) return;
+  if (track.submittedById !== userId) throw new Error("You can only remove songs you shared.");
+  if (track.likes.some((l) => l.userId !== userId)) {
+    throw new Error("This song has upvotes from other runners, so it can't be removed.");
+  }
+
+  // No onDelete: Cascade from Like -> Track, so clear the submitter's own
+  // like first (the only kind that can exist here) before deleting the row.
+  await prisma.$transaction([
+    prisma.like.deleteMany({ where: { trackId } }),
+    prisma.track.delete({ where: { id: trackId } }),
+  ]);
+
+  revalidatePath("/playlist");
+}
+
 export async function toggleTrackVote(trackId: string) {
   const userId = await requireUserId();
 

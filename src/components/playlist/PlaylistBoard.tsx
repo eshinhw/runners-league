@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { toggleTrackVote } from "@/app/(main)/playlist/actions";
+import { deleteTrack, toggleTrackVote } from "@/app/(main)/playlist/actions";
 import { SubmitTrackModal } from "@/components/playlist/SubmitTrackModal";
+import { DeleteIcon } from "@/components/ActionIcons";
 import { RunnerLink } from "@/components/RunnerLink";
 import type { PlaylistTrack } from "@/lib/playlist";
 
@@ -71,6 +72,7 @@ function TrackRow({
   signedIn,
   pending,
   onVote,
+  onDelete,
   rowRef,
 }: {
   track: PlaylistTrack;
@@ -79,6 +81,7 @@ function TrackRow({
   signedIn: boolean;
   pending: boolean;
   onVote: () => void;
+  onDelete: () => void;
   rowRef: (el: HTMLDivElement | null) => void;
 }) {
   return (
@@ -115,6 +118,20 @@ function TrackRow({
         </div>
       </div>
       <VoteButton score={track.score} voted={track.voted} signedIn={signedIn} pending={pending} onVote={onVote} />
+      {track.canDelete && (
+        <button
+          type="button"
+          disabled={pending}
+          aria-label="Remove"
+          title="Remove"
+          onClick={() => {
+            if (window.confirm("Remove this song from the playlist? This can't be undone.")) onDelete();
+          }}
+          className="inline-flex h-4 w-4 shrink-0 items-center justify-center text-rose-500 hover:text-rose-600 disabled:opacity-50"
+        >
+          <DeleteIcon className="h-4 w-4" />
+        </button>
+      )}
     </div>
   );
 }
@@ -209,6 +226,21 @@ export function PlaylistBoard({
     }
   }
 
+  async function handleDelete(trackId: string) {
+    setPendingId(trackId);
+    const snapshot = tracks;
+    applyTracks(tracks.filter((t) => t.id !== trackId));
+    try {
+      await deleteTrack(trackId);
+    } catch {
+      // permission changed since render (e.g. someone else upvoted just
+      // now) — restore the real state instead of leaving it removed
+      applyTracks(snapshot);
+    } finally {
+      setPendingId(null);
+    }
+  }
+
   const { charted, unranked } = splitChart(tracks);
 
   return (
@@ -237,6 +269,7 @@ export function PlaylistBoard({
               signedIn={signedIn}
               pending={pendingId === track.id}
               onVote={() => handleVote(track.id)}
+              onDelete={() => handleDelete(track.id)}
               rowRef={(el) => {
                 if (el) rowRefs.current.set(track.id, el);
                 else rowRefs.current.delete(track.id);
@@ -257,6 +290,7 @@ export function PlaylistBoard({
                 signedIn={signedIn}
                 pending={pendingId === track.id}
                 onVote={() => handleVote(track.id)}
+                onDelete={() => handleDelete(track.id)}
                 rowRef={(el) => {
                   if (el) rowRefs.current.set(track.id, el);
                   else rowRefs.current.delete(track.id);
