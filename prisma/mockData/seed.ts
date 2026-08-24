@@ -1,4 +1,4 @@
-// Bootstrap seed: creates ~50 mock runners (profile, gear, World Marathon
+// Bootstrap seed: creates ~5 mock runners (profile, gear, World Marathon
 // Majors race history) so the site doesn't look empty before real signups
 // arrive. Purely additive — never deletes or modifies existing rows — and
 // every row it creates is tagged `isMockData: true` so it can all be
@@ -25,7 +25,7 @@ import {
   type Caliber,
 } from "./pools";
 
-const MOCK_USER_COUNT = 50;
+const MOCK_USER_COUNT = 5;
 const SEED = 20260824;
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
