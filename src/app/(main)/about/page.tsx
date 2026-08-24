@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import { joinWithAnd } from "@/lib/format";
 import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
 import { getTiers } from "@/lib/tiers";
 
-export const metadata = {
-  title: "About — Runners League",
+export const metadata: Metadata = {
+  title: "About",
+  description: "What Runners League is, how Majors tracking and rankings work, and who built it.",
+  alternates: { canonical: "/about" },
 };
 
 const MAJOR_NAMES = MAJORS_ORDER.map((m) => MAJOR_INFO[m].name.replace(" Marathon", ""));

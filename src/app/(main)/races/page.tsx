@@ -1,8 +1,45 @@
-import { MAJOR_INFO, getMajorsForYear, type MajorEdition } from "@/lib/majors";
+import type { Metadata } from "next";
+import { MAJOR_INFO, MAJORS_CALENDAR, getMajorsForYear, type MajorEdition } from "@/lib/majors";
 
 export const dynamic = "force-dynamic";
 
 const YEARS = [2027, 2026];
+
+export const metadata: Metadata = {
+  title: "World Marathon Majors Calendar (2026–2027)",
+  description:
+    "The full 2026–2027 World Marathon Majors calendar — dates, distances, and registration links for all eight races, from Tokyo to New York City.",
+  alternates: { canonical: "/races" },
+};
+
+function racesJsonLd() {
+  const events = MAJORS_CALENDAR.map((edition) => {
+    const info = MAJOR_INFO[edition.major];
+    return {
+      "@type": "SportsEvent",
+      name: `${info.name} ${edition.year}`,
+      startDate: edition.date,
+      eventStatus: "https://schema.org/EventScheduled",
+      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+      location: {
+        "@type": "Place",
+        name: info.city,
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: info.city,
+          addressCountry: info.country,
+        },
+      },
+      url: info.websiteUrl,
+      description: info.description,
+    };
+  });
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": events,
+  };
+}
 
 function formatEventDate(iso: string): string {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", {
@@ -59,6 +96,11 @@ function EditionCard({ edition }: { edition: MajorEdition }) {
 export default function RacesPage() {
   return (
     <main className="flex flex-col gap-8">
+      <script
+        type="application/ld+json"
+        // Server-rendered from static majors data, not user input.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(racesJsonLd()) }}
+      />
       <div>
         <h1 className="text-xl font-semibold">Races</h1>
         <p className="mt-1 text-sm text-zinc-500">

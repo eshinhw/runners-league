@@ -150,3 +150,15 @@ export const MAJORS_CALENDAR: MajorEdition[] = [
 export function getMajorsForYear(year: number): MajorEdition[] {
   return MAJORS_CALENDAR.filter((e) => e.year === year).sort((a, b) => a.date.localeCompare(b.date));
 }
+
+// Three-letter codes for compact UI (e.g. generated OG images).
+export const MAJOR_CODE: Record<MarathonMajor, string> = {
+  TOKYO: "TYO",
+  BOSTON: "BOS",
+  LONDON: "LON",
+  CAPE_TOWN: "CPT",
+  SYDNEY: "SYD",
+  BERLIN: "BER",
+  CHICAGO: "CHI",
+  NEW_YORK: "NYC",
+};

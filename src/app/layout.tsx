@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Oswald, Work_Sans } from "next/font/google";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { ToastProvider } from "@/components/Toast";
 import { UnitSystemProvider } from "@/components/units/UnitSystemProvider";
 import "./globals.css";
@@ -22,9 +23,31 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
+const DESCRIPTION =
+  "Track your World Marathon Majors finishes, follow the race calendar, and see how you stack up against runners chasing the same start lines.";
+
 export const metadata: Metadata = {
-  title: "Runners League",
-  description: "Track your World Marathon Majors finishes and see how you stack up against other runners.",
+  metadataBase: new URL("https://runnersleague.org"),
+  title: {
+    default: "Runners League — Track Your World Marathon Majors Journey",
+    template: "%s | Runners League",
+  },
+  description: DESCRIPTION,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    siteName: "Runners League",
+    title: "Runners League — Track Your World Marathon Majors Journey",
+    description: DESCRIPTION,
+    url: "/",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Runners League — Track Your World Marathon Majors Journey",
+    description: DESCRIPTION,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -34,6 +57,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${workSans.variable} ${oswald.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <GoogleAnalytics />
         <UnitSystemProvider>
           <ToastProvider>{children}</ToastProvider>
         </UnitSystemProvider>

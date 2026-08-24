@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { CustomPlanForm } from "@/components/CustomPlanForm";
 import { PacePredictor } from "@/components/PacePredictor";
@@ -5,6 +6,13 @@ import { TrainingPlanTable } from "@/components/TrainingPlanTable";
 import { BEGINNER_PLAN, SUB3_PLAN, SUB4_PLAN } from "@/lib/training";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Marathon Training Plans — Beginner to Sub-3",
+  description:
+    "Free marathon training plans for every goal — Beginner, Sub-4, Sub-3, or a custom plan built around your pace — plus a race-day pace predictor.",
+  alternates: { canonical: "/training" },
+};
 
 type Tab = "beginner" | "sub4" | "sub3" | "custom" | "predictor";
 

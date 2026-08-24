@@ -1,5 +1,10 @@
-export const metadata = {
-  title: "Terms — Runners League",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms",
+  description: "Terms of service for Runners League.",
+  alternates: { canonical: "/terms" },
+  robots: { index: false, follow: true },
 };
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
