@@ -758,20 +758,21 @@ export const GEAR_PRODUCT_CATALOG: Record<CatalogCategory, Record<string, string
       "Instinct Crossover",
     ],
     Apple: [
-      // Apple Watch
-      "Apple Watch Series 8",
-      "Apple Watch Series 9",
-      "Apple Watch Series 10",
-      "Apple Watch Series 11",
+      // Apple Watch — "Apple" isn't repeated here since it's already the
+      // brand; formatGearName joins brand + model as "Apple Watch Series 8".
+      "Watch Series 8",
+      "Watch Series 9",
+      "Watch Series 10",
+      "Watch Series 11",
 
       // Budget
-      "Apple Watch SE 2",
-      "Apple Watch SE 3",
+      "Watch SE 2",
+      "Watch SE 3",
 
       // Ultra
-      "Apple Watch Ultra 1",
-      "Apple Watch Ultra 2",
-      "Apple Watch Ultra 3",
+      "Watch Ultra 1",
+      "Watch Ultra 2",
+      "Watch Ultra 3",
     ],
     Coros: [
       // Road Running
