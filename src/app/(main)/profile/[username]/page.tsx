@@ -62,14 +62,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     gearByCategory.set(g.category, list);
   }
 
-  const gearRows: { category: GearCategory; item: (typeof user.gears)[number] | null }[] = [];
+  const gearRows: { category: GearCategory; item: (typeof user.gears)[number] }[] = [];
   for (const category of GEAR_CATEGORY_ORDER) {
     const items = gearByCategory.get(category) ?? [];
-    if (items.length === 0) {
-      gearRows.push({ category, item: null });
-    } else {
-      for (const item of items) gearRows.push({ category, item });
-    }
+    for (const item of items) gearRows.push({ category, item });
   }
 
   return (
@@ -149,45 +145,35 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">Gear</h2>
-        <div className="flex flex-col gap-2">
-          {gearRows.map(({ category, item }, i) => {
-            const filled = item !== null;
-            return (
+        {gearRows.length === 0 ? (
+          <p className="text-sm text-zinc-500">No gear added yet.</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {gearRows.map(({ category, item }) => (
               <div
-                key={item?.id ?? `${category}-empty-${i}`}
-                className={`flex items-center gap-3 rounded-lg border p-3 ${
-                  filled
-                    ? "border-amber-500/30 bg-amber-500/5"
-                    : "border-dashed border-zinc-300 dark:border-zinc-700"
-                }`}
+                key={item.id}
+                className="flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded bg-zinc-100 dark:bg-zinc-900">
-                  {item?.photoUrl ? (
+                  {item.photoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={item.photoUrl} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    <GearSlotIcon
-                      category={category}
-                      className={`h-6 w-6 ${filled ? "text-amber-500" : "text-zinc-400"}`}
-                    />
+                    <GearSlotIcon category={category} className="h-6 w-6 text-amber-500" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-xs font-medium uppercase tracking-wide text-zinc-400">
                     {GEAR_CATEGORY_LABEL[category]}
                   </div>
-                  {item ? (
-                    <div className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                      {item.nickname ?? formatGearName(item.brand, item.model)}
-                    </div>
-                  ) : (
-                    <div className="text-sm text-zinc-400">Empty</div>
-                  )}
+                  <div className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                    {item.nickname ?? formatGearName(item.brand, item.model)}
+                  </div>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );
