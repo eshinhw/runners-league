@@ -14,7 +14,16 @@ export default async function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <main className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-12">
+      <main className="relative flex flex-1 flex-col items-center justify-center gap-8 px-6 py-12">
+        <Link
+          href="/"
+          aria-label="Close"
+          title="Close"
+          className="absolute right-4 top-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+        >
+          ✕
+        </Link>
+
         <Link href="/" className="flex items-center gap-2 font-display font-medium tracking-tight">
           <LogoMark className="h-6 w-6" />
           Runners League
