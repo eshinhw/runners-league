@@ -37,6 +37,10 @@ model User {
   language       Language   @default(EN)
   // Only admins can mark race records as verified — see Activity.verifiedAt.
   isAdmin        Boolean    @default(false)
+  // Seeded bootstrap account (see prisma/mockData/) — never set by the app
+  // itself, only by the mock-data seed script. Lets that data be found and
+  // removed in one pass once there's real signup activity.
+  isMockData     Boolean    @default(false)
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 
@@ -62,6 +66,7 @@ model User {
   followers Follow[] @relation("Followee")
 
   @@index([username])
+  @@index([isMockData])
   @@index([gender])
   @@index([region])
 }
