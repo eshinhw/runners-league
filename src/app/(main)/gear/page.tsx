@@ -18,17 +18,31 @@ export default async function GearPage() {
     return <SignInGate title="Top Gears" description="Sign in to see the most-used gear across Runners League." />;
   }
 
-  // Only each runner's starred gear counts — at most one favorite per
-  // owner+category (enforced in toggleFavoriteGear), so no further
-  // de-duplication is needed here. Unstarred gear, even if it's the only
-  // item in its category, doesn't count until the runner favorites it.
-  const favoritedGear = await prisma.gear.findMany({
-    where: { retiredAt: null, isFavorite: true },
-    select: { category: true, brand: true, model: true, totalDistanceM: true },
+  // Every non-retired item in every runner's gear locker counts, favorited
+  // or not — favorite is just what a runner chooses to show on their public
+  // profile, not a gate on the community stats here.
+  const allGear = await prisma.gear.findMany({
+    where: { retiredAt: null },
+    select: { ownerId: true, category: true, brand: true, model: true, totalDistanceM: true },
   });
 
+  // Collapse to one row per owner+item first, so a runner who logged the
+  // same brand/model more than once (e.g. replaced a worn-out pair with an
+  // identical one) still counts once on the "Runners" leaderboard, with
+  // both entries' mileage combined.
+  const perOwnerItem = new Map<string, { category: GearCategory; brand: string; model: string | null; totalDistanceM: number }>();
+  for (const g of allGear) {
+    const key = `${g.ownerId}:${g.category}:${g.brand}:${g.model ?? ""}`;
+    const existing = perOwnerItem.get(key);
+    if (existing) {
+      existing.totalDistanceM += g.totalDistanceM;
+    } else {
+      perOwnerItem.set(key, { category: g.category, brand: g.brand, model: g.model, totalDistanceM: g.totalDistanceM });
+    }
+  }
+
   const aggMap = new Map<string, Agg>();
-  for (const g of favoritedGear) {
+  for (const g of perOwnerItem.values()) {
     const key = `${g.category}:${g.brand}:${g.model ?? ""}`;
     const existing = aggMap.get(key);
     if (existing) {
@@ -63,7 +77,7 @@ export default async function GearPage() {
       <div>
         <h1 className="text-xl font-semibold">Top Gears</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          The most-used gear across Runners League, by category — based on each runner&apos;s favorite pick.
+          The most-used gear across Runners League, by category — counted from every runner&apos;s gear locker.
         </p>
       </div>
 

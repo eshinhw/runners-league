@@ -39,7 +39,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const user = await prisma.user.findUnique({
     where: { username },
     include: {
-      gears: { where: { retiredAt: null }, orderBy: { createdAt: "desc" } },
+      gears: { where: { retiredAt: null, isFavorite: true }, orderBy: { createdAt: "desc" } },
       activities: {
         where: { major: { not: null } },
         orderBy: { startedAt: "desc" },
@@ -146,9 +146,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">Gear</h2>
+        <h2 className="text-lg font-semibold">Favorite Gear</h2>
         {gearRows.length === 0 ? (
-          <p className="text-sm text-zinc-500">No gear added yet.</p>
+          <p className="text-sm text-zinc-500">No favorite gear yet.</p>
         ) : (
           <div className="flex flex-col gap-2">
             {gearRows.map(({ category, item }) => (
