@@ -95,6 +95,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   pages: {
     signIn: "/login",
+    verifyRequest: "/verify-request",
   },
   callbacks: {
     session: async ({ session, user }) => {
