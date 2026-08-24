@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { GearCategory } from "@/generated/prisma/client";
 import { TopGearsCategoryTable } from "@/components/gear/TopGearsCategoryTable";
 import { SignInGate } from "@/components/SignInGate";
@@ -9,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 type Agg = { category: GearCategory; brand: string; model: string | null; count: number };
 
-export default async function GearPage() {
+export default async function GearPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const session = await auth();
   if (!session?.user?.id) {
     return <SignInGate title="Top Gears" description="Sign in to see the most-used gear across Runners League." />;
@@ -58,8 +59,12 @@ export default async function GearPage() {
     items: (byCategory.get(category) ?? []).sort((a, b) => b.count - a.count),
   })).filter((s) => s.items.length > 0);
 
+  const sp = await searchParams;
+  const requested = sp.category as GearCategory | undefined;
+  const selected = sections.find((s) => s.category === requested) ?? sections[0];
+
   return (
-    <main className="flex flex-col gap-8">
+    <main className="flex flex-col gap-5">
       <div>
         <h1 className="text-xl font-semibold">Top Gears</h1>
         <p className="mt-1 text-sm text-zinc-500">
@@ -67,14 +72,34 @@ export default async function GearPage() {
         </p>
       </div>
 
-      {sections.length === 0 && <p className="text-sm text-zinc-500">No gear logged yet.</p>}
+      {sections.length === 0 ? (
+        <p className="text-sm text-zinc-500">No gear logged yet.</p>
+      ) : (
+        <>
+          <nav className="flex gap-2 overflow-x-auto border-b border-zinc-200 pb-px dark:border-zinc-800">
+            {sections.map(({ category }) => (
+              <Link
+                key={category}
+                href={`/gear?category=${category}`}
+                className={`shrink-0 whitespace-nowrap px-3 py-2 text-sm font-medium ${
+                  selected?.category === category
+                    ? "border-b-2 border-orange-500 text-zinc-900 dark:text-zinc-50"
+                    : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50"
+                }`}
+              >
+                {GEAR_CATEGORY_LABEL[category]}
+              </Link>
+            ))}
+          </nav>
 
-      {sections.map(({ category, items }) => (
-        <section key={category} className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold">{GEAR_CATEGORY_LABEL[category]}</h2>
-          <TopGearsCategoryTable items={items} />
-        </section>
-      ))}
+          {selected && (
+            <section className="flex flex-col gap-3">
+              <h2 className="text-lg font-semibold">{GEAR_CATEGORY_LABEL[selected.category]}</h2>
+              <TopGearsCategoryTable items={selected.items} />
+            </section>
+          )}
+        </>
+      )}
     </main>
   );
 }
