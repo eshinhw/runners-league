@@ -99,42 +99,21 @@ export const CALIBERS: { key: Caliber; weight: number; range: [number, number] }
   { key: "beginner", weight: 6, range: [17100, 21600] }, // 4:45-6:00
 ];
 
-// Real historical/current dates only — every entry here is safely in the
-// past relative to the app's "now" (2026-08-24). Sydney only from 2025 (its
-// first year as a Major); Cape Town omitted entirely (its first edition is
-// 2027, hasn't happened yet in the app's own timeline). 2026 editions of
-// Berlin/Chicago/New York/Sydney are excluded too since those fall after
-// today's date.
+// Real dates only, restricted to 2025-2026 — every entry here is safely in
+// the past relative to the app's "now" (2026-08-24). Sydney only from 2025
+// (its first year as a Major); Cape Town omitted entirely (its first
+// edition is 2027, hasn't happened yet in the app's own timeline). 2026
+// editions of Berlin/Chicago/New York/Sydney are excluded too since those
+// fall after today's date.
 export const RACE_DATES: { major: MarathonMajor; year: number; date: string }[] = [
-  { major: "TOKYO", year: 2019, date: "2019-03-03" },
-  { major: "TOKYO", year: 2023, date: "2023-03-05" },
-  { major: "TOKYO", year: 2024, date: "2024-03-03" },
   { major: "TOKYO", year: 2025, date: "2025-03-02" },
   { major: "TOKYO", year: 2026, date: "2026-03-01" },
-  { major: "BOSTON", year: 2019, date: "2019-04-15" },
-  { major: "BOSTON", year: 2023, date: "2023-04-17" },
-  { major: "BOSTON", year: 2024, date: "2024-04-15" },
   { major: "BOSTON", year: 2025, date: "2025-04-21" },
   { major: "BOSTON", year: 2026, date: "2026-04-20" },
-  { major: "LONDON", year: 2019, date: "2019-04-28" },
-  { major: "LONDON", year: 2023, date: "2023-04-23" },
-  { major: "LONDON", year: 2024, date: "2024-04-21" },
   { major: "LONDON", year: 2025, date: "2025-04-27" },
   { major: "LONDON", year: 2026, date: "2026-04-26" },
-  { major: "BERLIN", year: 2019, date: "2019-09-29" },
-  { major: "BERLIN", year: 2022, date: "2022-09-25" },
-  { major: "BERLIN", year: 2023, date: "2023-09-24" },
-  { major: "BERLIN", year: 2024, date: "2024-09-29" },
   { major: "BERLIN", year: 2025, date: "2025-09-21" },
-  { major: "CHICAGO", year: 2019, date: "2019-10-13" },
-  { major: "CHICAGO", year: 2022, date: "2022-10-09" },
-  { major: "CHICAGO", year: 2023, date: "2023-10-08" },
-  { major: "CHICAGO", year: 2024, date: "2024-10-13" },
   { major: "CHICAGO", year: 2025, date: "2025-10-12" },
-  { major: "NEW_YORK", year: 2019, date: "2019-11-03" },
-  { major: "NEW_YORK", year: 2022, date: "2022-11-06" },
-  { major: "NEW_YORK", year: 2023, date: "2023-11-05" },
-  { major: "NEW_YORK", year: 2024, date: "2024-11-03" },
   { major: "NEW_YORK", year: 2025, date: "2025-11-02" },
   { major: "SYDNEY", year: 2025, date: "2025-08-31" },
 ];
