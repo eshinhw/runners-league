@@ -92,7 +92,7 @@ export type MajorEditionRow = {
   displayId: string;
   durationSec: number;
   avgPaceSecPerKm: number | null;
-  allVerified: boolean;
+  verified: boolean;
 };
 
 export async function getMajorEditionLeaderboard(
@@ -101,23 +101,21 @@ export async function getMajorEditionLeaderboard(
   year: number,
   limit = 50,
 ): Promise<MajorEditionRow[]> {
-  const [activities, fullyVerified] = await Promise.all([
-    db.activity.findMany({
-      where: {
-        major,
-        startedAt: { gte: new Date(Date.UTC(year, 0, 1)), lt: new Date(Date.UTC(year + 1, 0, 1)) },
-      },
-      orderBy: { durationSec: "asc" },
-      take: limit,
-      select: {
-        durationSec: true,
-        avgPaceSecPerKm: true,
-        userId: true,
-        user: { select: { username: true, displayId: true } },
-      },
-    }),
-    getFullyVerifiedUserIds(db),
-  ]);
+  const activities = await db.activity.findMany({
+    where: {
+      major,
+      startedAt: { gte: new Date(Date.UTC(year, 0, 1)), lt: new Date(Date.UTC(year + 1, 0, 1)) },
+    },
+    orderBy: { durationSec: "asc" },
+    take: limit,
+    select: {
+      durationSec: true,
+      avgPaceSecPerKm: true,
+      userId: true,
+      verifiedAt: true,
+      user: { select: { username: true, displayId: true } },
+    },
+  });
 
   return activities.map((a, i) => ({
     rank: i + 1,
@@ -126,7 +124,9 @@ export async function getMajorEditionLeaderboard(
     displayId: a.user.displayId,
     durationSec: a.durationSec,
     avgPaceSecPerKm: a.avgPaceSecPerKm,
-    allVerified: fullyVerified.has(a.userId),
+    // This row's own record, not whether the runner's other majors are
+    // verified — distinct from MajorsCompletedRow.allVerified below.
+    verified: a.verifiedAt !== null,
   }));
 }
 

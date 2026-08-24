@@ -5,6 +5,7 @@ import { SignInGate } from "@/components/SignInGate";
 import { TierBadge } from "@/components/TierBadge";
 import { PaceValue } from "@/components/units/UnitDisplay";
 import { UnitToggle } from "@/components/units/UnitToggle";
+import { VerificationStatus } from "@/components/VerificationStatus";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { auth } from "@/lib/auth";
 import { formatDuration } from "@/lib/format";
@@ -166,6 +167,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
                 <th className="py-2">Runner</th>
                 <th className="py-2 pl-4 text-right">Finish Time</th>
                 <th className="py-2 pl-4 text-right">Pace</th>
+                <th className="py-2 pl-4 text-right">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -174,20 +176,22 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
                   <tr key={row.userId} className="border-b border-zinc-100 dark:border-zinc-900">
                     <td className="py-2 font-mono tabular-nums">{MEDALS[row.rank - 1] ?? row.rank}</td>
                     <td className="py-2">
-                      <RunnerLink username={row.username} className="inline-flex items-center gap-1.5 font-medium">
+                      <RunnerLink username={row.username} className="font-medium">
                         {row.displayId}
-                        {row.allVerified && <VerifiedBadge className="h-3.5 w-3.5" />}
                       </RunnerLink>
                     </td>
                     <td className="py-2 pl-4 text-right font-mono tabular-nums">{formatDuration(row.durationSec)}</td>
                     <td className="py-2 pl-4 text-right font-mono tabular-nums text-zinc-500">
                       <PaceValue secPerKm={row.avgPaceSecPerKm} />
                     </td>
+                    <td className="py-2 pl-4 text-right">
+                      <VerificationStatus verified={row.verified} />
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="py-6 text-center text-sm text-zinc-500">
+                  <td colSpan={5} className="py-6 text-center text-sm text-zinc-500">
                     No finishers logged for {MAJOR_INFO[selectedMajor].name} {selectedYear} yet.
                   </td>
                 </tr>

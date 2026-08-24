@@ -5,6 +5,7 @@ import { GearSlotIcon } from "@/components/GearSlotIcon";
 import { TierBadge } from "@/components/TierBadge";
 import { PaceValue } from "@/components/units/UnitDisplay";
 import { UnitToggle } from "@/components/units/UnitToggle";
+import { VerificationStatus } from "@/components/VerificationStatus";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { calculateAge, formatDuration, formatGearName, initials } from "@/lib/format";
 import { GEAR_CATEGORY_LABEL, GEAR_CATEGORY_ORDER } from "@/lib/gear";
@@ -120,20 +121,21 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                   <th className="py-2">Race</th>
                   <th className="py-2 pl-4 text-right">Finish Time</th>
                   <th className="py-2 pl-4 text-right">Pace</th>
+                  <th className="py-2 pl-4 text-right">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {user.activities.map((a) => (
                   <tr key={a.id} className="border-b border-zinc-100 dark:border-zinc-900">
                     <td className="py-2 font-medium">
-                      <span className="inline-flex items-center gap-1.5">
-                        {a.major ? `${a.startedAt.getUTCFullYear()} ${MAJOR_INFO[a.major].name}` : a.title}
-                        {a.verifiedAt && <VerifiedBadge className="h-3.5 w-3.5" />}
-                      </span>
+                      {a.major ? `${a.startedAt.getUTCFullYear()} ${MAJOR_INFO[a.major].name}` : a.title}
                     </td>
                     <td className="py-2 pl-4 text-right font-mono tabular-nums">{formatDuration(a.durationSec)}</td>
                     <td className="py-2 pl-4 text-right font-mono tabular-nums text-zinc-500">
                       <PaceValue secPerKm={a.avgPaceSecPerKm} />
+                    </td>
+                    <td className="py-2 pl-4 text-right">
+                      <VerificationStatus verified={a.verifiedAt !== null} />
                     </td>
                   </tr>
                 ))}
