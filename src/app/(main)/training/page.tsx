@@ -1,22 +1,24 @@
 import Link from "next/link";
 import { CustomPlanForm } from "@/components/CustomPlanForm";
+import { PacePredictor } from "@/components/PacePredictor";
 import { TrainingPlanTable } from "@/components/TrainingPlanTable";
 import { BEGINNER_PLAN, SUB3_PLAN, SUB4_PLAN } from "@/lib/training";
 
 export const dynamic = "force-dynamic";
 
-type Tab = "beginner" | "sub4" | "sub3" | "custom";
+type Tab = "beginner" | "sub4" | "sub3" | "custom" | "predictor";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "beginner", label: "Beginner" },
   { key: "sub4", label: "Sub-4" },
   { key: "sub3", label: "Sub-3" },
   { key: "custom", label: "Custom Plan" },
+  { key: "predictor", label: "Pace Predictor" },
 ];
 
 export default async function TrainingPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const sp = await searchParams;
-  const tab: Tab = (["beginner", "sub4", "sub3", "custom"] as const).includes(sp.tab as Tab)
+  const tab: Tab = (["beginner", "sub4", "sub3", "custom", "predictor"] as const).includes(sp.tab as Tab)
     ? (sp.tab as Tab)
     : "beginner";
 
@@ -49,6 +51,7 @@ export default async function TrainingPage({ searchParams }: { searchParams: Pro
       {tab === "sub4" && <TrainingPlanTable plan={SUB4_PLAN} />}
       {tab === "sub3" && <TrainingPlanTable plan={SUB3_PLAN} />}
       {tab === "custom" && <CustomPlanForm />}
+      {tab === "predictor" && <PacePredictor />}
     </main>
   );
 }

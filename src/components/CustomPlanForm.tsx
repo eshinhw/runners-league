@@ -22,9 +22,11 @@ export function CustomPlanForm() {
   const [error, setError] = useState<string | null>(null);
   const unit = distanceUnitLabel(unitSystem);
 
-  function handleSubmit(formData: FormData) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setError(null);
 
+    const formData = new FormData(e.currentTarget);
     const enteredDistance = Number(formData.get("currentWeeklyDistance"));
     const enteredPaceSecPerUnit = parsePaceToSecPerUnit(String(formData.get("avgPace") ?? ""));
     const weeksToRace = Number(formData.get("weeksToRace"));
@@ -50,7 +52,7 @@ export function CustomPlanForm() {
 
   return (
     <div className="flex flex-col gap-6">
-      <form action={handleSubmit} className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
         <div className="flex items-start justify-between gap-3">
           <p className="text-sm text-zinc-500">
             Tell us where you're starting from and we'll build a plan tailored to your timeline.

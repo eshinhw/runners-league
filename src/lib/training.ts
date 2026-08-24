@@ -187,3 +187,36 @@ export function generateCustomPlan(input: CustomPlanInput): CustomPlanResult {
 }
 
 export { formatPaceLabel };
+
+// ---- Pace Predictor — Riegel formula ----
+//
+// T2 = T1 * (D2/D1)^1.06 — Pete Riegel's endurance race-time prediction
+// formula (1977). 1.06 is the standard empirical "fatigue factor" exponent
+// used across running distances; this is an estimate, not a guarantee.
+const RIEGEL_EXPONENT = 1.06;
+
+export const PREDICTOR_KNOWN_DISTANCES_M: Record<"5K" | "10K", number> = {
+  "5K": 5000,
+  "10K": 10000,
+};
+
+const HALF_MARATHON_M = 21097.5;
+const FULL_MARATHON_M = 42195;
+
+export type PacePrediction = {
+  half: { timeSec: number; paceSecPerKm: number };
+  full: { timeSec: number; paceSecPerKm: number };
+};
+
+function predictTimeSec(knownDistanceM: number, knownTimeSec: number, targetDistanceM: number): number {
+  return knownTimeSec * Math.pow(targetDistanceM / knownDistanceM, RIEGEL_EXPONENT);
+}
+
+export function predictRaceTimes(knownDistanceM: number, knownTimeSec: number): PacePrediction {
+  const halfTimeSec = predictTimeSec(knownDistanceM, knownTimeSec, HALF_MARATHON_M);
+  const fullTimeSec = predictTimeSec(knownDistanceM, knownTimeSec, FULL_MARATHON_M);
+  return {
+    half: { timeSec: halfTimeSec, paceSecPerKm: halfTimeSec / (HALF_MARATHON_M / 1000) },
+    full: { timeSec: fullTimeSec, paceSecPerKm: fullTimeSec / (FULL_MARATHON_M / 1000) },
+  };
+}
