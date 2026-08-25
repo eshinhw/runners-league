@@ -144,6 +144,7 @@ async function main() {
           avgPaceSecPerKm,
           runType: "RACE",
           major: candidate.major,
+          raceDistance: "FULL",
           startedAt: new Date(candidate.date),
           location: RACE_LOCATION[candidate.major],
           avgHeartRateBpm: 140 + Math.floor(rand() * 32),

@@ -244,6 +244,7 @@ model Activity {
   elevationGainM    Int?
   runType           RunType?
   major             MarathonMajor? // set when this activity is a World Marathon Majors result
+  raceDistance      RaceDistance? // set alongside `major` — which of that major's distance programs this result is for
   startedAt         DateTime
   routeGeoJson      Json?
   location          String? // free-text race/run location, e.g. "Boston, MA" — distinct from the user's home city
@@ -280,6 +281,17 @@ enum MarathonMajor {
   NEW_YORK
   SYDNEY
   CAPE_TOWN
+}
+
+// The distance programs a Major marathon weekend can offer alongside the
+// full marathon itself — not every Major offers all of these (see
+// MAJOR_INFO[major].distances in src/lib/majors.ts).
+enum RaceDistance {
+  FIVE_K
+  TEN_K
+  HALF
+  FULL
+  ULTRA
 }
 
 enum ActivitySource {

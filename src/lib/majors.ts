@@ -1,4 +1,4 @@
-import type { MarathonMajor } from "@/generated/prisma/client";
+import type { MarathonMajor, RaceDistance } from "@/generated/prisma/client";
 
 export const MAJORS_ORDER: MarathonMajor[] = [
   "TOKYO",
@@ -11,7 +11,28 @@ export const MAJORS_ORDER: MarathonMajor[] = [
   "NEW_YORK",
 ];
 
-export type RaceDistance = "5K" | "10K" | "Half" | "Full" | "Ultra";
+export type { RaceDistance };
+
+export const RACE_DISTANCE_ORDER: RaceDistance[] = ["FIVE_K", "TEN_K", "HALF", "FULL", "ULTRA"];
+
+export const RACE_DISTANCE_LABEL: Record<RaceDistance, string> = {
+  FIVE_K: "5K",
+  TEN_K: "10K",
+  HALF: "Half Marathon",
+  FULL: "Full Marathon",
+  ULTRA: "Ultra",
+};
+
+// Standard distance in meters for each program, used to compute pace from a
+// finish time. Ultra distances vary by course — no current Major offers one,
+// so this is a placeholder should that ever change.
+export const RACE_DISTANCE_METERS: Record<RaceDistance, number> = {
+  FIVE_K: 5000,
+  TEN_K: 10000,
+  HALF: 21098,
+  FULL: 42195,
+  ULTRA: 50000,
+};
 
 export const MAJOR_INFO: Record<
   MarathonMajor,
@@ -32,7 +53,7 @@ export const MAJOR_INFO: Record<
     country: "Japan",
     flag: "🇯🇵",
     websiteUrl: "https://www.marathon.tokyo/en/",
-    distances: ["10K", "Full"],
+    distances: ["TEN_K", "FULL"],
     description:
       "One of the fastest courses in the series, passing Tokyo Tower, the Imperial Palace, and Asakusa's Senso-ji Temple.",
     accent: ["#6d28d9", "#db2777"],
@@ -43,7 +64,7 @@ export const MAJOR_INFO: Record<
     country: "USA",
     flag: "🇺🇸",
     websiteUrl: "https://www.baa.org/races/boston-marathon",
-    distances: ["5K", "Full"],
+    distances: ["FIVE_K", "FULL"],
     description:
       "The world's oldest annual marathon, run point-to-point from Hopkinton and finishing past the climb over Heartbreak Hill.",
     accent: ["#1d4ed8", "#f59e0b"],
@@ -54,7 +75,7 @@ export const MAJOR_INFO: Record<
     country: "UK",
     flag: "🇬🇧",
     websiteUrl: "https://www.tcslondonmarathon.com/",
-    distances: ["5K", "Full"],
+    distances: ["FIVE_K", "FULL"],
     description:
       "A flat, fast course along the Thames, drawing one of the largest fields in the series and finishing near Buckingham Palace.",
     accent: ["#0f766e", "#0ea5e9"],
@@ -65,7 +86,7 @@ export const MAJOR_INFO: Record<
     country: "South Africa",
     flag: "🇿🇦",
     websiteUrl: "https://capetownmarathon.com/",
-    distances: ["5K", "10K", "Full"],
+    distances: ["FIVE_K", "TEN_K", "FULL"],
     description:
       "Africa's first Major, starting and finishing at Cape Town Stadium in the shadow of Table Mountain along the Atlantic coastline.",
     accent: ["#155e75", "#c2410c"],
@@ -76,7 +97,7 @@ export const MAJOR_INFO: Record<
     country: "Australia",
     flag: "🇦🇺",
     websiteUrl: "https://www.tcssydneymarathon.com",
-    distances: ["5K", "10K", "Half", "Full"],
+    distances: ["FIVE_K", "TEN_K", "HALF", "FULL"],
     description:
       "The newest race in the series, crossing the Sydney Harbour Bridge with the Opera House as its finish-line backdrop.",
     accent: ["#0891b2", "#f97316"],
@@ -87,7 +108,7 @@ export const MAJOR_INFO: Record<
     country: "Germany",
     flag: "🇩🇪",
     websiteUrl: "https://www.bmw-berlin-marathon.com/en/",
-    distances: ["5K", "Full"],
+    distances: ["FIVE_K", "FULL"],
     description:
       "Famous for record-breaking speed on one of the flattest courses in the world, finishing through the Brandenburg Gate.",
     accent: ["#334155", "#dc2626"],
@@ -98,7 +119,7 @@ export const MAJOR_INFO: Record<
     country: "USA",
     flag: "🇺🇸",
     websiteUrl: "https://www.chicagomarathon.com/",
-    distances: ["5K", "Full"],
+    distances: ["FIVE_K", "FULL"],
     description:
       "A fast, flat loop through Chicago's neighborhoods, ending in Grant Park along the Lake Michigan shoreline.",
     accent: ["#1e3a8a", "#64748b"],
@@ -109,7 +130,7 @@ export const MAJOR_INFO: Record<
     country: "USA",
     flag: "🇺🇸",
     websiteUrl: "https://www.nyrr.org/tcsnycmarathon",
-    distances: ["5K", "Full"],
+    distances: ["FIVE_K", "FULL"],
     description:
       "The world's largest marathon, crossing all five boroughs of New York City and finishing in Central Park.",
     accent: ["#4c1d95", "#f97316"],

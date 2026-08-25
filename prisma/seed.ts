@@ -102,6 +102,7 @@ async function main() {
         title: `${r.year} ${info.name}`,
         runType: "RACE",
         major: r.major,
+        raceDistance: "FULL",
         distanceM: 42195,
         durationSec: r.durationSec,
         avgPaceSecPerKm: Math.round(r.durationSec / 42.195),

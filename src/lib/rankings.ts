@@ -1,4 +1,4 @@
-import type { Gender, MarathonMajor, PrismaClient } from "../generated/prisma/client";
+import type { Gender, MarathonMajor, PrismaClient, RaceDistance } from "../generated/prisma/client";
 import { MAJORS_ORDER } from "./majors";
 
 export const GENDER_LABEL: Record<Gender, string> = {
@@ -110,11 +110,13 @@ export async function getMajorEditionLeaderboard(
   db: PrismaClient,
   major: MarathonMajor,
   year: number,
+  distance: RaceDistance,
   limit = 50,
 ): Promise<MajorEditionRow[]> {
   const activities = await db.activity.findMany({
     where: {
       major,
+      raceDistance: distance,
       startedAt: { gte: new Date(Date.UTC(year, 0, 1)), lt: new Date(Date.UTC(year + 1, 0, 1)) },
     },
     orderBy: { durationSec: "asc" },

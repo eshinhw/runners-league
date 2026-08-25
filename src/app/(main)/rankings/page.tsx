@@ -1,10 +1,10 @@
 import Link from "next/link";
-import type { MarathonMajor } from "@/generated/prisma/client";
+import type { MarathonMajor, RaceDistance } from "@/generated/prisma/client";
 import { CompletedTable } from "@/components/rankings/CompletedTable";
 import { EditionTable } from "@/components/rankings/EditionTable";
 import { SignInGate } from "@/components/SignInGate";
 import { auth } from "@/lib/auth";
-import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
+import { MAJOR_INFO, MAJORS_ORDER, RACE_DISTANCE_LABEL } from "@/lib/majors";
 import { prisma } from "@/lib/prisma";
 import { getEditionsWithResults, getMajorEditionLeaderboard, getMajorsCompletedLeaderboard } from "@/lib/rankings";
 
@@ -16,6 +16,7 @@ type SearchParams = {
   tab?: string;
   major?: string;
   year?: string;
+  distance?: string;
 };
 
 const TABS: { key: Tab; label: string }[] = [
@@ -29,6 +30,13 @@ const LEADERBOARD_LIMIT = 500;
 
 function isMajor(value: string | undefined): value is MarathonMajor {
   return !!value && (MAJORS_ORDER as string[]).includes(value);
+}
+
+// The distance a runner most likely wants to see by default — every Major
+// offers a full marathon, so it's the sensible default whenever no (valid)
+// distance is selected yet.
+function pickDefaultDistance(available: RaceDistance[]): RaceDistance {
+  return available.includes("FULL") ? "FULL" : available[0];
 }
 
 export default async function RankingsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
@@ -50,10 +58,16 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
   const availableYears = [...new Set(editions.map((e) => e.year))].sort((a, b) => b - a);
   const selectedMajor: MarathonMajor = isMajor(sp.major) ? sp.major : (editions[0]?.major ?? "TOKYO");
   const selectedYear = Number(sp.year) || editions[0]?.year || availableYears[0] || 2026;
+  const availableDistances = MAJOR_INFO[selectedMajor].distances;
+  const selectedDistance: RaceDistance = availableDistances.includes(sp.distance as RaceDistance)
+    ? (sp.distance as RaceDistance)
+    : pickDefaultDistance(availableDistances);
 
   const completedRows = tab === "completed" ? await getMajorsCompletedLeaderboard(prisma, LEADERBOARD_LIMIT) : [];
   const editionRows =
-    tab === "edition" ? await getMajorEditionLeaderboard(prisma, selectedMajor, selectedYear, LEADERBOARD_LIMIT) : [];
+    tab === "edition"
+      ? await getMajorEditionLeaderboard(prisma, selectedMajor, selectedYear, selectedDistance, LEADERBOARD_LIMIT)
+      : [];
 
   return (
     <main className="flex flex-col gap-5">
@@ -100,6 +114,13 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
                 </option>
               ))}
             </select>
+            <select name="distance" defaultValue={selectedDistance} className="rounded border border-zinc-300 bg-white px-2 py-1 dark:border-zinc-700 dark:bg-zinc-900">
+              {availableDistances.map((d) => (
+                <option key={d} value={d}>
+                  {RACE_DISTANCE_LABEL[d]}
+                </option>
+              ))}
+            </select>
             <button type="submit" className="rounded bg-orange-500 px-3 py-1 font-medium text-white">
               View
             </button>
@@ -107,7 +128,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
 
           <EditionTable
             rows={editionRows}
-            emptyMessage={`No finishers logged for ${MAJOR_INFO[selectedMajor].name} ${selectedYear} yet.`}
+            emptyMessage={`No finishers logged for ${MAJOR_INFO[selectedMajor].name} ${selectedYear} (${RACE_DISTANCE_LABEL[selectedDistance]}) yet.`}
           />
         </>
       )}

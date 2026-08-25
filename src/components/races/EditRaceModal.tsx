@@ -4,8 +4,8 @@ import { useState, useTransition } from "react";
 import { updateRun } from "@/app/(main)/settings/runs/actions";
 import { EditIcon } from "@/components/ActionIcons";
 import { useToast } from "@/components/Toast";
-import type { Activity } from "@/generated/prisma/client";
-import { MAJOR_INFO, MAJORS_ORDER } from "@/lib/majors";
+import type { Activity, MarathonMajor } from "@/generated/prisma/client";
+import { MAJOR_INFO, MAJORS_ORDER, RACE_DISTANCE_LABEL } from "@/lib/majors";
 
 const inputCls =
   "w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900";
@@ -27,10 +27,13 @@ export function EditRaceModal({ run }: { run: Activity }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [keptPhotos, setKeptPhotos] = useState<string[]>(run.photoUrls);
+  const [major, setMajor] = useState<MarathonMajor | "">(run.major ?? "");
   const showToast = useToast();
 
   const { hours, minutes, seconds } = secToHms(run.durationSec);
   const year = run.startedAt.getUTCFullYear();
+  const distances = major ? MAJOR_INFO[major].distances : [];
+  const initialDistance = major === (run.major ?? "") ? (run.raceDistance ?? "") : "";
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,6 +56,7 @@ export function EditRaceModal({ run }: { run: Activity }) {
         type="button"
         onClick={() => {
           setKeptPhotos(run.photoUrls);
+          setMajor(run.major ?? "");
           setError(null);
           setOpen(true);
         }}
@@ -88,7 +92,13 @@ export function EditRaceModal({ run }: { run: Activity }) {
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <div className="grid grid-cols-2 gap-2">
-                <select name="major" required defaultValue={run.major ?? ""} className={inputCls}>
+                <select
+                  name="major"
+                  required
+                  value={major}
+                  onChange={(e) => setMajor(e.target.value as MarathonMajor)}
+                  className={inputCls}
+                >
                   <option value="" disabled>
                     Select a marathon
                   </option>
@@ -106,6 +116,24 @@ export function EditRaceModal({ run }: { run: Activity }) {
                   ))}
                 </select>
               </div>
+
+              <select
+                name="distance"
+                required
+                defaultValue={initialDistance}
+                key={major}
+                disabled={!major}
+                className={inputCls}
+              >
+                <option value="" disabled>
+                  {major ? "Select a distance" : "Select a marathon first"}
+                </option>
+                {distances.map((d) => (
+                  <option key={d} value={d}>
+                    {RACE_DISTANCE_LABEL[d]}
+                  </option>
+                ))}
+              </select>
 
               <div>
                 <span className="mb-1 block text-xs font-medium text-zinc-500">Finish Time</span>
