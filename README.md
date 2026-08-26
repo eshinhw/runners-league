@@ -1,8 +1,14 @@
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/eshinhw/runners-league)
+![GitHub issues](https://img.shields.io/github/issues/eshinhw/runners-league)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/eshinhw/runners-league)
+
 # Runners League
 
 A running community where runners track their gear, log training runs and World Marathon Majors finishes, compete on community rankings, and share a crowd-voted running playlist.
 
 For a deep technical dive (data model, auth, external integrations, known gotchas), see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+<img width="1426" alt="Portfolio Analyzer Demo Page" src="https://github.com/user-attachments/assets/88ef585d-3b43-4e5a-84bf-1fe5d0207beb">
 
 ## Stack
 
