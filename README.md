@@ -12,7 +12,6 @@ For a deep technical dive (data model, auth, external integrations, known gotcha
 - **Auth.js (NextAuth v5)** — Google OAuth + passwordless email magic links, database-backed sessions
 - **Nodemailer** for transactional email (magic links, admin verification notices)
 - **Cloudflare R2** (S3-compatible) for image uploads
-- **Strava OAuth** for automatic activity sync; a companion iOS app can sync Apple HealthKit workouts via a token-authenticated API
 
 ## Features
 
