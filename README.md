@@ -34,7 +34,7 @@ For a deep technical dive (data model, auth, external integrations, known gotcha
 | `/profile/[username]` | Public runner profile — gear locker, races, tier badges |
 | `/admin/verify` | Admin review queue for race results submitted with bib/photo evidence |
 
-A handful of read-only JSON endpoints (`/api/gear`, `/api/activities`, `/api/races`, `/api/playlist`) back some of the above; `/api/strava/*` and `/api/activities/import` handle third-party/companion-app sync.
+A handful of read-only JSON endpoints (`/api/gear`, `/api/activities`, `/api/races`, `/api/playlist`) back some of the above.
 
 ## Data Model
 
@@ -44,7 +44,6 @@ Full schema in `prisma/schema.prisma`. Core entities:
 - `Gear` / `GearReview` — a runner's gear locker and reviews
 - `Activity` — training runs *and* race results (`major`/`raceDistance` set only for World Marathon Majors finishes; `verifiedAt` tracks admin review)
 - `ActivityGear` — which gear was used on a given run
-- `ExternalAccount` / `DeviceToken` — Strava OAuth linkage and the iOS companion app's sync credential
 - `Track` / `Like` — Runners Playlist songs and upvotes
 - `Post` / `Comment` — community content and discussion
 
@@ -62,7 +61,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-Full env var reference is in `.env.example`; auth (`AUTH_SECRET`, `EMAIL_SERVER`/`EMAIL_FROM` or `AUTH_GOOGLE_ID`/`SECRET`) is required to sign in locally. Image upload (`R2_*`) and Strava sync (`STRAVA_*`) are optional for local dev.
+Full env var reference is in `.env.example`; auth (`AUTH_SECRET`, `EMAIL_SERVER`/`EMAIL_FROM` or `AUTH_GOOGLE_ID`/`SECRET`) is required to sign in locally. Image upload (`R2_*`) is optional for local dev.
 
 ## Mock Data
 

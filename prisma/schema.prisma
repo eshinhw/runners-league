@@ -51,16 +51,14 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  gears            Gear[]
-  activities       Activity[]
-  gearReviews      GearReview[]
-  raceEntries      RaceEntry[]
-  posts            Post[]
-  comments         Comment[]
-  likes            Like[]
-  tracks           Track[]
-  externalAccounts ExternalAccount[]
-  deviceTokens     DeviceToken[]
+  gears       Gear[]
+  activities  Activity[]
+  gearReviews GearReview[]
+  raceEntries RaceEntry[]
+  posts       Post[]
+  comments    Comment[]
+  likes       Like[]
+  tracks      Track[]
 
   following Follow[] @relation("Follower")
   followers Follow[] @relation("Followee")
@@ -155,27 +153,6 @@ model Follow {
   @@index([followeeId])
 }
 
-// Strava / Garmin OAuth linkage for auto-syncing activities
-model ExternalAccount {
-  id           String           @id @default(cuid())
-  user         User             @relation(fields: [userId], references: [id])
-  userId       String
-  provider     ExternalProvider
-  providerUid  String
-  accessToken  String
-  refreshToken String
-  expiresAt    DateTime
-  createdAt    DateTime         @default(now())
-
-  @@unique([provider, providerUid])
-  @@index([userId])
-}
-
-enum ExternalProvider {
-  STRAVA
-  GARMIN
-}
-
 // ---------- Gear Locker ----------
 
 model Gear {
@@ -235,8 +212,6 @@ model Activity {
   id                String         @id @default(cuid())
   user              User           @relation(fields: [userId], references: [id])
   userId            String
-  source            ActivitySource @default(MANUAL)
-  externalId        String? // id from Strava/Garmin, for dedupe
   title             String?
   distanceM         Int
   durationSec       Int
@@ -251,9 +226,9 @@ model Activity {
   bibNumber         String? // race bib number, self-reported — text since some races use alphanumeric bibs
   officialFirstName String? // legal name as it appears on official results/bib — for verification only
   officialLastName  String?
-  photoUrls         String[]       @default([]) // user-uploaded evidence photos (bib, medal, finish clock) for manual entries
-  avgHeartRateBpm   Int? // optional self-reported stat, manual entries only
-  avgCadenceSpm     Int? // optional self-reported stat (steps per minute), manual entries only
+  photoUrls         String[]       @default([]) // user-uploaded evidence photos (bib, medal, finish clock)
+  avgHeartRateBpm   Int? // optional self-reported stat
+  avgCadenceSpm     Int? // optional self-reported stat (steps per minute)
   // Set only by an admin reviewing evidence (photos, bib, timing page) — not
   // self-serve. Null means pending review, regardless of how old the entry is.
   verifiedAt        DateTime?
@@ -263,7 +238,6 @@ model Activity {
   comments  Comment[]
   likes     Like[]
 
-  @@unique([source, externalId])
   @@index([userId, startedAt])
   @@index([runType, startedAt])
   @@index([major])
@@ -292,27 +266,6 @@ enum RaceDistance {
   HALF
   FULL
   ULTRA
-}
-
-enum ActivitySource {
-  MANUAL
-  STRAVA
-  GARMIN
-  APPLE_HEALTH
-}
-
-// Personal access token for the iOS HealthKit companion app to authenticate
-// its sync requests. Never store the raw token — only its hash.
-model DeviceToken {
-  id         String    @id @default(cuid())
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String
-  tokenHash  String    @unique
-  label      String?
-  createdAt  DateTime  @default(now())
-  lastUsedAt DateTime?
-
-  @@index([userId])
 }
 
 // SPEED/TEMPO = interval & threshold work, LSD = long slow distance, EASY = easy pace, RACE = official race effort

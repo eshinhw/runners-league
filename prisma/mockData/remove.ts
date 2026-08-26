@@ -45,8 +45,6 @@ async function main() {
   await prisma.gearReview.deleteMany({ where: { OR: [{ authorId: { in: userIds } }, { gearId: { in: gearIds } }] } });
   await prisma.raceEntry.deleteMany({ where: { userId: { in: userIds } } });
   await prisma.follow.deleteMany({ where: { OR: [{ followerId: { in: userIds } }, { followeeId: { in: userIds } }] } });
-  await prisma.deviceToken.deleteMany({ where: { userId: { in: userIds } } });
-  await prisma.externalAccount.deleteMany({ where: { userId: { in: userIds } } });
   await prisma.account.deleteMany({ where: { userId: { in: userIds } } });
   await prisma.session.deleteMany({ where: { userId: { in: userIds } } });
 

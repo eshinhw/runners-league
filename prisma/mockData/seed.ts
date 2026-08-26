@@ -137,7 +137,6 @@ async function main() {
       await prisma.activity.create({
         data: {
           userId: user.id,
-          source: "MANUAL",
           title: `${candidate.year} ${candidate.major.replace("_", " ")} Marathon`,
           distanceM: 42195,
           durationSec,

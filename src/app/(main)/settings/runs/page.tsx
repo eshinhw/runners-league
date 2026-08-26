@@ -21,7 +21,7 @@ export default async function MyRunsPage() {
   }
 
   const runs = await prisma.activity.findMany({
-    where: { userId: session.user.id, source: "MANUAL", major: { not: null } },
+    where: { userId: session.user.id, major: { not: null } },
     orderBy: { startedAt: "desc" },
   });
   return (

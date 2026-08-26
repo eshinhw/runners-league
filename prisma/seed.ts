@@ -98,7 +98,6 @@ async function main() {
     await prisma.activity.create({
       data: {
         userId: r.user.id,
-        source: "MANUAL",
         title: `${r.year} ${info.name}`,
         runType: "RACE",
         major: r.major,
@@ -127,7 +126,6 @@ async function main() {
     const activity = await prisma.activity.create({
       data: {
         userId: a.user.id,
-        source: "MANUAL",
         title: a.title,
         distanceM: a.distanceM,
         durationSec: a.durationSec,

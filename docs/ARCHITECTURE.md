@@ -6,7 +6,7 @@
 
 ## 1. What this is
 
-Runners League is a social app for runners chasing the **World Marathon Majors** (Tokyo, Boston, London, Berlin, Chicago, New York, Sydney, and — from 2027 — Cape Town). Runners log races and training runs, track a gear locker, see community-wide rankings and gear popularity, and share a crowd-voted running playlist. There's an admin-reviewed verification flow for race results, and a companion iOS app can sync workouts in via HealthKit; Strava sync is also live.
+Runners League is a social app for runners chasing the **World Marathon Majors** (Tokyo, Boston, London, Berlin, Chicago, New York, Sydney, and — from 2027 — Cape Town). Runners log races and training runs, track a gear locker, see community-wide rankings and gear popularity, and share a crowd-voted running playlist. There's an admin-reviewed verification flow for race results. All activity/race entry is manual — there is no wearable-device or third-party fitness-platform sync (Strava and an Apple HealthKit companion app previously existed here and were removed; see the git history around "drop wearable integrations" if you need the old implementation for reference).
 
 ## 2. Stack at a glance
 
@@ -29,7 +29,6 @@ Runners League is a social app for runners chasing the **World Marathon Majors**
 flowchart LR
     subgraph Clients
         Browser["Browser (Next.js RSC + Server Actions)"]
-        iOS["iOS Companion App\n(HealthKit sync — no source in this repo)"]
     end
 
     subgraph App["Next.js App"]
@@ -46,26 +45,23 @@ flowchart LR
     subgraph ThirdParty["Third-party services"]
         SMTP["SMTP relay\n(Nodemailer)"]
         Google["Google OAuth"]
-        Strava["Strava API\n(OAuth + activity sync)"]
         ITunes["iTunes Search API\n(playlist track verification)"]
     end
 
     Browser --> Pages
     Browser --> Actions
     Pages --> Actions
-    iOS -->|"Bearer DeviceToken"| API
-    Browser -->|"OAuth redirect"| API
+    Browser --> API
 
     Actions --> Neon
     API --> Neon
     Actions --> R2
     Actions --> SMTP
     Pages -.->|sign-in| Google
-    API --> Strava
     Actions --> ITunes
 ```
 
-**Server Actions are the dominant mutation pattern** — most writes happen through `"use server"` functions colocated as `src/app/**/actions.ts`, called directly from client components via `<form action={...}>` or `startTransition`. The `/api` surface (`src/app/api/`) is reserved for things that structurally can't be a Server Action: the Auth.js catch-all handler, OAuth redirect targets (Strava connect/callback), the iOS companion app's sync endpoint, and a handful of public read-only JSON GET endpoints (`/api/gear`, `/api/activities`, `/api/races`, `/api/playlist`).
+**Server Actions are the dominant mutation pattern** — most writes happen through `"use server"` functions colocated as `src/app/**/actions.ts`, called directly from client components via `<form action={...}>` or `startTransition`. The `/api` surface (`src/app/api/`) is reserved for things that structurally can't be a Server Action: the Auth.js catch-all handler, and a handful of public read-only JSON GET endpoints (`/api/gear`, `/api/activities`, `/api/races`, `/api/playlist`).
 
 There is **no `middleware.ts` / `proxy.ts`** in this app. Auth and admin checks are done at the top of each page/Server Action individually (see [§8](#8-auth--session-management)), not at a routing layer. Anything new you add that needs auth needs its own check — nothing is gated globally.
 
@@ -88,9 +84,6 @@ Styling is Tailwind v4 (CSS-first, no JS config file) plus `@tailwindcss/typogra
 | Route | Method | Auth | Purpose |
 |---|---|---|---|
 | `auth/[...nextauth]` | (Auth.js) | — | Standard Auth.js catch-all handler |
-| `strava/connect` | GET | Session required | Redirects to Strava's OAuth authorize URL |
-| `strava/callback` | GET | Session required | Exchanges the OAuth code, upserts `ExternalAccount` |
-| `activities/import` | POST | `DeviceToken` bearer | iOS HealthKit companion app's sync endpoint (see §11) |
 | `playlist` | GET | Optional (scopes `voted` to session if present) | Returns the community playlist |
 | `gear` | GET | None | Returns all `Gear` rows with reviews |
 | `activities` | GET | None | Returns latest 20 activities |
@@ -154,15 +147,13 @@ Full schema: `prisma/schema.prisma` (~460 lines). Grouped the way the file itsel
 - **User** — the core account. `email`/`username`/`displayId` are all unique; `displayId` is the public handle shown on Rankings/Community (distinct from `username`). `unitSystem` (METRIC/IMPERIAL) and `language` (KO/EN) are per-user display preferences. `isAdmin` gates the verification pipeline. `isMockData` tags bootstrap seed accounts for later bulk cleanup (see §13).
 - **Account / Session / VerificationToken** — standard Auth.js Prisma-adapter tables, cascade-deleted with the user.
 - **Follow** — self-referential follower/followee join table.
-- **ExternalAccount** — Strava/Garmin OAuth linkage (`ExternalProvider`: STRAVA, GARMIN), unique on `[provider, providerUid]`.
 
 ### Gear Locker
 - **Gear** — one item in a runner's locker (`GearCategory`: SHOE, WATCH, APPAREL, NUTRITION, HEADPHONES, RUNNING_BELT, HYDRATION_VEST, SUNGLASSES, HEADLAMP, GLOVES). `model` is nullable — some categories are brand-only (see §12). `isFavorite` is meant to be one-per-owner-per-category, but **that's an application-level rule, not a DB constraint.** `retiredAt` marks an item out of rotation.
 - **GearReview** — 1–5 star rating + text, per author per gear.
 
 ### Activities
-- **Activity** — the central table: training runs *and* race results live here, distinguished by `runType` (SPEED/TEMPO/LSD/EASY/RACE) and `source` (MANUAL/STRAVA/GARMIN/APPLE_HEALTH). `major` (`MarathonMajor` enum) and `raceDistance` (`RaceDistance` enum: FIVE_K/TEN_K/HALF/FULL/ULTRA) are set only when this is a Majors result — see §7a below for how these enums relate to static config. `distanceM`/`durationSec`/`avgPaceSecPerKm` are always canonical metric. `bibNumber`/`officialFirstName`/`officialLastName`/`photoUrls`/`verifiedAt` are the verification evidence trail (§12). `@@unique([source, externalId])` is the dedup key for synced activities.
-- **DeviceToken** — HealthKit companion app auth; only a hash is stored, never the raw token.
+- **Activity** — the central table: training runs *and* race results live here, distinguished by `runType` (SPEED/TEMPO/LSD/EASY/RACE). Every row is manually entered — there is no `source`/sync-provider tracking (that existed only to support Strava/HealthKit sync, which has been removed). `major` (`MarathonMajor` enum) and `raceDistance` (`RaceDistance` enum: FIVE_K/TEN_K/HALF/FULL/ULTRA) are set only when this is a Majors result — see §7a below for how these enums relate to static config. `distanceM`/`durationSec`/`avgPaceSecPerKm` are always canonical metric. `bibNumber`/`officialFirstName`/`officialLastName`/`photoUrls`/`verifiedAt` are the verification evidence trail (§12).
 - **ActivityGear** — join table for "which gear was used on this run."
 
 ### Races (legacy/parallel system)
@@ -235,10 +226,9 @@ Env vars: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKE
 | Integration | Status | Notes |
 |---|---|---|
 | **Google OAuth** | Live | Sign-in only |
-| **Strava** | **Live, real integration** | `src/lib/strava.ts` — real OAuth exchange/refresh, calls Strava's Activities API, filters to runs, **trusts Strava's own `manual: true` flag** to decide whether an activity was device-recorded (mirrors the HealthKit trust boundary below). `src/app/api/strava/{connect,callback}/route.ts` implement the redirect flow, using the session user id as the OAuth `state` param for CSRF protection. |
-| **Garmin** | **Enum placeholder only** | `ExternalProvider.GARMIN` and `ActivitySource.GARMIN` exist in the schema, but there's no `src/lib/garmin.ts`, no Garmin route, and no Garmin env vars. This is scaffolding for a not-yet-built integration — don't assume it works. |
 | **iTunes Search API** | Live | No API key needed. Used to verify every submitted playlist track actually exists — see §12. |
-| **iOS companion app (HealthKit)** | Live backend surface, **no iOS source in this repo** | Authenticates via `DeviceToken` (a hashed personal-access-token, bearer auth on `POST /api/activities/import`). The endpoint trusts a client-supplied `deviceVerified` boolean per workout (the iOS app inspects `HKWorkout.device` itself — the server has no independent way to verify this). No code path for *issuing* a DeviceToken was found in the current web app; the companion app presumably has its own settings flow not yet wired up server-side, or it's issued manually — confirm with the team. |
+
+There is intentionally no wearable-device or fitness-platform integration (Strava OAuth sync, an Apple HealthKit companion app, and Garmin scaffolding all previously existed and were removed). All activity/race data is manually entered by the runner — see the Verification pipeline in §12.
 
 ## 12. Core business logic / data pipelines
 
@@ -282,7 +272,7 @@ Search results shown while typing are unverified previews. On actual submission 
 
 ### No background jobs
 
-There's no cron, no queue, no scheduled function anywhere in this codebase. Every pipeline above is either synchronous on-request computation or a manually-invoked one-off script (see §13). If you need a recurring job (e.g. periodic Strava re-sync), you're building that infrastructure from scratch.
+There's no cron, no queue, no scheduled function anywhere in this codebase. Every pipeline above is either synchronous on-request computation or a manually-invoked one-off script (see §13). If you need a recurring job, you're building that infrastructure from scratch.
 
 ## 13. Mock data & seeding
 
@@ -306,7 +296,6 @@ Run any `mockData/*` script with: `npx tsx --env-file=.env prisma/mockData/<scri
 - **`Like → Track` has no cascade delete** (unlike `Like → Post`) — deleting a Track requires manually deleting its Likes first, or you'll hit an FK violation.
 - **`Race`/`RaceEntry` look vestigial** relative to the Activity-based Majors flow that actually powers Rankings/verification — confirm with the team whether this parallel system is still used anywhere before extending it.
 - **`Region` enum is Canada-only** (13 provinces/territories + `OTHER`), despite the app clearly supporting an international user base (mock data includes Japanese, Korean, and other international names/cities). Effectively unused/null for non-Canadian users.
-- **Garmin is scaffolding, not a real integration** — don't assume `ExternalProvider.GARMIN` rows or `ActivitySource.GARMIN` activities can actually be produced by the app today.
 - **No middleware/proxy** — every new protected or admin route needs its own explicit auth check; nothing is enforced globally.
 - You may see an untracked `scripts_test_session.ts` in the working tree at times — it's local scratch work (a manual way to mint a session token without going through sign-in), not part of any real infrastructure. Don't build on it.
 
@@ -322,7 +311,7 @@ npx tsx --env-file=.env prisma/mockData/seed.ts     # populate some data to work
 npm run dev                  # Turbopack dev server
 ```
 
-Auth needs at least `AUTH_SECRET` and `EMAIL_SERVER`/`EMAIL_FROM` (or `AUTH_GOOGLE_ID`/`SECRET`) to actually sign in locally; without them, sign-in will fail even though the app boots fine. Image upload (`R2_*`) and Strava sync (`STRAVA_*`) are similarly no-ops/errors until configured, but nothing else in the app depends on them at boot.
+Auth needs at least `AUTH_SECRET` and `EMAIL_SERVER`/`EMAIL_FROM` (or `AUTH_GOOGLE_ID`/`SECRET`) to actually sign in locally; without them, sign-in will fail even though the app boots fine. Image upload (`R2_*`) is similarly a no-op/error until configured, but nothing else in the app depends on it at boot.
 
 ## 16. Deployment
 
@@ -344,7 +333,7 @@ src/
       settings/, playlist/, admin/, community/, rankings/, gear/, profile/[username]/, ...
     api/                    # route handlers (see §5)
   components/               # shared React components, grouped by domain
-  lib/                       # framework-agnostic business logic (auth.ts, rankings.ts, majors.ts, gear.ts, storage.ts, email.ts, strava.ts, itunes.ts, format.ts, tiers.ts, ...)
+  lib/                       # framework-agnostic business logic (auth.ts, rankings.ts, majors.ts, gear.ts, storage.ts, email.ts, itunes.ts, format.ts, tiers.ts, ...)
   generated/prisma/          # generated Prisma client — do not hand-edit
 ```
 

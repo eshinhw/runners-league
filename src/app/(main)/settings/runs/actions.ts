@@ -84,7 +84,6 @@ export async function addRun(formData: FormData) {
   await prisma.activity.create({
     data: {
       userId,
-      source: "MANUAL",
       title,
       runType: "RACE",
       major,
@@ -113,7 +112,7 @@ export async function updateRun(activityId: string, formData: FormData) {
   const userId = await requireUserId();
 
   const existing = await prisma.activity.findFirst({
-    where: { id: activityId, userId, source: "MANUAL" },
+    where: { id: activityId, userId },
   });
   if (!existing) throw new Error("Race not found.");
 
@@ -181,7 +180,7 @@ export async function deleteRun(activityId: string) {
   const userId = await requireUserId();
 
   await prisma.activity.deleteMany({
-    where: { id: activityId, userId, source: "MANUAL" },
+    where: { id: activityId, userId },
   });
 
   revalidatePath("/settings/runs");
